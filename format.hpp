@@ -76,22 +76,6 @@ static inline void formImpl(std::ostream& out, const std::string& s, size_t pos)
         out<<s[pos++];
     }
 }
-
-template<bool b> struct ConvSelc {
-	template<typename T> static void print(std::ostream& s, T t) {
-		s<<t;
-	}
-};
-
-template<> struct ConvSelc<false> {
-	template<typename T> static void print(std::ostream& s, T t) {
-		s<<*(reinterpret_cast<void**>(&t));
-	}
-};
-
-template<typename T> void printPointer(std::ostream& s, T t) {
-	ConvSelc<std::is_pointer<T>::value>::print(s, t);
-}
  
 template<typename T, typename... Args>
 static inline void formImpl(std::ostream& out, const std::string& s, size_t pos, T value, Args... args) {
@@ -104,7 +88,8 @@ static inline void formImpl(std::ostream& out, const std::string& s, size_t pos,
 				size_t next(s.find_first_of("csdioxXufFeEaAgGp", pos+1));
 				setStreamFormat(out, s, pos+1, next);
 				if(s[next] == 'p') {
-					printPointer(out, value);
+					//printPointer(out, value);
+					out<<*(reinterpret_cast<const void**>(&value));
 				} else {
 					out<<value;
 				}
