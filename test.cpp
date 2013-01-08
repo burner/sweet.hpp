@@ -44,5 +44,6 @@ int main() {
 	LOG();
 	WARN("Hello warnign");
 	LOG("Hello warnign %s", std::string("foobar"));
+	LOG("Hello warnign %p", std::string("foobar"));
 	return 0;
 }
