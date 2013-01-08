@@ -112,7 +112,7 @@ inline std::string format(const std::string& str, Args... args) {
 }
 
 template<typename... Args>
-inline void formatToStream(std::ostream& out, const std::string& str, Args... args) {
+inline void format(std::ostream& out, const std::string& str, Args... args) {
 	formImpl(out, str,0, args...);
 }
 #endif

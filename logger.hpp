@@ -28,7 +28,7 @@ struct Log {
 
 	template<typename... Args>
 	void operator()(std::string form, Args... args) {
-		formatToStream(std::cerr, form, args...);
+		format(std::cerr, form, args...);
 		std::cerr<<std::endl;
 	}
 };

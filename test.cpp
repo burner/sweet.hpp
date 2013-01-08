@@ -35,8 +35,8 @@ int main() {
 		std::cerr<<"Some errors occoured"<<std::endl;
 	}
 	//formatToStream(std::cout, "hello print world %10d\n", 10);
-	formatToStream(std::cout, "%18.2E %s\n", 10.123, "hello world");
-	formatToStream(std::cout, "Helo\n");
+	format(std::cout, "%18.2E %s\n", 10.123, "hello world");
+	format(std::cout, "Helo\n");
 	std::cout<<format("hello wo")<<std::endl;
 	std::cout<<format("hello wo %d", 1337)<<std::endl;
 	std::cout<<format("hello wo %d %.5E", 1337, 1.234345346)<<std::endl;
