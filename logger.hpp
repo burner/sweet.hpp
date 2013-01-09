@@ -9,7 +9,7 @@ static std::string shortenString(const std::string& str) {
 	if(idx == std::string::npos) {
 		return str;
 	} else {
-		return str.substr(idx);
+		return str.substr(idx+1);
 	}
 }
 
