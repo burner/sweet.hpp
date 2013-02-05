@@ -84,18 +84,18 @@ namespace Unit {
 		static const bool value = true;
 	};
 
-	template<typename T, typename S, typename R>
-	struct comp {
-		bool operator()(T t, S s) {
+	template<bool>
+	struct comp_sel {
+		template<typename T, typename S>
+		static bool comp(const T t, const S s) {
 			return t == s;
 		}
 	};
 
-	template<typename T, typename S>
-	//template<typename T, typename S, typename R>
 	template<>
-	struct comp<T,S,true> {
-		bool operator()(T t, S s) {
+	struct comp_sel<true> {
+		template<typename T, typename S>
+		static bool comp(const T t, const S s) {
 			return fabs(t - s) < 0.0001;
 		}
 	};
@@ -122,8 +122,11 @@ namespace Unit {
 			s2<<boolalpha<<(e2);
 
 			//if(result ? (e1 == e2) : (e1 != e2)) return true;
-			if(result ? (comp<const E1&, const E2&, is_float<E1>::value>()(e1,e2)) : 
-				(!comp<const E1&, const E2&, is_float<E1>::value>()(e1, e2))) return true;
+			if(result ? 
+					(comp_sel<is_float<E1>::value>::comp(e1, e2)) :
+					(!comp_sel<is_float<E1>::value>::comp(e1, e2))) {
+				return true;
+			}
 			++errors_;
   
 			*out_<<sname(file)<< ":"<<line<<" in "<<"Unittest("<<name_<<
