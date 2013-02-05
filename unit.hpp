@@ -31,6 +31,7 @@ int main() {
 #include <string>
 #include <vector>
 #include <iostream>
+#include <cmath>
 
 #define UNITTEST(test_name) \
 class test_name##_test_class : public Unit::Unittest { void run_impl(); \
@@ -59,6 +60,46 @@ namespace Unit {
 			return string(str);
 	}
 
+	template<typename T> 
+	class is_float {
+		public:
+		static const bool value = false;
+	};
+
+	template<> 
+	class is_float<float> {
+		public:
+		static const bool value = true;
+	};
+
+	template<> 
+	class is_float<double> {
+		public:
+		static const bool value = true;
+	};
+
+	template<> 
+	class is_float<long double> {
+		public:
+		static const bool value = true;
+	};
+
+	template<typename T, typename S, typename R>
+	struct comp {
+		bool operator()(T t, S s) {
+			return t == s;
+		}
+	};
+
+	template<typename T, typename S>
+	//template<typename T, typename S, typename R>
+	template<>
+	struct comp<T,S,true> {
+		bool operator()(T t, S s) {
+			return fabs(t - s) < 0.0001;
+		}
+	};
+	
 	class Unittest;
 
 	inline vector<Unittest*>& getTests() {
@@ -80,7 +121,9 @@ namespace Unit {
 			s1<<boolalpha<<(e1);
 			s2<<boolalpha<<(e2);
 
-			if(result ? (e1 == e2) : (e1 != e2)) return true;
+			//if(result ? (e1 == e2) : (e1 != e2)) return true;
+			if(result ? (comp<const E1&, const E2&, is_float<E1>::value>()(e1,e2)) : 
+				(!comp<const E1&, const E2&, is_float<E1>::value>()(e1, e2))) return true;
 			++errors_;
   
 			*out_<<sname(file)<< ":"<<line<<" in "<<"Unittest("<<name_<<

@@ -31,6 +31,14 @@ struct Log {
 		format(std::cerr, form, args...);
 		std::cerr<<std::endl;
 	}
+
+	template<typename... Args>
+	void operator()(bool p, std::string form, Args... args) {
+		if(p) {
+			format(std::cerr, form, args...);
+			std::cerr<<std::endl;
+		}
+	}
 };
 
 #ifndef RELEASE
