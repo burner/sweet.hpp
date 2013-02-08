@@ -32,6 +32,7 @@ int main() {
 #include <vector>
 #include <iostream>
 #include <cmath>
+#include <type_traits>
 
 #define UNITTEST(test_name) \
 class test_name##_test_class : public Unit::Unittest { void run_impl(); \
@@ -59,7 +60,7 @@ namespace Unit {
 		} else
 			return string(str);
 	}
-
+/*
 	template<typename T> 
 	class is_float {
 		public:
@@ -82,7 +83,7 @@ namespace Unit {
 	class is_float<long double> {
 		public:
 		static const bool value = true;
-	};
+	};*/
 
 	template<bool>
 	struct comp_sel {
@@ -123,8 +124,8 @@ namespace Unit {
 
 			//if(result ? (e1 == e2) : (e1 != e2)) return true;
 			if(result ? 
-					(comp_sel<is_float<E1>::value>::comp(e1, e2)) :
-					(!comp_sel<is_float<E1>::value>::comp(e1, e2))) {
+					(comp_sel<is_floating_point<E1>::value>::comp(e1, e2)) :
+					(!comp_sel<is_floating_point<E1>::value>::comp(e1, e2))) {
 				return true;
 			}
 			++errors_;

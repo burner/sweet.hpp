@@ -1,0 +1,29 @@
+#include <iostream>
+/*
+Band<
+	List<
+		Entity<Account,
+			Attribute<
+				int,
+				&Account::setNumber,
+				"number"
+			>,
+			Attribute<
+				float,
+				&Account::setBalance,
+				"balance"
+			>,
+			Entity<
+				std::string,
+				&Account::setName,
+				"name"
+			>,
+			List<
+				Transactions,
+				&Account::addTransaction;
+				"transaction"
+			>
+		>
+	>
+>
+*/
