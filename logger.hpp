@@ -4,6 +4,7 @@
 #include <iostream>
 #include "format.hpp"
 
+#ifndef RELEASE
 static std::string shortenString(const std::string& str) {
 	size_t idx = str.rfind('/');
 	if(idx == std::string::npos) {
@@ -14,12 +15,15 @@ static std::string shortenString(const std::string& str) {
 }
 
 struct Log {
+	private:
+		std::string fn;
+		int line;
+		bool warn;
 	public:
 	Log(const char* f, int l, bool w = false) {
-		if(w) {
-			std::cerr<<"WARN ";
-		}
-		std::cerr<<shortenString(f)<<':'<<l<<' ';
+		fn = shortenString(f);
+		line = l;
+		warn = w;
 	}
 
 	void operator()() {
@@ -35,17 +39,30 @@ struct Log {
 	template<typename... Args>
 	void operator()(bool p, std::string form, Args... args) {
 		if(p) {
+			if(warn) {
+				std::cerr<<"WARN ";
+			}
+			format(std::cerr, "%s:%d ", fn, line);
 			format(std::cerr, form, args...);
 			std::cerr<<std::endl;
 		}
 	}
 };
-
-#ifndef RELEASE
 #define LOG Log(__FILE__,__LINE__)
 #define WARN Log(__FILE__,__LINE__,true)
 #else
-#define LOG() ;
-#define WARN() ;
+struct Log {
+	Log(const char*, int l, bool w = false) { }
+	void operator()() {
+	}
+	template<typename... Args>
+	void operator()(std::string form, Args... args) {
+	}
+	template<typename... Args>
+	void operator()(bool b, std::string form, Args... args) {
+	}
+};
+#define LOG Log(__FILE__, __LINE__)
+#define WARN Log(__FILE__, __LINE__,true) 
 #endif
 #endif
