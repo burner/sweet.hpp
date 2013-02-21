@@ -61,6 +61,8 @@ static inline void setStreamFormat(std::ostream& out, const std::string& form, s
 		out<<std::scientific;
 	} else if(form[s] == 'o') {
 		out<<std::oct;
+	} else if(form[s] == 'b') {
+		out<<std::boolalpha;
 	}
 }
 
@@ -85,7 +87,7 @@ static inline void formImpl(std::ostream& out, const std::string& s, size_t pos,
                 ++pos;
 			} else {
 				auto savedFlags(out.flags());
-				size_t next(s.find_first_of("csdioxXufFeEaAgGp", pos+1));
+				size_t next(s.find_first_of("csdioxbXufFeEaAgGp", pos+1));
 				setStreamFormat(out, s, pos+1, next);
 				if(s[next] == 'p') {
 					//printPointer(out, value);
