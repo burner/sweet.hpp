@@ -1,6 +1,7 @@
 #ifndef SWEET_HPP_CONV
 #define SWEET_HPP_CONV
 #include <string>
+#include <limits>
 #include <assert.h>
 
 template<typename T>
@@ -12,7 +13,7 @@ template<typename S>
 class ConvStruct {
 public:
 	S operator()(const std::string& s) {
-		assert(false);
+		//assert(false);
 		return static_cast<S>(s);
 	}
 };
@@ -22,6 +23,16 @@ class ConvStruct<int> {
 public:
 	int operator()(const std::string& s) {
 		return stoi(s);
+	}
+};
+
+template<>
+class ConvStruct<unsigned int> {
+public:
+	unsigned int operator()(const std::string& s) {
+		unsigned long tmp = stoul(s);
+		assert(tmp <= std::numeric_limits<unsigned int>::max());
+		return static_cast<unsigned int>(tmp);
 	}
 };
 
