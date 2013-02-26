@@ -52,6 +52,7 @@ static inline void setStreamFormat(std::ostream& out, const std::string& form, s
 
 	// lower or upper case
 	out<<(std::islower(form[s]) ? std::nouppercase : std::uppercase);
+	out<<std::fixed;
 	if(form[s] == 'f' || form[s] == 'F') {
 		out<<std::fixed;
 	} else if(form[s] == 'a' || form[s] == 'A' || form[s] == 'x' || 
