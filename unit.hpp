@@ -106,9 +106,6 @@ namespace Unit {
 				bool result, const E1& e1, const E2& e2, const string& str1, 
 				const string& str2, const string& file, int line,
 				ostream* out, const string& name, bool die) {
-			stringstream s1, s2;
-			s1<<boolalpha<<(e1);
-			s2<<boolalpha<<(e2);
 
 			//if(result ? (e1 == e2) : (e1 != e2)) return true;
 			if(result ? 
@@ -116,14 +113,20 @@ namespace Unit {
 					(!comp_sel<is_floating_point<E1>::value>::comp(e1, e2))) {
 				return true;
 			}
-  
+
 			if(name != "") {
 				*out<<sname(file)<< ":"<<line<<" in "<<"Unittest("<<name<<
 					") Assert Failed: ";
 			} else {
 				*out<<sname(file)<< ":"<<line<<" Assert Failed: ";
 			}
+			stringstream s2;
+			s2<<boolalpha<<(e2);
+
 			if(compare) {
+				stringstream s1;
+				s1<<boolalpha<<(e1);
+  
 				const string cmp(result ? "==" : "!=");
 				*out<<"compare {"<<str1<<"} "<< cmp<<" {"<<str2<<"} "<<"got {\""<<
 					s1.str()<<"\"} "<<cmp<<" {\""<<s2.str()<< "\"}";
