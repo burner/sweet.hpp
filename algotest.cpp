@@ -1,29 +1,44 @@
 #include <vector>
 #include <iostream>
 #include <chrono>
+#include <set>
 #include "parallelalgo.hpp"
+#include "logger.hpp"
+#include "benchmark.hpp"
 
 void fun(int& a) {
 	a *= 5;
 }
 
+int fun2(int in) {
+	return (in) * 127 % 32;
+}
+
 int main() {
-	std::vector<int> v(5000000, 1);
+	std::vector<int> v(500000, 1);
 
-	std::chrono::time_point<std::chrono::system_clock> start;
-	start = std::chrono::system_clock::now();
+	Bench a;
 	css::for_each(v.begin(), v.end(), [](int& a) {
-		a *= 5;
+		auto n = std::chrono::system_clock::now().time_since_epoch().count();
+		a *= 5 * n;
 	});
-	/*std::for_each(v.begin(), v.end(), [](int& a) {
-		a *= 5;
-	});*/
-	std::cout<<(std::chrono::system_clock::now()-start).count()<<std::endl;
+	a.stop();
+	LOG("css::for_each took %u milliseconds", a.milli());
 
-	/*for(auto it : v) {
-		std::cout<<it<<' ';
+	for(int i = 0; i < 10; ++i) {
+		Bench b;
+		std::set<int> rslt;
+		css::mapReduce<
+			std::vector<int>::iterator, 
+			std::insert_iterator<std::set<int>>,
+			std::vector<int>
+		>(v.begin(), v.end(), std::inserter(rslt,rslt.begin()), fun2, 3);
+		b.stop();
+
+		LOG("css::map_reduce took %u milliseconds", b.milli());
 	}
-	std::cout<<std::endl;*/
+
+	//LOG("v.size(%u) rslt.size(%u)", v.size(), rslt.size());
 
 	return 0;
 }
