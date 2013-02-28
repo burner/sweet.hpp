@@ -1,3 +1,4 @@
+// LGPL 3 or higher Robert Burner Schadek rburners@gmail.com
 #ifndef SWEET_PARALLEL
 #define SWEET_PARALLEL
 

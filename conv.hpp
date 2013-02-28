@@ -1,3 +1,4 @@
+// LGPL 3 or higher Robert Burner Schadek rburners@gmail.com
 #ifndef SWEET_HPP_CONV
 #define SWEET_HPP_CONV
 #include <string>
