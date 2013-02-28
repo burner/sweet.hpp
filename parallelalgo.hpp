@@ -7,8 +7,13 @@
 #include <thread>
 #include <iterator>
 #include <mutex>
+#include <unistd.h>
 
 namespace css {
+
+unsigned getNumberOfCores() {
+	return sysconf(_SC_NPROCESSORS_ONLN);
+}
 
 template<typename Iterator, typename UnaryFunction>
 UnaryFunction for_each_impl(Iterator first, Iterator second,
@@ -35,7 +40,7 @@ UnaryFunction for_each_impl(Iterator first, Iterator second,
 
 template<typename Iterator, typename UnaryFunction>
 UnaryFunction for_each(Iterator first, Iterator second, UnaryFunction f,
-		size_t numThreads = 2) {
+		size_t numThreads = getNumberOfCores()) {
 	typedef typename std::iterator_traits<Iterator>::iterator_category category;
 	return for_each_impl(std::forward<Iterator>(first), 
 		std::forward<Iterator>(second), std::forward<UnaryFunction>(f),
@@ -70,7 +75,7 @@ OIterator transform_impl(Iterator first, Iterator second, OIterator out,
 
 template<typename Iterator, typename OIterator, typename UnaryFunction>
 OIterator transform(Iterator first, Iterator second, OIterator out, 
-		UnaryFunction f, size_t numThreads = 2) {
+		UnaryFunction f, size_t numThreads = getNumberOfCores()) {
 	typedef typename std::iterator_traits<Iterator>::iterator_category iType;
 	typedef typename std::iterator_traits<OIterator>::iterator_category oType;
 
@@ -79,11 +84,9 @@ OIterator transform(Iterator first, Iterator second, OIterator out,
 			std::forward<UnaryFunction>(f), numThreads, iType(), oType());
 }
 
-//#define DIRECT // this 4x the required time
-
 template<typename Iterator, typename OIterator, typename Tmp, typename UnaryFunction>
 OIterator mapReduce(Iterator first, Iterator second, OIterator out, 
-		UnaryFunction f, size_t numThreads = 2) {
+		UnaryFunction f, size_t numThreads = getNumberOfCores()) {
 	struct Job {
 		Iterator b, e;
 		OIterator outIter;
@@ -97,19 +100,11 @@ OIterator mapReduce(Iterator first, Iterator second, OIterator out,
 		}
 
 		void operator()() {
-#ifndef DIRECT
 			std::insert_iterator<Tmp> tmpOut = std::inserter(tmpStore,
 					tmpStore.end());
-#endif
 			for(; b != e; ++b) {
-				auto t = func(*b);	
-#ifdef DIRECT
-				jmutex.lock();
-				*outIter++ = t;
-				jmutex.unlock();
-#else
-				tmpOut++ = t;
-#endif
+				func(*b, tmpOut);	
+				tmpOut++;
 			}
 
 			jmutex.lock();

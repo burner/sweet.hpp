@@ -10,8 +10,12 @@ void fun(int& a) {
 	a *= 5;
 }
 
-int fun2(int in) {
-	return (in) * 127 % 32;
+void fun2(int in, std::insert_iterator<std::set<int>>& iter) {
+	 *iter = (in) * 127 % 32;
+}
+
+int fun2_5(int in) {
+	return in * 127 % 32;
 }
 
 int main() {
@@ -31,11 +35,18 @@ int main() {
 		css::mapReduce<
 			std::vector<int>::iterator, 
 			std::insert_iterator<std::set<int>>,
-			std::vector<int>
-		>(v.begin(), v.end(), std::inserter(rslt,rslt.begin()), fun2, 3);
+			std::set<int>
+		>(v.begin(), v.end(), std::inserter(rslt,rslt.begin()), fun2, 2);
 		b.stop();
 
+		Bench c;
+		std::set<int> rslt2;
+		std::transform(v.begin(), v.end(), std::inserter(rslt2,
+					rslt2.begin()), fun2_5);
+		c.stop();
+
 		LOG("css::map_reduce took %u milliseconds", b.milli());
+		LOG("transform took %u milliseconds", c.milli());
 	}
 
 	//LOG("v.size(%u) rslt.size(%u)", v.size(), rslt.size());
