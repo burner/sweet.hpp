@@ -1,5 +1,5 @@
 /* unit.hpp - a simple unit test framework for C++ based on QUnit and Testdog
-Author: Robert "burner" Schadek rburners@gmail.com License: LGPL
+Author: Robert "burner" Schadek rburners@gmail.com License: LGPL 3 or higher
 
 Example:
 #include <fstream>
@@ -18,8 +18,16 @@ UNITTEST(fancyname) {
 	}
 }
 
+UNITTEST(foo, 66) {
+	AS_T(4==4);
+}
+
+UNITTEST(foon, 66666, "-O3") {
+	AS_T(4==4);
+}
+
 int main() {
-	if(!Unit::runTests()) {
+	if(!Unit::runTests("TheOptionalNameOfTheFileWithTheBenchmarkResults")) {
 		return 1;
 	}
 }
@@ -31,6 +39,7 @@ int main() {
 #include <string>
 #include <vector>
 #include <iostream>
+#include <fstream>
 #include <chrono>
 #include <cmath>
 #include <type_traits>
@@ -98,7 +107,7 @@ namespace Unit {
 
 	class Unittest {
 	public:
-		Unittest(const string& name, std::string f, int l, int count = 10,
+		Unittest(const string& name, std::string f, int l, int count = 1,
 				std::string more = "") : file(sname(f)),
 				line(l), name_(name),  info(more), numRounds(count), 
 				errors_(0), out_(&cerr) {
@@ -177,13 +186,21 @@ namespace Unit {
 		ostream* out_;
 	};
 
-	inline bool runTests(std::string benmarkrslt = "UnittestBenchmarkResult") {
+	inline bool runTests(std::string benmarkrslt = "UnittestBenchmarkResult.ben") {
+		char timeStr[100];
+		std::time_t now_time = std::time(NULL);
+		std::strftime(timeStr, 100, "%Y:%m:%d-%H:%M:%S",
+				std::localtime(&now_time));
 		bool rs(true);
 		for(vector<Unittest*>::iterator it = getTests().begin(); it !=
 				getTests().end(); ++it) {
+			std::chrono::time_point<std::chrono::system_clock> strt(
+				std::chrono::system_clock::now());
 			try {
-				bool tmp = (*it)->run();
-				rs &= !tmp;
+				for(int i = 0; i < (*it)->numRounds; ++i) {
+					bool tmp = (*it)->run();
+					rs &= !tmp;
+				}
 			} catch(std::exception& e) {
 				std::cerr<<(*it)->file<<":"<<(*it)->line<<" Unittest"<<
 					(*it)->name_<<" has thrown an "<< "uncaught exception "<<
@@ -194,6 +211,17 @@ namespace Unit {
 					(*it)->name_<<" has thrown an "<< "uncaught exception "
 					<<std::endl;
 				rs &= false;
+			}
+			std::chrono::time_point<std::chrono::system_clock> stp(
+				std::chrono::system_clock::now());
+
+			if((*it)->numRounds > 1) {
+				std::ofstream o(benmarkrslt, std::ios::app);	
+				o<<(*it)->name_<<':'<<(*it)->line<<':'<<(*it)->file<<' '<<
+					timeStr<<' '<<((*it)->info == "" ? "" : (*it)->info + " ")<<
+				   	std::chrono::duration_cast<std::chrono::milliseconds>(
+						stp-strt
+					).count()<<std::endl;
 			}
 		}
 		return rs;

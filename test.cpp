@@ -22,6 +22,10 @@ UNITTEST(foo, 66) {
 	AS_T(4==4);
 }
 
+UNITTEST(foon, 66666, "-O3") {
+	AS_T(4==4);
+}
+
 UNITTEST(bar) {
 	//throw std::logic_error("something went wrong");
 }
@@ -31,7 +35,7 @@ UNITTEST(bar2) {
 }
 
 int main() {
-	if(!Unit::runTests()) {
+	if(!Unit::runTests("TheNameOfTheFileWithTheBenchmarkResults")) {
 		std::cerr<<"Some errors occoured"<<std::endl;
 	}
 	//formatToStream(std::cout, "hello print world %10d\n", 10);
