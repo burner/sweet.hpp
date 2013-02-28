@@ -31,14 +31,15 @@ int main() {
 #include <string>
 #include <vector>
 #include <iostream>
+#include <chrono>
 #include <cmath>
 #include <type_traits>
 #include <limits>
 
-#define UNITTEST(test_name) \
+#define UNITTEST(test_name,...) \
 class test_name##_test_class : public Unit::Unittest { void run_impl(); \
 public: \
-test_name##_test_class() : Unit::Unittest(#test_name,__FILE__,__LINE__) {} \
+test_name##_test_class() : Unit::Unittest(#test_name,__FILE__,__LINE__,##__VA_ARGS__) {} \
 } test_name##_test_class_impl; \
 void test_name##_test_class::run_impl()
 
@@ -97,8 +98,10 @@ namespace Unit {
 
 	class Unittest {
 	public:
-		Unittest(const string& name, std::string f, int l) : file(sname(f)),
-				line(l), name_(name), errors_(0), out_(&cerr) {
+		Unittest(const string& name, std::string f, int l, int count = 10,
+				std::string more = "") : file(sname(f)),
+				line(l), name_(name),  info(more), numRounds(count), 
+				errors_(0), out_(&cerr) {
 			getTests().push_back(this);
 		}
 
@@ -165,14 +168,16 @@ namespace Unit {
 
 		std::string file;
 		int line;
-		string name_;
+		std::string name_;
+		std::string info;
+		int numRounds;
 
 	private:
 		int errors_;
 		ostream* out_;
 	};
 
-	inline bool runTests() {
+	inline bool runTests(std::string benmarkrslt = "UnittestBenchmarkResult") {
 		bool rs(true);
 		for(vector<Unittest*>::iterator it = getTests().begin(); it !=
 				getTests().end(); ++it) {
