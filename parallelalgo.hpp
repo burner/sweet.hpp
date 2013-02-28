@@ -104,7 +104,6 @@ OIterator mapReduce(Iterator first, Iterator second, OIterator out,
 					tmpStore.end());
 			for(; b != e; ++b) {
 				func(*b, tmpOut);	
-				tmpOut++;
 			}
 
 			jmutex.lock();

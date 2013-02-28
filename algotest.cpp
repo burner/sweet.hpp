@@ -11,7 +11,7 @@ void fun(int& a) {
 }
 
 void fun2(int in, std::insert_iterator<std::set<int>>& iter) {
-	 *iter = (in) * 127 % 32;
+	 *iter++ = (in) * 127 % 32;
 }
 
 int fun2_5(int in) {
