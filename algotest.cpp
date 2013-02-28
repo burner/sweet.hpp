@@ -19,7 +19,7 @@ int fun2_5(int in) {
 }
 
 int main() {
-	std::vector<int> v(500000, 1);
+	std::vector<int> v(1, 1);
 
 	Bench a;
 	css::for_each(v.begin(), v.end(), [](int& a) {
