@@ -1,3 +1,4 @@
+// LGPL 3 or higher Robert Burner Schadek rburners@gmail.com
 #ifndef SWEET_LOGGER
 #define SWEET_LOGGER
 
@@ -27,11 +28,13 @@ struct Log {
 	}
 
 	void operator()() {
+		format(std::cerr, "%s:%d ", fn, line);
 		std::cerr<<std::endl;
 	}
 
 	template<typename... Args>
 	void operator()(std::string form, Args... args) {
+		format(std::cerr, "%s:%d ", fn, line);
 		format(std::cerr, form, args...);
 		std::cerr<<std::endl;
 	}
