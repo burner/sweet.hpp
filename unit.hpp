@@ -45,12 +45,21 @@ int main() {
 #include <type_traits>
 #include <limits>
 
+#ifdef SWEET_NO_UNITTEST
+#define UNITTEST(test_name,...) \
+class test_name##_test_class : public Unit::Unittest { void nevercall(); \
+public: \
+test_name##_test_class() : Unit::Unittest(#test_name,__FILE__,__LINE__,##__VA_ARGS__) {} \
+} test_name##_test_class_impl; \
+void test_name##_test_class::nevercall()
+#else
 #define UNITTEST(test_name,...) \
 class test_name##_test_class : public Unit::Unittest { void run_impl(); \
 public: \
 test_name##_test_class() : Unit::Unittest(#test_name,__FILE__,__LINE__,##__VA_ARGS__) {} \
 } test_name##_test_class_impl; \
 void test_name##_test_class::run_impl()
+#endif
 
 #define AS_EQ(e1,e2)		UNIT_COMPARE(true,true,e1,e2)
 #define AS_NEQ(e1,e2)		UNIT_COMPARE(true,false,e1,e2)
@@ -164,7 +173,12 @@ namespace Unit {
 			return rlst;
 		}
 
+#ifdef SWEET_NO_UNITTEST
+		void run_impl() {}
+		virtual void nevercall() = 0;
+#else
 		virtual void run_impl() = 0;
+#endif
 
 		bool run() {
 			run_impl();
