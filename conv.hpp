@@ -39,6 +39,16 @@ public:
 };
 
 template<>
+class ConvStruct<bool> {
+public:
+	bool operator()(const std::string& s) {
+		unsigned long tmp = stoul(s);
+		assert(tmp <= std::numeric_limits<unsigned int>::max());
+		return s == "true";
+	}
+};
+
+template<>
 class ConvStruct<long> {
 public:
 	long operator()(const std::string& s) {

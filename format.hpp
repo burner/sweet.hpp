@@ -44,7 +44,8 @@ static inline void setStreamFormat(std::ostream& out, const std::string& form, s
 		std::string pre(form.substr(s, e-s));
 		if(!std::all_of(pre.begin(), pre.end(), [](const char c) {
 				return c <= '9' && c >= '0';})) {
-			throw std::invalid_argument("precision string did not convert to integer");
+			throw std::invalid_argument("precision string did not convert to "
+					"integer");
 		} else if(!pre.empty()) {
 			out<<std::setprecision(std::stoi(pre));
 		}
