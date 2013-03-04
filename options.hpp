@@ -149,7 +149,7 @@ public:
 	}
 
 private:
-	const std::string&			description;
+	const std::string			description;
 	Opts				 		opts;
 	std::set<int> 				used;
 	std::vector<std::string>	argv;
