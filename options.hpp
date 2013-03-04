@@ -25,12 +25,19 @@ class Options {
 		void toCmdLine(size_t ls, size_t ll) {
 			size_t cur = 0;
 			std::cout<<std::right;
-			std::cout<<std::setw(ls)<<((s.size() == 0) ? " " : (s + ", "));
-			std::cout<<std::setw(ll)<<((l.size() == 0) ? " " : (l + ": "));
-			cur = s.size() + 4 + l.size();
+			std::cout<<std::setw(ls)<<((s.size() == 0) ? std::string(" ") + 
+				"  " : (s + ", "));
+			std::cout<<std::setw(ll)<<((l.size() == 0) ? std::string(" ") +
+				"  " : (l + ": "));
+			//cur = s.size() + 4 + l.size();
+			cur = ls + ll;
 			for(auto it : d) {
 				if(cur % 77 == 0) {
-					std::cout<<"-\n";
+					if(it != ' ') {
+						std::cout<<'-';
+					}
+					std::cout<<"\n";
+					cur = 0;
 					for(size_t i = 0; i < ls+ll; ++i) {
 						std::cout<<' ';
 						++cur;
