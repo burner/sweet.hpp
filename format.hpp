@@ -9,6 +9,9 @@
 #include <iomanip>
 #include <type_traits>
 
+// yes I know
+#pragma GCC diagnostic ignored "-Wstrict-aliasing"
+
 static inline void setStreamFormat(std::ostream& out, const std::string& form, size_t s,
 		size_t e) {
 	// check the flags
