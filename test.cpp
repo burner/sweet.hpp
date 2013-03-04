@@ -4,6 +4,7 @@
 #include <iostream> // optional
 #include <stdexcept> // optional
 #include "unit.hpp"
+#include "logger.hpp"
 	
 UNITTEST(fancyname) {
 	//std::ofstream unittestlog("testlog.tst");	// optional
@@ -48,7 +49,7 @@ int main() {
 	//LOG();
 	//WARN("Hello warnign");
 	//LOG("Hello warnign %s", std::string("foobar"));
-	//LOG("Hello warnign %p", std::string("foobar"));
-	//LOG("Hello warnign %p", "foobar");
+	LOG("Hello warnign %p", std::string("foobar"));
+	//LOG("Hello warnign %p", "barfoo");
 	return 0;
 }

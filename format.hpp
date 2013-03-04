@@ -94,7 +94,7 @@ static inline void formImpl(std::ostream& out, const std::string& s, size_t pos,
 				setStreamFormat(out, s, pos+1, next);
 				if(s[next] == 'p') {
 					//printPointer(out, value);
-					out<<*(reinterpret_cast<const void**>(&value));
+					out<<*(const void**)(&value);
 				} else {
 					out<<value;
 				}
