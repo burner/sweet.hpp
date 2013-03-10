@@ -39,7 +39,7 @@ struct Log {
 		std::cerr<<std::endl;
 	}
 
-	template<typename... Args>
+	/*template<typename... Args>
 	void operator()(bool p, std::string form, Args... args) {
 		if(p) {
 			if(warn) {
@@ -49,7 +49,7 @@ struct Log {
 			format(std::cerr, form, args...);
 			std::cerr<<std::endl;
 		}
-	}
+	}*/
 };
 #define LOG Log(__FILE__,__LINE__)
 #define WARN Log(__FILE__,__LINE__,true)
@@ -61,9 +61,9 @@ struct Log {
 	template<typename... Args>
 	void operator()(std::string form, Args... args) {
 	}
-	template<typename... Args>
+	/*template<typename... Args>
 	void operator()(bool b, std::string form, Args... args) {
-	}
+	}*/
 };
 #define LOG Log(__FILE__, __LINE__)
 #define WARN Log(__FILE__, __LINE__,true) 
