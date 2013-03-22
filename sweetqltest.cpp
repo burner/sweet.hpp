@@ -5,17 +5,11 @@
 #include "sweetql.hpp"
 #include "conv.hpp"
 
-class Person : SqlObj {
+class Person {
 public:
 	Person() {} // dummy
 	Person(const std::string& f, const std::string& l, unsigned a, 
 			const std::string& o) : age(a), firstname(f), lastname(l), occupation(o) {
-	}
-	void initSqlObj() {
-		linkName<Person>("firstname", &Person::getFirstname, &Person::setFirstname);
-		linkName<Person>("lastname", &Person::getLastname, &Person::setLastname);
-		linkName<Person>("occupation", &Person::getOccupation, &Person::setOccupation);
-		linkName<Person>("age", &Person::getAge, &Person::setAge);
 	}
 
 	unsigned getAge() {
@@ -58,7 +52,16 @@ private:
 };
 
 int main() {
-	SqliteDB<Person> db("person.sql");
+	SqliteDB db("person.sql",
+		SqlTable("Person",
+			SqlColumn("age", &Person::getAge, &Person::setAge),
+			SqlColumn("firstname", &Person::getFirstname, &Person::setFirstname)
+		),
+		SqlTable("Building",
+			SqlColumn("stories", &Person::getAge, &Person::setAge),
+			SqlColumn("address", &Person::getFirstname, &Person::setFirstname)
+		)
+	);
 
 	Person me("Robert", "Schadek", 26, "Assistent");
 	db.insert(me);
