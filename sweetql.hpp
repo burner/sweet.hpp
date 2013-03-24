@@ -12,19 +12,25 @@
 
 class SqlColumn {
 public:
-	SqlColumn(const std::string& a, void** s, void** g) : attr(a),
+	/*SqlColumn(const std::string& a, void* s, void* g) : attr(a),
 		set(s), get(g) {
+	}*/
+
+	SqlColumn(const std::string& a, void** s) : attr(a), set(s) {
 	}
 
-	template<typename S,typename G>
-	static SqlColumn sqlColumn(const std::string& a, S s, G g) {
-		return SqlColumn(a, reinterpret_cast<void**>(&s),
-				reinterpret_cast<void**>(&g));
+	template<typename S>
+	static SqlColumn sqlColumn(const std::string& a, S s) {
+		return SqlColumn(a, reinterpret_cast<std::string**>(&s));
+				
 	}
+	/*static SqlColumn sqlColumn(const std::string& a, S s, G g) {
+		return SqlColumn(a, reinterpret_cast<void*>(s),
+				reinterpret_cast<void*>(g));
+	}*/
 	std::string attr;
 	void** set;
-	void** get;
-private:
+	//void* get;
 };
 
 class SqlTable {
@@ -100,7 +106,8 @@ public:
 		stmtStr<<"\b) VALUES(";
 		std::for_each(tab.column.begin(), tab.column.end(), [&stmtStr]
 			(const SqlColumn& c) {
-				auto get = (const std::string&(S::*)()const)(c.get);
+				auto tmp = *reinterpret_cast<std::string*>(c.set);
+				//auto get = reinterpret_cast<const std::string&(S::*)()>(tmp);
 			}
 		);
 		std::cout<<stmtStr.str()<<std::endl;

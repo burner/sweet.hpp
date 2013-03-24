@@ -49,8 +49,10 @@ public:
 
 	static SqlTable& table() {
 		static SqlTable tab = SqlTable::sqlTable("Person",
-			SqlColumn::sqlColumn("age", &Person::getAge, &Person::setAge),
-			SqlColumn::sqlColumn("firstname", &Person::getFirstname, &Person::setFirstname));
+			SqlColumn::sqlColumn("age", &Person::age_s),
+			SqlColumn::sqlColumn("firstname", &Person::firstname));
+			//SqlColumn::sqlColumn("age", &Person::getAge, &Person::setAge),
+			//SqlColumn::sqlColumn("firstname", &Person::getFirstname, &Person::setFirstname));
 		return tab;
 	}
 
