@@ -12,8 +12,11 @@ public:
 			const std::string& o) : age(a), firstname(f), lastname(l), occupation(o) {
 	}
 
-	unsigned getAge() {
-		return age;
+	const std::string& getAge() {
+		std::stringstream ret;
+		ret<<age;
+		age_s = ret.str();
+		return age_s;
 	}
 
 	const std::string& getFirstname() const {
@@ -44,23 +47,24 @@ public:
 		occupation = o;
 	}
 
+	static SqlTable& table() {
+		static SqlTable tab = SqlTable::sqlTable("Person",
+			SqlColumn::sqlColumn("age", &Person::getAge, &Person::setAge),
+			SqlColumn::sqlColumn("firstname", &Person::getFirstname, &Person::setFirstname));
+		return tab;
+	}
+
 private:
 	unsigned age;
+	std::string age_s;
 	std::string firstname;
 	std::string lastname;
 	std::string occupation;
 };
 
+
 int main() {
-	SqliteDB db("person.sql",
-		SqlTable("Person",
-			SqlColumn("age", &Person::getAge, &Person::setAge),
-			SqlColumn("firstname", &Person::getFirstname, &Person::setFirstname)
-		),
-		SqlTable("Building",
-			SqlColumn("stories", &Person::getAge, &Person::setAge),
-			SqlColumn("address", &Person::getFirstname, &Person::setFirstname)
-		)
+	SqliteDB db("person.sql"
 	);
 
 	Person me("Robert", "Schadek", 26, "Assistent");

@@ -4,41 +4,51 @@
 #include <functional>
 #include <vector>
 #include <stdexcept>
+#include <sstream>
+#include <iterator>
 
 // yes I know
 #pragma GCC diagnostic ignored "-Wpmf-conversions"
 
 class SqlColumn {
 public:
-	template<typename S,typename G>
-	SqlColumn(const std::string& a, S s, G g) : attr(a),
-	set(reinterpret_cast<void*>(s)), get(reinterpret_cast<void*>(g)) {
+	SqlColumn(const std::string& a, void** s, void** g) : attr(a),
+		set(s), get(g) {
 	}
-private:
+
+	template<typename S,typename G>
+	static SqlColumn sqlColumn(const std::string& a, S s, G g) {
+		return SqlColumn(a, reinterpret_cast<void**>(&s),
+				reinterpret_cast<void**>(&g));
+	}
 	std::string attr;
-	void* set;
-	void* get;
+	void** set;
+	void** get;
+private:
 };
 
 class SqlTable {
 public:
-	template<typename... Col>
-	SqlTable(const std::string& n, Col... cs) : name(n) {
+	template<typename T>
+	static void storeColumn(SqlTable& t, T col) {
+		t.column.push_back(col);
 	}
 
 	template<typename T, typename... Col>
-	void storeColumn(T col, Col... c) {
-		column.push_back(col);
-		storeColumn(c...);
+	static void storeColumn(SqlTable& t, T col, Col... c) {
+		t.column.push_back(col);
+		storeColumn(t,c...);
 	}
 
-	template<typename T>
-	void storeColumn(T col) {
-		column.push_back(col);
+	template<typename... Col>
+	static SqlTable sqlTable(const std::string& n, Col... cs) {
+		SqlTable tab;
+		tab.name = n;
+		storeColumn(tab, cs...);
+		return tab;
 	}
 
 	std::string name;
-private:
 	std::vector<SqlColumn> column;
 };
 
@@ -54,8 +64,10 @@ private:
 
 class SqliteDB {
 public:
-	template<typename ...Table>
-	SqliteDB(const std::string& dbfn, Table... ts) {
+	//template<typename ...Table>
+	SqliteDB(const std::string& dbfn) {
+	}
+	/*SqliteDB(const std::string& dbfn, Table... ts) {
 		storeTable(ts...);
 		std::sort(functions.begin(), functions.end(), [](
 				const SqlTable& a, const SqlTable& b) {
@@ -72,10 +84,26 @@ public:
 	template<typename T>
 	void storeTable(T table) {
 		functions.push_back(table);
-	}
+	}*/
 
 	template<typename S>
 	bool insert(S& t) {
+		SqlTable& tab = S::table();
+		std::stringstream stmtStr("INSERT INTO ");
+		stmtStr<<tab.name<<" (";
+		std::transform(tab.column.begin(), tab.column.end(),
+				std::ostream_iterator<std::string>(stmtStr, ","), 
+				[](const SqlColumn& c) {
+					return c.attr;
+				}
+		);
+		stmtStr<<"\b) VALUES(";
+		std::for_each(tab.column.begin(), tab.column.end(), [&stmtStr]
+			(const SqlColumn& c) {
+				auto get = (const std::string&(S::*)()const)(c.get);
+			}
+		);
+		std::cout<<stmtStr.str()<<std::endl;
 		return false;
 	}
 
