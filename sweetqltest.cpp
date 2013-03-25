@@ -1,4 +1,5 @@
 #include <string>
+#include <sstream>
 #include <utility>
 #include <iostream>
 #include <algorithm>
@@ -10,6 +11,9 @@ public:
 	Person() {} // dummy
 	Person(const std::string& f, const std::string& l, unsigned a, 
 			const std::string& o) : age(a), firstname(f), lastname(l), occupation(o) {
+		std::stringstream ss;
+		ss<<age;
+		ss>>age_s;
 	}
 
 	const std::string& getAge() {
@@ -48,11 +52,12 @@ public:
 	}
 
 	static SqlTable& table() {
-		static SqlTable tab = SqlTable::sqlTable("Person",
-			SqlColumn::sqlColumn("age", &Person::age_s),
-			SqlColumn::sqlColumn("firstname", &Person::firstname));
-			//SqlColumn::sqlColumn("age", &Person::getAge, &Person::setAge),
-			//SqlColumn::sqlColumn("firstname", &Person::getFirstname, &Person::setFirstname));
+		static SqlTable tab = SqlTable::sqlTable(
+			"Person",
+			SqlColumn::sqlColumn<std::string>("Firstname", 	&Person::setFirstname,	&Person::getFirstname),
+			SqlColumn::sqlColumn<std::string>("Lastname", 	&Person::setLastname, 	&Person::getLastname),
+			SqlColumn::sqlColumn<std::string>("Occupation", &Person::setOccupation, &Person::getOccupation),
+			SqlColumn::sqlColumn<int>		 ("Age", 		&Person::setAge, 		&Person::getAge));
 		return tab;
 	}
 
@@ -66,15 +71,14 @@ private:
 
 
 int main() {
-	SqliteDB db("person.sql"
-	);
+	SqliteDB db("testtable.db");
 
-	Person me("Robert", "Schadek", 26, "Assistent");
+	Person me("Olvier", "Theel", 1337, "Boss");
 	db.insert(me);
 
-	std::pair<dbIter<Person>,dbIter<Person>> sel;
+	std::pair<SqliteDB::Iterator<Person>,SqliteDB::Iterator<Person>> sel;
 	sel = db.select<Person>("firstname == Robert and age > 20");
-	/*std::for_each(sel.first, sel.second, [](const Person& p) {
-		std::cout<<p.lastname()<<std::endl;
-	});*/
+	std::for_each(sel.first, sel.second, [](const Person& p) {
+		std::cout<<p.getLastname()<<std::endl;
+	});
 }
