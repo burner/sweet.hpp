@@ -64,29 +64,75 @@ public:
 	std::vector<SqlColumn> column;
 };
 
-
 class SqliteDB {
 public:
 	template<typename T>
 	class Iterator {
 	public:
-		Iterator() {}
 		typedef Iterator self_type;
 		typedef T value_type;
 		typedef T& reference;
 		typedef T* pointer;
 		typedef std::forward_iterator_tag iterator_category;
 		typedef int difference_type;
-		self_type operator++() { }
-		self_type operator++(int) { }
-		reference operator*() { return it; }
-		pointer operator->() { return &it; }
-		bool operator==(const self_type& rhs) { return false; }
-		bool operator!=(const self_type& rhs) { return false; }
+
+		inline Iterator() : sqlRsltCode(SQLITE_DONE) {}
+
+		inline Iterator(sqlite3_stmt* s) : stmt(s) {
+			if(sqlRsltCode == SQLITE_ROW) {
+				sqlRsltCode = sqlite3_step(stmt);
+			}
+		}
+
+		inline self_type operator++() { 
+			if(sqlRsltCode != SQLITE_ROW) {
+				throw std::logic_error(
+					std::string("Can't increment Iterator with state a") +
+					sqlite3_errstr(this->sqlRsltCode)
+				);
+			}
+
+			sqlRsltCode = sqlite3_step(stmt);
+		}
+		inline self_type operator++(int) { }
+
+		inline reference operator*() { return it; }
+		inline pointer operator->() { return &it; }
+
+		inline bool operator==(const self_type& rhs) { 
+			if(sqlRsltCode != rhs.sqlRsltCode) { 
+				return false;
+			} else if(sqlRsltCode == rhs.sqlRsltCode 
+					&& sqlRsltCode == SQLITE_ROW) {
+				int tCnt = sqlite3_column_count(stmt);
+				int oCnt = sqlite3_column_count(rhs.stmt);
+
+				if(tCnt != oCnt) {
+					return false;
+				}
+
+				// if the column entries are different the it is different
+				for(int it = 0; it < tCnt; ++it) {
+					std::string tc = reinterpret_cast<const char*>(sqlite3_column_text(stmt, it));
+					std::string oc = reinterpret_cast<const char*>(sqlite3_column_text(rhs.stmt, it));
+					if(tc != oc) {
+						return false;
+					}
+				}
+				return true;
+			} else if(sqlRsltCode == rhs.sqlRsltCode) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+
+		inline bool operator!=(const self_type& rhs) { return !(*this == rhs); }
 	
 	private:
 		T it;
-	
+		int sqlRsltCode;
+		sqlite3_stmt* stmt;
 	};
 
 	SqliteDB(const std::string& dbn) : dbName(dbn) {
