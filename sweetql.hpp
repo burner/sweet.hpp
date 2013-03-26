@@ -1,3 +1,4 @@
+// LGPL 3 or higher Robert Burner Schadek rburners@gmail.com
 #ifndef SWEETQL_HPP
 #define SWEETQL_HPP
 #include <algorithm>
@@ -9,6 +10,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sqlite3.h>
+#include "conv.hpp"
 
 // yes I know
 #pragma GCC diagnostic ignored "-Wpmf-conversions"
@@ -76,30 +78,51 @@ public:
 		typedef std::forward_iterator_tag iterator_category;
 		typedef int difference_type;
 
-		inline Iterator() : sqlRsltCode(SQLITE_DONE) {}
+		Iterator() : sqlRsltCode(SQLITE_DONE) {}
 
-		inline Iterator(sqlite3_stmt* s) : stmt(s) {
+		Iterator(int rsc, sqlite3_stmt* s) : sqlRsltCode(rsc), stmt(s) {
+			if(sqlRsltCode != SQLITE_ERROR && sqlRsltCode != SQLITE_DONE) {
+				sqlRsltCode = sqlite3_step(stmt);
+				buildObj();
+			}
+		}
+
+		inline void buildObj() {
+			int cc = sqlite3_column_count(stmt);
+			auto tab = T::table();
+			for(int i = 0; i < cc; ++i) {
+				std::string cn = reinterpret_cast<const char*>
+					(sqlite3_column_name(stmt, i));
+				for(auto cm : tab.column) {
+					if(cn == cm.attr) {
+						auto setter = reinterpret_cast
+							<void(*)(T*, const std::string&)>
+							(cm.set);
+						setter(&it, reinterpret_cast<const char*>(
+							sqlite3_column_text(stmt, i)));
+						break;
+					}
+				}
+			}
+		}
+
+		self_type operator++() { 
+			self_type copy = *this;
 			if(sqlRsltCode == SQLITE_ROW) {
 				sqlRsltCode = sqlite3_step(stmt);
+				if(sqlRsltCode != SQLITE_ERROR && sqlRsltCode != SQLITE_DONE) {
+					buildObj();
+				}
+				return copy;
+			} else {
+				return Iterator();
 			}
 		}
 
-		inline self_type operator++() { 
-			if(sqlRsltCode != SQLITE_ROW) {
-				throw std::logic_error(
-					std::string("Can't increment Iterator with state a") +
-					sqlite3_errstr(this->sqlRsltCode)
-				);
-			}
+		reference operator*() { return it; }
+		pointer operator->() { return &it; }
 
-			sqlRsltCode = sqlite3_step(stmt);
-		}
-		inline self_type operator++(int) { }
-
-		inline reference operator*() { return it; }
-		inline pointer operator->() { return &it; }
-
-		inline bool operator==(const self_type& rhs) { 
+		bool operator==(const self_type& rhs) { 
 			if(sqlRsltCode != rhs.sqlRsltCode) { 
 				return false;
 			} else if(sqlRsltCode == rhs.sqlRsltCode 
@@ -127,7 +150,7 @@ public:
 			}
 		}
 
-		inline bool operator!=(const self_type& rhs) { return !(*this == rhs); }
+		bool operator!=(const self_type& rhs) { return !(*this == rhs); }
 	
 	private:
 		T it;
@@ -148,45 +171,110 @@ public:
 	}
 
 	template<typename S>
-	bool insert(S& t) {
-		SqlTable& tab = S::table();
+	inline static const std::string prepareStatment() {
+		const SqlTable& tab = S::table();
 		std::stringstream stmtStr;
 		stmtStr<<"INSERT INTO ";
 		stmtStr<<tab.name<<"(";
-		std::transform(tab.column.begin(), tab.column.end(),
+		/*std::transform(tab.column.begin(), tab.column.end(),
 				std::ostream_iterator<std::string>(stmtStr, ","), 
 				[](const SqlColumn& c) {
 					return c.attr;
 				}
-		);
-		stmtStr<<"\b) VALUES(";
-		std::for_each(tab.column.begin(), tab.column.end(), [&t,&stmtStr]
+		);*/
+		size_t numColumn = tab.column.size()-1;
+		for(size_t i = 0; i < numColumn; ++i) {
+			stmtStr<<tab.column[i].attr<<',';
+		}
+		stmtStr<<tab.column[numColumn].attr<<") Values(";
+		//stmtStr.seekp(stmtStr.tellp()-1u);
+		//stmtStr<<" VALUES(";
+		size_t i = 1;
+		for(; i <= numColumn; ++i) {
+			stmtStr<<'?'<<i<<',';
+		}
+		stmtStr<<'?'<<i<<");";
+		return stmtStr.str();
+	}
+
+	template<typename S>
+	inline static void addParameter(S& t, sqlite3_stmt* stmt) {
+		const SqlTable& tab = S::table();
+		int i = 1;
+		std::for_each(tab.column.begin(), tab.column.end(), [&t,&i,&stmt]
 			(const SqlColumn& c) {
 				auto tmp = reinterpret_cast<const std::string&(*)(S*)>(c.get);
-				if(c.type == typeid(int).hash_code() || c.type ==
-					typeid(float).hash_code()) {
-					stmtStr<<(*tmp)(&t)<<", ";
+				//std::cout<<i<<' '<<(*tmp)(&t)<<std::endl;
+				if(c.type == typeid(int).hash_code()) {
+					sqlite3_bind_int(stmt, i++, to<int>((*tmp)(&t)));
+				} else if(c.type == typeid(float).hash_code()) {
+					sqlite3_bind_double(stmt, i++, to<double>((*tmp)(&t)));
 				} else {
-					stmtStr<<'\''<<(*tmp)(&t)<<"\', ";
+					const std::string& s = (*tmp)(&t);
+					sqlite3_bind_text(stmt, i++, s.c_str(), s.size(),
+						SQLITE_STATIC);
 				}
 			}
 		);
-		stmtStr<<"\b\b);";
-		std::cout<<stmtStr.str()<<std::endl;
 
-		if(sqlite3_exec(db, "INSERT INTO Person(Firstname,Lastname) VALUES('Oliver', 'Theel');", 
-				0, 0, 0) != SQLITE_OK) {
+	}
+
+	inline void step(sqlite3_stmt* stmt, const std::string& stmtStr) {
+		if(sqlite3_step(stmt) != SQLITE_DONE) {
 			throw std::logic_error(std::string("Insert Statment:\"") +
-					stmtStr.str() + "\" failed with error:\"" +
+					stmtStr + "\" failed with error:\"" +
+					sqlite3_errmsg(db) + "\"");
+		}
+	}
+
+	template<typename S>
+	inline bool insert(S& t) {
+		auto tab = S::table();
+		const std::string stmtStr(prepareStatment<S>());
+		sqlite3_stmt* stmt;
+		sqlite3_prepare_v2(db, stmtStr.c_str(), stmtStr.size(), &stmt, NULL);
+		addParameter(t, stmt);
+		step(stmt, stmtStr);
+
+		return true;
+	}
+
+	template<typename S, typename It>
+	inline bool insert(It be, It en) {
+		auto tab = S::table();
+		const std::string stmtStr(prepareStatment<S>());
+		sqlite3_stmt* stmt;
+		char* errorMessage;
+		sqlite3_exec(db, "BEGIN TRANSACTION", NULL, NULL, &errorMessage);
+		sqlite3_prepare_v2(db, stmtStr.c_str(), stmtStr.size(), &stmt, NULL);
+		std::for_each(be, en, [this,&stmt,&stmtStr] (S& it) {
+			addParameter(it, stmt);						
+			step(stmt, stmtStr);
+			sqlite3_reset(stmt);
+		});
+		sqlite3_exec(db, "COMMIT TRANSACTION", NULL, NULL, &errorMessage);
+		if(sqlite3_finalize(stmt) != SQLITE_OK) {
+			throw std::logic_error(std::string("Insert Statment:\"") +
+					stmtStr + "\" failed with error:\"" +
 					sqlite3_errmsg(db) + "\"");
 		}
 
-		return false;
+		return true;
 	}
 
 	template<typename S>
 	std::pair<SqliteDB::Iterator<S>,SqliteDB::Iterator<S>> select(const std::string& where = "") {
-		return std::make_pair<SqliteDB::Iterator<S>,SqliteDB::Iterator<S>>(SqliteDB::Iterator<S>(),
+		sqlite3_stmt* stmt;
+		std::stringstream stmtStr;
+		stmtStr<<"SELECT * FROM "<<S::table().name;
+		if(where != "") {
+			stmtStr<<" WHERE "<<where;
+		}
+		stmtStr<<';';
+		//std::cout<<stmtStr.str()<<std::endl;
+ 		int rsltCode = sqlite3_prepare( db, stmtStr.str().c_str(), -1, &stmt, NULL );
+		return std::make_pair(
+				SqliteDB::Iterator<S>(rsltCode, stmt),
 				SqliteDB::Iterator<S>());
 	}
 

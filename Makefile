@@ -9,5 +9,5 @@
 #	./optiontest --test 1 -b true -c 3 -f 0 --funs 1 -f 2 -h
 
 all:
-	g++ -Wall --std=c++11 -lsqlite3 sweetqltest.cpp -o qltest --std=gnu++11 -Os
+	g++ -Wall --std=c++11 -lsqlite3 -lboost_regex sweetqltest.cpp -o qltest --std=c++11 -O3
 	./qltest
