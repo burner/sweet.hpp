@@ -10,7 +10,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sqlite3.h>
-#include "conv.hpp"
+//#include "conv.hpp"
 
 // yes I know
 #pragma GCC diagnostic ignored "-Wpmf-conversions"
@@ -81,9 +81,17 @@ public:
 		Iterator() : sqlRsltCode(SQLITE_DONE) {}
 
 		Iterator(int rsc, sqlite3_stmt* s) : sqlRsltCode(rsc), stmt(s) {
-			if(sqlRsltCode != SQLITE_ERROR && sqlRsltCode != SQLITE_DONE) {
+			if(sqlRsltCode == SQLITE_OK) {
 				sqlRsltCode = sqlite3_step(stmt);
-				buildObj();
+				if(sqlRsltCode == SQLITE_ROW) {
+					buildObj();
+				} else {
+					std::cout<<"Here 2 "<<sqlRsltCode<<std::endl;
+					sqlite3_finalize(stmt);
+				}
+			} else {
+				std::cout<<"Here"<<std::endl;
+				sqlite3_finalize(stmt);
 			}
 		}
 
@@ -110,11 +118,13 @@ public:
 			self_type copy = *this;
 			if(sqlRsltCode == SQLITE_ROW) {
 				sqlRsltCode = sqlite3_step(stmt);
-				if(sqlRsltCode != SQLITE_ERROR && sqlRsltCode != SQLITE_DONE) {
+				if(sqlRsltCode == SQLITE_ROW && sqlRsltCode != SQLITE_ERROR 
+						&& sqlRsltCode != SQLITE_DONE) {
 					buildObj();
 				}
 				return copy;
 			} else {
+				sqlite3_finalize(stmt);
 				return Iterator();
 			}
 		}
@@ -136,8 +146,12 @@ public:
 
 				// if the column entries are different the it is different
 				for(int it = 0; it < tCnt; ++it) {
-					std::string tc = reinterpret_cast<const char*>(sqlite3_column_text(stmt, it));
-					std::string oc = reinterpret_cast<const char*>(sqlite3_column_text(rhs.stmt, it));
+					std::string tc = reinterpret_cast<const char*>(
+						sqlite3_column_text(stmt, it)
+					);
+					std::string oc = reinterpret_cast<const char*>(
+						sqlite3_column_text(rhs.stmt, it)
+					);
 					if(tc != oc) {
 						return false;
 					}
@@ -176,19 +190,11 @@ public:
 		std::stringstream stmtStr;
 		stmtStr<<"INSERT INTO ";
 		stmtStr<<tab.name<<"(";
-		/*std::transform(tab.column.begin(), tab.column.end(),
-				std::ostream_iterator<std::string>(stmtStr, ","), 
-				[](const SqlColumn& c) {
-					return c.attr;
-				}
-		);*/
 		size_t numColumn = tab.column.size()-1;
 		for(size_t i = 0; i < numColumn; ++i) {
 			stmtStr<<tab.column[i].attr<<',';
 		}
 		stmtStr<<tab.column[numColumn].attr<<") Values(";
-		//stmtStr.seekp(stmtStr.tellp()-1u);
-		//stmtStr<<" VALUES(";
 		size_t i = 1;
 		for(; i <= numColumn; ++i) {
 			stmtStr<<'?'<<i<<',';
@@ -204,11 +210,10 @@ public:
 		std::for_each(tab.column.begin(), tab.column.end(), [&t,&i,&stmt]
 			(const SqlColumn& c) {
 				auto tmp = reinterpret_cast<const std::string&(*)(S*)>(c.get);
-				//std::cout<<i<<' '<<(*tmp)(&t)<<std::endl;
 				if(c.type == typeid(int).hash_code()) {
-					sqlite3_bind_int(stmt, i++, to<int>((*tmp)(&t)));
+					sqlite3_bind_int(stmt, i++, stol((*tmp)(&t)));
 				} else if(c.type == typeid(float).hash_code()) {
-					sqlite3_bind_double(stmt, i++, to<double>((*tmp)(&t)));
+					sqlite3_bind_double(stmt, i++, stod((*tmp)(&t)));
 				} else {
 					const std::string& s = (*tmp)(&t);
 					sqlite3_bind_text(stmt, i++, s.c_str(), s.size(),
@@ -263,7 +268,8 @@ public:
 	}
 
 	template<typename S>
-	std::pair<SqliteDB::Iterator<S>,SqliteDB::Iterator<S>> select(const std::string& where = "") {
+	std::pair<SqliteDB::Iterator<S>,SqliteDB::Iterator<S>> select(
+			const std::string& where = "") {
 		sqlite3_stmt* stmt;
 		std::stringstream stmtStr;
 		stmtStr<<"SELECT * FROM "<<S::table().name;
@@ -271,8 +277,16 @@ public:
 			stmtStr<<" WHERE "<<where;
 		}
 		stmtStr<<';';
-		//std::cout<<stmtStr.str()<<std::endl;
- 		int rsltCode = sqlite3_prepare( db, stmtStr.str().c_str(), -1, &stmt, NULL );
+		std::cout<<stmtStr.str()<<std::endl;
+ 		int rsltCode = sqlite3_prepare(db, stmtStr.str().c_str(), -1, 
+			&stmt, NULL
+		);
+		if(rsltCode == SQLITE_ERROR) {
+			throw std::logic_error(std::string("Select Statment:\"") +
+					stmtStr.str() + "\" failed with error:\"" +
+					sqlite3_errmsg(db) + "\"");
+		}
+
 		return std::make_pair(
 				SqliteDB::Iterator<S>(rsltCode, stmt),
 				SqliteDB::Iterator<S>());
