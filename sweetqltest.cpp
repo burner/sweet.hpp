@@ -149,6 +149,7 @@ int main() {
 	std::cout<<"Writting the persons to the db took "<<insert.milli()
 		<<" msec"<<std::endl;
 
+	Bench s;
 	auto sel(db.select<Person>("Firstname=\"Danny\""));
 	//auto sel(db.select<Person>());
 	std::for_each(sel.first, sel.second, [](const Person& p) {
@@ -163,4 +164,7 @@ int main() {
 		std::cout<<p.getMail()<<' ';
 		std::cout<<p.getWww()<<std::endl;
 	});
+	s.stop();
+	std::cout<<"Selecting persons from the db took "<<s.micro()
+		<<" microsec"<<std::endl;
 }
