@@ -14,7 +14,6 @@
 
 // yes I know
 #pragma GCC diagnostic ignored "-Wpmf-conversions"
-#pragma GCC diagnostic ignored "-Wpointer-arith"
 
 class SqlColumn {
 public:
@@ -86,11 +85,9 @@ public:
 				if(sqlRsltCode == SQLITE_ROW) {
 					buildObj();
 				} else {
-					std::cout<<"Here 2 "<<sqlRsltCode<<std::endl;
 					sqlite3_finalize(stmt);
 				}
 			} else {
-				std::cout<<"Here"<<std::endl;
 				sqlite3_finalize(stmt);
 			}
 		}
@@ -203,27 +200,6 @@ public:
 		return stmtStr.str();
 	}
 
-	template<typename S>
-	inline static void addParameter(S& t, sqlite3_stmt* stmt) {
-		const SqlTable& tab = S::table();
-		int i = 1;
-		std::for_each(tab.column.begin(), tab.column.end(), [&t,&i,&stmt]
-			(const SqlColumn& c) {
-				auto tmp = reinterpret_cast<const std::string&(*)(S*)>(c.get);
-				if(c.type == typeid(int).hash_code()) {
-					sqlite3_bind_int(stmt, i++, stol((*tmp)(&t)));
-				} else if(c.type == typeid(float).hash_code()) {
-					sqlite3_bind_double(stmt, i++, stod((*tmp)(&t)));
-				} else {
-					const std::string& s = (*tmp)(&t);
-					sqlite3_bind_text(stmt, i++, s.c_str(), s.size(),
-						SQLITE_STATIC);
-				}
-			}
-		);
-
-	}
-
 	inline void step(sqlite3_stmt* stmt, const std::string& stmtStr) {
 		if(sqlite3_step(stmt) != SQLITE_DONE) {
 			throw std::logic_error(std::string("Insert Statment:\"") +
@@ -234,11 +210,11 @@ public:
 
 	template<typename S>
 	inline bool insert(S& t) {
-		auto tab = S::table();
+		SqlTable& tab = S::table();
 		const std::string stmtStr(prepareStatment<S>());
 		sqlite3_stmt* stmt;
 		sqlite3_prepare_v2(db, stmtStr.c_str(), stmtStr.size(), &stmt, NULL);
-		addParameter(t, stmt);
+		addParameter(t, tab, stmt);
 		step(stmt, stmtStr);
 
 		return true;
@@ -246,14 +222,14 @@ public:
 
 	template<typename S, typename It>
 	inline bool insert(It be, It en) {
-		auto tab = S::table();
+		SqlTable& tab = S::table();
 		const std::string stmtStr(prepareStatment<S>());
 		sqlite3_stmt* stmt;
 		char* errorMessage;
 		sqlite3_exec(db, "BEGIN TRANSACTION", NULL, NULL, &errorMessage);
 		sqlite3_prepare_v2(db, stmtStr.c_str(), stmtStr.size(), &stmt, NULL);
-		std::for_each(be, en, [this,&stmt,&stmtStr] (S& it) {
-			addParameter(it, stmt);						
+		std::for_each(be, en, [this,&stmt,&stmtStr,&tab] (S& it) {
+			addParameter(it,tab, stmt);						
 			step(stmt, stmtStr);
 			sqlite3_reset(stmt);
 		});
@@ -277,7 +253,7 @@ public:
 			stmtStr<<" WHERE "<<where;
 		}
 		stmtStr<<';';
-		std::cout<<stmtStr.str()<<std::endl;
+		//std::cout<<stmtStr.str()<<std::endl;
  		int rsltCode = sqlite3_prepare(db, stmtStr.str().c_str(), -1, 
 			&stmt, NULL
 		);
@@ -292,8 +268,66 @@ public:
 				SqliteDB::Iterator<S>());
 	}
 
+	template<typename S>
+	void remove(S& s) {
+		SqlTable keys = keyColumn<S>();
+		sqlite3_stmt* stmt;
+		std::stringstream stmtStr;
+		stmtStr<<"DELETE FROM "<<S::table().name<<" WHERE ";
+		const size_t size = keys.column.size()-1;
+		for(size_t i = 0; i < size; ++i) {
+			stmtStr<<keys.column[i].attr<<"=? and ";
+		}
+		stmtStr<<keys.column[size].attr<<"=?";
+		sqlite3_prepare_v2(db, stmtStr.str().c_str(), stmtStr.str().size(), &stmt, NULL);
+		addParameter(s, keys, stmt);
+		step(stmt, stmtStr.str());
+		sqlite3_finalize(stmt);
+	}
+
 private:
+	template<typename S>
+	inline static void addParameter(S& t, SqlTable& tab, sqlite3_stmt* stmt) {
+		int i = 1;
+		std::for_each(tab.column.begin(), tab.column.end(), [&t,&i,&stmt]
+			(const SqlColumn& c) {
+				auto tmp = reinterpret_cast<const std::string&(*)(S*)>(c.get);
+				if(c.type == typeid(int).hash_code()) {
+					sqlite3_bind_int(stmt, i++, stol((*tmp)(&t)));
+				} else if(c.type == typeid(float).hash_code()) {
+					sqlite3_bind_double(stmt, i++, stod((*tmp)(&t)));
+				} else {
+					const std::string& s = (*tmp)(&t);
+					sqlite3_bind_text(stmt, i++, s.c_str(), s.size(),
+						SQLITE_STATIC);
+				}
+			}
+		);
+
+	}
+
+	template<typename S>
+	inline SqlTable keyColumn() {
+		SqlTable ret;
+		SqlTable& tab = S::table();
+		std::for_each(tab.column.begin(), tab.column.end(), [this,&ret,&tab]
+				(const SqlColumn& c) {
+			char const * dataType;
+			char const * seqN;
+			int nN = 0;
+			int pK = 0;
+			int aI = 0;
+			sqlite3_table_column_metadata(db,NULL,tab.name.c_str(),c.attr.c_str(),
+				&dataType, &seqN, &nN, &pK, &aI);
+			if(pK) {
+				ret.column.push_back(c);
+			}
+		});
+		return ret;
+	}
+
 	std::string dbName;
 	sqlite3 *db;
+
 };
 #endif
