@@ -22,7 +22,8 @@ public:
 	}*/
 
 	SqlColumn(const std::string& a, void* s, void* g, size_t t) : attr(a),
-		set(s), get(g), type(t) {
+		set(s), get(g), type(t) 
+	{
 	}
 
 	template<typename D, typename S, typename G>
@@ -80,7 +81,7 @@ public:
 		Iterator() : sqlRsltCode(SQLITE_DONE) {}
 
 		Iterator(int rsc, sqlite3_stmt* s) : sqlRsltCode(rsc), stmt(s) {
-			if(sqlRsltCode == SQLITE_OK) {
+			if (sqlRsltCode == SQLITE_OK) {
 				sqlRsltCode = sqlite3_step(stmt);
 				if(sqlRsltCode == SQLITE_ROW) {
 					buildObj();
@@ -254,9 +255,7 @@ public:
 		}
 		stmtStr<<';';
 		//std::cout<<stmtStr.str()<<std::endl;
- 		int rsltCode = sqlite3_prepare(db, stmtStr.str().c_str(), -1, 
-			&stmt, NULL
-		);
+ 		int rsltCode = sqlite3_prepare(db, stmtStr.str().c_str(), -1, &stmt,   NULL);
 		if(rsltCode == SQLITE_ERROR) {
 			throw std::logic_error(std::string("Select Statment:\"") +
 					stmtStr.str() + "\" failed with error:\"" +
