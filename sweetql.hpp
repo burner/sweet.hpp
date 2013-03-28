@@ -15,6 +15,95 @@
 // yes I know
 #pragma GCC diagnostic ignored "-Wpmf-conversions"
 
+/*template< typename FN, typename... FNs>
+struct Delegator {
+	void operator()(FN f, const std::string& arg ) {
+		Delegator<FN> a(f)
+		a(arg);
+		Delegator<FNs...> b;
+		b(arg);
+	}
+};
+
+template< typename FN >
+struct Delegator<FN> {
+	void operator()(FN f, const std::string& arg ) { 
+		FN( arg );
+	}
+};*/
+
+
+/*#include <iostream>
+struct SQLAttribute
+{
+	const std::string&
+	operator()() const
+	{
+		std::cout<<"Hello World"<<std::endl;
+		return this->data;
+	}
+
+	void
+	operator()(const std::string& s) 
+	{
+		this->data = s;
+	}
+
+	private:
+		std::string data;
+};
+
+class Foo {
+	SQLAttribute bar;
+
+public:
+	static SQLAttribute Foo::* aBar() {
+		//return reinterpret_cast<void*>(&Foo::bar);
+		return &Foo::bar;
+	}
+
+};
+
+int main() {
+	SQLAttribute Foo::* a = Foo::aBar();
+	Foo b2;
+	//auto b = *reinterpret_cast<void*>(&a);
+	Foo b;
+	(b.*a)("b1");
+	(b2.*a)("b2");
+	std::cout<<(b.*a)()<<" "<<(b2.*a)()<<std::endl;
+	return 0;
+}*/
+
+struct Dele {
+	template<typename... F>
+	Dele(F... f) {
+		store(f...);
+	}
+
+	template<typename T>
+	void store(T col) {
+		dele.push_back(reinterpret_cast<void*>(col));
+	}
+
+	template<typename T, typename... Col>
+	void store(T col, Col... c) {
+		dele.push_back(reinterpret_cast<void*>(col));
+		store(c...);
+	}
+
+	template<typename T>
+	void operator()(T* ob, const std::string& arg) {
+		std::for_each(dele.begin(), dele.end(), [&ob,&arg](void* p) {
+			auto setter = reinterpret_cast
+				<void(*)(T*, const std::string&)>(p);
+			setter(ob,arg);
+		});
+	}
+
+	std::vector<void*> dele;
+};
+
 class SqlColumn {
 public:
 	/*SqlColumn(const std::string& a, void* s, void* g) : attr(a),
@@ -246,26 +335,13 @@ public:
 	template<typename S>
 	std::pair<SqliteDB::Iterator<S>,SqliteDB::Iterator<S>> select(
 			const std::string& where = "") {
-		sqlite3_stmt* stmt;
 		std::stringstream stmtStr;
 		stmtStr<<"SELECT * FROM "<<S::table().name;
-		if(where != "") {
+		if(!where.empty()) {
 			stmtStr<<" WHERE "<<where;
 		}
 		stmtStr<<';';
-		//std::cout<<stmtStr.str()<<std::endl;
- 		int rsltCode = sqlite3_prepare(db, stmtStr.str().c_str(), -1, 
-			&stmt, NULL
-		);
-		if(rsltCode == SQLITE_ERROR) {
-			throw std::logic_error(std::string("Select Statment:\"") +
-					stmtStr.str() + "\" failed with error:\"" +
-					sqlite3_errmsg(db) + "\"");
-		}
-
-		return std::make_pair(
-				SqliteDB::Iterator<S>(rsltCode, stmt),
-				SqliteDB::Iterator<S>());
+		return makeIterator<S>(stmtStr.str());
 	}
 
 	template<typename S>
@@ -285,7 +361,39 @@ public:
 		sqlite3_finalize(stmt);
 	}
 
+	template<typename S, typename T, typename R>
+	std::pair<SqliteDB::Iterator<S>,SqliteDB::Iterator<S>> join(
+			const std::string& where = "") {
+		std::stringstream stmtStr;
+		stmtStr<<"SELECT * FROM "<<T::table().name<<" NATURAL JOIN "<<
+			R::table().name;
+		if(!where.empty()) {
+			stmtStr<<" WHERE "<<where;
+		}
+		stmtStr<<';';
+		return makeIterator<S>(stmtStr.str());
+	}
+	
+
 private:
+	template<typename S>
+	inline std::pair<SqliteDB::Iterator<S>,SqliteDB::Iterator<S>> makeIterator(
+			const std::string stmtStr) {
+		sqlite3_stmt* stmt;
+ 		int rsltCode = sqlite3_prepare(db, stmtStr.c_str(), -1, 
+			&stmt, NULL
+		);
+		if(rsltCode == SQLITE_ERROR) {
+			throw std::logic_error(std::string("Select Statment:\"") +
+					stmtStr + "\" failed with error:\"" +
+					sqlite3_errmsg(db) + "\"");
+		}
+		return std::make_pair(
+				SqliteDB::Iterator<S>(rsltCode, stmt),
+				SqliteDB::Iterator<S>());
+
+	}
+	
 	template<typename S>
 	inline static void addParameter(S& t, SqlTable& tab, sqlite3_stmt* stmt) {
 		int i = 1;

@@ -9,10 +9,51 @@
 #include "conv.hpp"
 #include "benchmark.hpp"
 
+
+class Reservation {
+public:
+	Reservation() {} // dummy
+	Reservation(const std::string& f, const std::string& l, 
+			const std::string& lo, const std::string& d) : firstname(f), 
+			lastname(l), location(lo), date(d) {}
+	const std::string& getFirstname() const { return firstname; }
+	const std::string& getLastname() const { return lastname; }
+	const std::string& getLocation() const { return location; }
+	const std::string& getDate() const { return date; }
+	void setFirstname(const std::string& f) { firstname = f; }
+	void setLastname(const std::string& l) { lastname = l; }
+	void setLocation(const std::string& o) { location = o; }
+	void setDate(const std::string& o) { date = o; }
+
+	static SqlTable& table() {
+		static SqlTable tab = SqlTable::sqlTable(
+		"Reservation",
+		SqlColumn::sqlColumn<std::string>("Firstname", 	
+			&Reservation::setFirstname,	
+			&Reservation::getFirstname),
+		SqlColumn::sqlColumn<std::string>("Lastname", 	
+			&Reservation::setLastname, 	
+			&Reservation::getLastname),
+		SqlColumn::sqlColumn<std::string>("Location", 
+			&Reservation::setLocation, 	
+			&Reservation::getLocation),
+		SqlColumn::sqlColumn<std::string>("Date", 
+			&Reservation::setDate, 	
+			&Reservation::getDate)
+		);
+		return tab;
+	}
+
+private:
+	std::string firstname;
+	std::string lastname;
+	std::string location;
+	std::string date;
+};
+
 class Person {
 public:
 	Person() {} // dummy
-	~Person() { }
 	Person(const std::string& f, const std::string& l, const std::string& c, 
 			const std::string& a, const std::string& a2,
 			const std::string& ci, const std::string& s, const std::string& z, 
@@ -113,6 +154,41 @@ private:
 
 typedef std::vector<Person> PersonVec;
 
+class ReservationPerson : public Person, public Reservation {
+public:
+	ReservationPerson() {}
+
+	void setFirstname(const std::string& a) {
+		Person::setFirstname(a);
+		Reservation::setFirstname(a);
+	}
+	const std::string& getFirstname() const { return Person::getFirstname(); }
+	const std::string& getLastname() const { return Person::getLastname(); }
+
+	static SqlTable& table() {
+		static SqlTable tab = SqlTable::sqlTable(
+		"ReservationPerson",
+		SqlColumn::sqlColumn<std::string>("Firstname", 	
+			&ReservationPerson::setFirstname,
+			&Reservation::getFirstname),
+		SqlColumn::sqlColumn<std::string>("Lastname", 	
+			&Reservation::setLastname, 	
+			&Reservation::getLastname),
+		SqlColumn::sqlColumn<std::string>("Location", 
+			&Reservation::setLocation, 	
+			&Reservation::getLocation),
+		SqlColumn::sqlColumn<std::string>("Date", 
+			&Reservation::setDate, 	
+			&Reservation::getDate),
+		SqlColumn::sqlColumn<std::string>("PhonePrivate", 
+			&Person::setPhonePrivat, 	
+			&Person::getPhonePrivat)
+		);
+		return tab;
+	}
+
+};
+
 PersonVec parsePersonFile(const std::string& fn) {
 	PersonVec ret;
 	std::ifstream infile(fn);
@@ -145,6 +221,8 @@ int main() {
 
 	Bench insert;
 	db.insert<Person>(per.begin(), per.end());
+	Reservation a("Danny", "Zeckzer", "Armsen", "02.04.2013");
+	db.insert<Reservation>(a);
 	insert.stop();
 	std::cout<<"Writting the persons to the db took "<<insert.milli()
 		<<" msec"<<std::endl;
@@ -168,7 +246,16 @@ int main() {
 		toDel = p;
 	});
 	s.stop();
-	std::cout<<"Selecting persons from the db took "<<s.micro()
+
+	auto rpSel(db.join<ReservationPerson, Person, Reservation>());
+	std::for_each(rpSel.first, rpSel.second, [](const ReservationPerson& rp) {
+		std::cout<<rp.getFirstname()<<' ';
+		std::cout<<rp.getLastname()<<' ';
+		std::cout<<rp.getLocation()<<' ';
+		std::cout<<rp.getDate()<<std::endl;
+	});
+
+	/*std::cout<<"Selecting persons from the db took "<<s.micro()
 		<<" microsec"<<std::endl;
 	
 		std::cout<<toDel.getFirstname()<<' ';
@@ -183,7 +270,7 @@ int main() {
 		std::cout<<toDel.getMail()<<' ';
 		std::cout<<toDel.getWww()<<std::endl;
 
-	db.remove(toDel);
+	//db.remove(toDel);
 	sel = db.select<Person>("Firstname=\"Danny\" and Lastname=\"Zeckzer\"");
 	std::for_each(sel.first, sel.second, [](const Person& p) {
 		std::cout<<p.getFirstname()<<' ';
@@ -197,5 +284,5 @@ int main() {
 		std::cout<<p.getPhonePrivat()<<' ';
 		std::cout<<p.getMail()<<' ';
 		std::cout<<p.getWww()<<std::endl;
-	});
+	});*/
 }
