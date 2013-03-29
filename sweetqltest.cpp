@@ -9,46 +9,31 @@
 #include "conv.hpp"
 #include "benchmark.hpp"
 
-
 class Reservation {
 public:
 	Reservation() {} // dummy
 	Reservation(const std::string& f, const std::string& l, 
-			const std::string& lo, const std::string& d) : firstname(f), 
-			lastname(l), location(lo), date(d) {}
-	const std::string& getFirstname() const { return firstname; }
-	const std::string& getLastname() const { return lastname; }
-	const std::string& getLocation() const { return location; }
-	const std::string& getDate() const { return date; }
-	void setFirstname(const std::string& f) { firstname = f; }
-	void setLastname(const std::string& l) { lastname = l; }
-	void setLocation(const std::string& o) { location = o; }
-	void setDate(const std::string& o) { date = o; }
+			const std::string& lo, const std::string& d) { 
+		firstname(f);
+		lastname(l);
+ 		location(lo);
+ 		date(d);
+	}
 
-	static SqlTable& table() {
-		static SqlTable tab = SqlTable::sqlTable(
-		"Reservation",
-		SqlColumn::sqlColumn<std::string>("Firstname", 	
-			&Reservation::setFirstname,	
-			&Reservation::getFirstname),
-		SqlColumn::sqlColumn<std::string>("Lastname", 	
-			&Reservation::setLastname, 	
-			&Reservation::getLastname),
-		SqlColumn::sqlColumn<std::string>("Location", 
-			&Reservation::setLocation, 	
-			&Reservation::getLocation),
-		SqlColumn::sqlColumn<std::string>("Date", 
-			&Reservation::setDate, 	
-			&Reservation::getDate)
-		);
+	static SqlTable<Reservation>& table() {
+		static SqlTable<Reservation> tab = SqlTable<Reservation>::sqlTable( 
+			"Reservation",
+			SqlColumn<Reservation>("Firstname", &Reservation::firstname),
+			SqlColumn<Reservation>("Lastname", &Reservation::lastname),
+			SqlColumn<Reservation>("Location", &Reservation::location),
+			SqlColumn<Reservation>("Date", &Reservation::date));
 		return tab;
 	}
 
-private:
-	std::string firstname;
-	std::string lastname;
-	std::string location;
-	std::string date;
+	SqlAttribute firstname;
+	SqlAttribute lastname;
+	SqlAttribute location;
+	SqlAttribute date;
 };
 
 class Person {
@@ -58,135 +43,71 @@ public:
 			const std::string& a, const std::string& a2,
 			const std::string& ci, const std::string& s, const std::string& z, 
 			const std::string& pw, const std::string& pp, const std::string& m, 
-			const std::string& w) :
-		firstname(f), lastname(l), company(c), address(a), county(a2), 
-		city(ci), state(s), phoneWork(pw), phonePrivat(pp), mail(m), www(w) {
-			setZip(z);
+			const std::string& w) {
+		firstname(f);	 lastname(l);	 company(c);
+ 		address(a);		 county(a2);	 city(ci);
+ 		state(s);		 phoneWork(pw);	 phonePrivat(pp);
+ 		mail(m);		 www(w);		 zip(z);
 	}
 
-	const std::string& getFirstname() const { return firstname; }
-	const std::string& getLastname() const { return lastname; }
-	const std::string& getCompany() const { return company; }
-	const std::string& getAddress() const { return address; }
-	const std::string& getCounty() const { return county; }
-	const std::string& getCity() const { return city; }
-	const std::string& getState() const { return state; }
-	const std::string& getZip() const { return zipStr; }
-	const std::string& getPhoneWork() const { return phoneWork; }
-	const std::string& getPhonePrivat() const { return phonePrivat; }
-	const std::string& getMail() const { return mail; }
-	const std::string& getWww() const { return www; }
-
-	void setZip(const std::string& a) {
-		std::stringstream ss;
-		ss<<a;
-		ss>>zipStr;
-	}
-	void setFirstname(const std::string& f) { firstname = f; }
-	void setLastname(const std::string& l) { lastname = l; }
-	void setCompany(const std::string& o) { company = o; }
-	void setAddress(const std::string& o) { address = o; }
-	void setCounty(const std::string& o) { county = o; }
-	void setCity(const std::string& o) { city = o; }
-	void setState(const std::string& o) { state = o; }
-	void setPhoneWork(const std::string& o) { phoneWork = o; }
-	void setPhonePrivat(const std::string& o) { phonePrivat = o; }
-	void setMail(const std::string& o) { mail = o; }
-	void setWww(const std::string& o) { www = o; }
-
-	static SqlTable& table() {
-		static SqlTable tab = SqlTable::sqlTable(
-		"Person",
-		SqlColumn::sqlColumn<std::string>("Firstname", 	
-			&Person::setFirstname,	
-			&Person::getFirstname),
-		SqlColumn::sqlColumn<std::string>("Lastname", 	
-			&Person::setLastname, 	
-			&Person::getLastname),
-		SqlColumn::sqlColumn<std::string>("Company", 
-			&Person::setCompany, 	
-			&Person::getCompany),
-		SqlColumn::sqlColumn<std::string>("Address", 
-			&Person::setAddress, 	
-			&Person::getAddress),
-		SqlColumn::sqlColumn<std::string>("County", 
-			&Person::setCounty, 	
-			&Person::getCounty),
-		SqlColumn::sqlColumn<std::string>("City", 
-			&Person::setCity, 		
-			&Person::getCity),
-		SqlColumn::sqlColumn<std::string>("State", 
-			&Person::setState, 		
-			&Person::getState),
-		SqlColumn::sqlColumn<std::string>("Zip", 
-			&Person::setZip, 
-			&Person::getZip),
-		SqlColumn::sqlColumn<std::string>("PhoneWork", 
-			&Person::setPhoneWork, 
-			&Person::getPhoneWork),
-		SqlColumn::sqlColumn<std::string>("PhonePrivat", 
-			&Person::setPhonePrivat, 
-			&Person::getPhonePrivat),
-		SqlColumn::sqlColumn<std::string>("Mail", 
-			&Person::setMail, 
-			&Person::getMail),
-		SqlColumn::sqlColumn<std::string>("Www", 
-			&Person::setWww, 
-			&Person::getWww));
+	static SqlTable<Person>& table() {
+		static SqlTable<Person> tab = SqlTable<Person>::sqlTable( "Person",
+		SqlColumn<Person>("Firstname", &Person::firstname),
+		SqlColumn<Person>("Lastname", &Person::lastname),
+		SqlColumn<Person>("Company", &Person::company),
+		SqlColumn<Person>("Address", &Person::address),
+		SqlColumn<Person>("County", &Person::county),
+		SqlColumn<Person>("City", &Person::city),
+		SqlColumn<Person>("State", &Person::state),
+		SqlColumn<Person>("Zip", &Person::zip),
+		SqlColumn<Person>("PhoneWork", &Person::phoneWork),
+		SqlColumn<Person>("PhonePrivat", &Person::phonePrivat),
+		SqlColumn<Person>("Mail", &Person::mail),
+		SqlColumn<Person>("Www", &Person::www));
 		return tab;
 	}
 
-private:
-	std::string firstname;
-	std::string lastname;
-	std::string company;
-	std::string address;
-	std::string county;
-	std::string city;
-	std::string state;
-	unsigned zip;
-	std::string zipStr;
-	std::string phoneWork;
-	std::string phonePrivat;
-	std::string mail;
-	std::string www;
+//private:
+	SqlAttribute firstname;
+	SqlAttribute lastname;
+	SqlAttribute company;
+	SqlAttribute address;
+	SqlAttribute county;
+	SqlAttribute city;
+	SqlAttribute state;
+	SqlAttribute zip;
+	SqlAttribute phoneWork;
+	SqlAttribute phonePrivat;
+	SqlAttribute mail;
+	SqlAttribute www;
 };
 
 typedef std::vector<Person> PersonVec;
 
-class ReservationPerson : public Person, public Reservation {
+class ReservationPerson {
 public:
 	ReservationPerson() {}
 
-	void setFirstname(const std::string& a) {
-		Person::setFirstname(a);
-		Reservation::setFirstname(a);
-	}
-	const std::string& getFirstname() const { return Person::getFirstname(); }
-	const std::string& getLastname() const { return Person::getLastname(); }
-
-	static SqlTable& table() {
-		static SqlTable tab = SqlTable::sqlTable(
+	static SqlTable<ReservationPerson>& table() {
+		static SqlTable<ReservationPerson> tab = 
+			SqlTable<ReservationPerson>::sqlTable(
 		"ReservationPerson",
-		SqlColumn::sqlColumn<std::string>("Firstname", 	
-			&ReservationPerson::setFirstname,
-			&Reservation::getFirstname),
-		SqlColumn::sqlColumn<std::string>("Lastname", 	
-			&Reservation::setLastname, 	
-			&Reservation::getLastname),
-		SqlColumn::sqlColumn<std::string>("Location", 
-			&Reservation::setLocation, 	
-			&Reservation::getLocation),
-		SqlColumn::sqlColumn<std::string>("Date", 
-			&Reservation::setDate, 	
-			&Reservation::getDate),
-		SqlColumn::sqlColumn<std::string>("PhonePrivate", 
-			&Person::setPhonePrivat, 	
-			&Person::getPhonePrivat)
+		SqlColumn<ReservationPerson>("Firstname",
+			&ReservationPerson::firstname),
+		SqlColumn<ReservationPerson>("Lastname", &ReservationPerson::lastname),
+		SqlColumn<ReservationPerson>("Location", &ReservationPerson::location),
+		SqlColumn<ReservationPerson>("Date", &ReservationPerson::date),
+		SqlColumn<ReservationPerson>("PhonePrivat", 
+			&ReservationPerson::phonePrivat)
 		);
 		return tab;
 	}
 
+	SqlAttribute firstname;
+	SqlAttribute lastname;
+	SqlAttribute location;
+	SqlAttribute date;
+	SqlAttribute phonePrivat;
 };
 
 PersonVec parsePersonFile(const std::string& fn) {
@@ -232,27 +153,28 @@ int main() {
 	auto sel(db.select<Person>("Firstname=\"Danny\" and Lastname=\"Zeckzer\""));
 	//auto sel(db.select<Person>());
 	std::for_each(sel.first, sel.second, [&toDel](const Person& p) {
-		std::cout<<p.getFirstname()<<' ';
-		std::cout<<p.getLastname()<<' ';
-		std::cout<<p.getCompany()<<' ';
-		std::cout<<p.getAddress()<<' ';
-		std::cout<<p.getCounty()<<' ';
-		std::cout<<p.getZip()<<' ';
-		std::cout<<p.getState()<<' ';
-		std::cout<<p.getPhoneWork()<<' ';
-		std::cout<<p.getPhonePrivat()<<' ';
-		std::cout<<p.getMail()<<' ';
-		std::cout<<p.getWww()<<std::endl;
+		std::cout<<p.firstname()<<' ';
+		std::cout<<p.lastname()<<' ';
+		std::cout<<p.company()<<' ';
+		std::cout<<p.address()<<' ';
+		std::cout<<p.county()<<' ';
+		std::cout<<p.zip()<<' ';
+		std::cout<<p.state()<<' ';
+		std::cout<<p.phoneWork()<<' ';
+		std::cout<<p.phonePrivat()<<' ';
+		std::cout<<p.mail()<<' ';
+		std::cout<<p.www()<<std::endl;
 		toDel = p;
 	});
 	s.stop();
 
 	auto rpSel(db.join<ReservationPerson, Person, Reservation>());
 	std::for_each(rpSel.first, rpSel.second, [](const ReservationPerson& rp) {
-		std::cout<<rp.getFirstname()<<' ';
-		std::cout<<rp.getLastname()<<' ';
-		std::cout<<rp.getLocation()<<' ';
-		std::cout<<rp.getDate()<<std::endl;
+		std::cout<<rp.firstname()<<' ';
+		std::cout<<rp.lastname()<<' ';
+		std::cout<<rp.location()<<' ';
+		std::cout<<rp.date()<<' ';
+		std::cout<<rp.phonePrivat()<<std::endl;
 	});
 
 	/*std::cout<<"Selecting persons from the db took "<<s.micro()
@@ -270,19 +192,20 @@ int main() {
 		std::cout<<toDel.getMail()<<' ';
 		std::cout<<toDel.getWww()<<std::endl;
 
-	//db.remove(toDel);
+	*/
+	db.remove(toDel);
 	sel = db.select<Person>("Firstname=\"Danny\" and Lastname=\"Zeckzer\"");
 	std::for_each(sel.first, sel.second, [](const Person& p) {
-		std::cout<<p.getFirstname()<<' ';
-		std::cout<<p.getLastname()<<' ';
-		std::cout<<p.getCompany()<<' ';
-		std::cout<<p.getAddress()<<' ';
-		std::cout<<p.getCounty()<<' ';
-		std::cout<<p.getZip()<<' ';
-		std::cout<<p.getState()<<' ';
-		std::cout<<p.getPhoneWork()<<' ';
-		std::cout<<p.getPhonePrivat()<<' ';
-		std::cout<<p.getMail()<<' ';
-		std::cout<<p.getWww()<<std::endl;
-	});*/
+		std::cout<<p.firstname()<<' ';
+		std::cout<<p.lastname()<<' ';
+		std::cout<<p.company()<<' ';
+		std::cout<<p.address()<<' ';
+		std::cout<<p.county()<<' ';
+		std::cout<<p.zip()<<' ';
+		std::cout<<p.state()<<' ';
+		std::cout<<p.phoneWork()<<' ';
+		std::cout<<p.phonePrivat()<<' ';
+		std::cout<<p.mail()<<' ';
+		std::cout<<p.www()<<std::endl;
+	});
 }

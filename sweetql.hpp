@@ -10,42 +10,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sqlite3.h>
-//#include "conv.hpp"
 
-// yes I know
-#pragma GCC diagnostic ignored "-Wpmf-conversions"
-
-/*template< typename FN, typename... FNs>
-struct Delegator {
-	void operator()(FN f, const std::string& arg ) {
-		Delegator<FN> a(f)
-		a(arg);
-		Delegator<FNs...> b;
-		b(arg);
-	}
-};
-
-template< typename FN >
-struct Delegator<FN> {
-	void operator()(FN f, const std::string& arg ) { 
-		FN( arg );
-	}
-};*/
-
-
-/*#include <iostream>
-struct SQLAttribute
-{
-	const std::string&
-	operator()() const
-	{
-		std::cout<<"Hello World"<<std::endl;
+struct SqlAttribute {
+	const std::string& operator()() const {
 		return this->data;
 	}
 
-	void
-	operator()(const std::string& s) 
-	{
+	void operator()(const std::string& s) {
 		this->data = s;
 	}
 
@@ -53,105 +24,41 @@ struct SQLAttribute
 		std::string data;
 };
 
-class Foo {
-	SQLAttribute bar;
-
-public:
-	static SQLAttribute Foo::* aBar() {
-		//return reinterpret_cast<void*>(&Foo::bar);
-		return &Foo::bar;
-	}
-
-};
-
-int main() {
-	SQLAttribute Foo::* a = Foo::aBar();
-	Foo b2;
-	//auto b = *reinterpret_cast<void*>(&a);
-	Foo b;
-	(b.*a)("b1");
-	(b2.*a)("b2");
-	std::cout<<(b.*a)()<<" "<<(b2.*a)()<<std::endl;
-	return 0;
-}*/
-
-struct Dele {
-	template<typename... F>
-	Dele(F... f) {
-		store(f...);
-	}
-
-	template<typename T>
-	void store(T col) {
-		dele.push_back(reinterpret_cast<void*>(col));
-	}
-
-	template<typename T, typename... Col>
-	void store(T col, Col... c) {
-		dele.push_back(reinterpret_cast<void*>(col));
-		store(c...);
-	}
-
-	template<typename T>
-	void operator()(T* ob, const std::string& arg) {
-		std::for_each(dele.begin(), dele.end(), [&ob,&arg](void* p) {
-			auto setter = reinterpret_cast
-				<void(*)(T*, const std::string&)>(p);
-			setter(ob,arg);
-		});
-	}
-
-	std::vector<void*> dele;
-};
-
+template<typename T>
 class SqlColumn {
 public:
-	/*SqlColumn(const std::string& a, void* s, void* g) : attr(a),
-		set(s), get(g) {
-	}*/
-
-	SqlColumn(const std::string& a, void* s, void* g, size_t t) : attr(a),
-		set(s), get(g), type(t) {
+	SqlColumn(const std::string& a, SqlAttribute T::* at) : attrName(a),
+		attr(at) {
 	}
 
-	template<typename D, typename S, typename G>
-	static SqlColumn sqlColumn(const std::string& a, S s, G g) {
-		return SqlColumn(a, 
-			reinterpret_cast<void*>(s),
-			reinterpret_cast<void*>(g),
-			typeid(D).hash_code()
-		);
-				
-	}
-	std::string attr;
-	void* set;
-	void* get;
-	size_t type;
+	std::string attrName;
+	SqlAttribute T::* attr;
 };
 
+template<typename T>
 class SqlTable {
 public:
-	template<typename T>
-	static void storeColumn(SqlTable& t, T col) {
+	template<typename S>
+	static void storeColumn(SqlTable& t, S col) {
 		t.column.push_back(col);
 	}
 
-	template<typename T, typename... Col>
-	static void storeColumn(SqlTable& t, T col, Col... c) {
+	template<typename S, typename... Col>
+	static void storeColumn(SqlTable& t, S col, Col... c) {
 		t.column.push_back(col);
 		storeColumn(t,c...);
 	}
 
 	template<typename... Col>
-	static SqlTable sqlTable(const std::string& n, Col... cs) {
-		SqlTable tab;
+	static SqlTable<T> sqlTable(const std::string& n, Col... cs) {
+		SqlTable<T> tab;
 		tab.name = n;
 		storeColumn(tab, cs...);
 		return tab;
 	}
 
 	std::string name;
-	std::vector<SqlColumn> column;
+	std::vector<SqlColumn<T>> column;
 };
 
 class SqliteDB {
@@ -188,11 +95,8 @@ public:
 				std::string cn = reinterpret_cast<const char*>
 					(sqlite3_column_name(stmt, i));
 				for(auto cm : tab.column) {
-					if(cn == cm.attr) {
-						auto setter = reinterpret_cast
-							<void(*)(T*, const std::string&)>
-							(cm.set);
-						setter(&it, reinterpret_cast<const char*>(
+					if(cn == cm.attrName) {
+						(it.*(cm.attr))(reinterpret_cast<const char*>(
 							sqlite3_column_text(stmt, i)));
 						break;
 					}
@@ -272,15 +176,15 @@ public:
 
 	template<typename S>
 	inline static const std::string prepareStatment() {
-		const SqlTable& tab = S::table();
+		const SqlTable<S>& tab = S::table();
 		std::stringstream stmtStr;
 		stmtStr<<"INSERT INTO ";
 		stmtStr<<tab.name<<"(";
 		size_t numColumn = tab.column.size()-1;
 		for(size_t i = 0; i < numColumn; ++i) {
-			stmtStr<<tab.column[i].attr<<',';
+			stmtStr<<tab.column[i].attrName<<',';
 		}
-		stmtStr<<tab.column[numColumn].attr<<") Values(";
+		stmtStr<<tab.column[numColumn].attrName<<") Values(";
 		size_t i = 1;
 		for(; i <= numColumn; ++i) {
 			stmtStr<<'?'<<i<<',';
@@ -299,7 +203,7 @@ public:
 
 	template<typename S>
 	inline bool insert(S& t) {
-		SqlTable& tab = S::table();
+		SqlTable<S>& tab = S::table();
 		const std::string stmtStr(prepareStatment<S>());
 		sqlite3_stmt* stmt;
 		sqlite3_prepare_v2(db, stmtStr.c_str(), stmtStr.size(), &stmt, NULL);
@@ -311,7 +215,7 @@ public:
 
 	template<typename S, typename It>
 	inline bool insert(It be, It en) {
-		SqlTable& tab = S::table();
+		SqlTable<S>& tab = S::table();
 		const std::string stmtStr(prepareStatment<S>());
 		sqlite3_stmt* stmt;
 		char* errorMessage;
@@ -346,16 +250,17 @@ public:
 
 	template<typename S>
 	void remove(S& s) {
-		SqlTable keys = keyColumn<S>();
+		SqlTable<S> keys = keyColumn<S>();
 		sqlite3_stmt* stmt;
 		std::stringstream stmtStr;
 		stmtStr<<"DELETE FROM "<<S::table().name<<" WHERE ";
 		const size_t size = keys.column.size()-1;
 		for(size_t i = 0; i < size; ++i) {
-			stmtStr<<keys.column[i].attr<<"=? and ";
+			stmtStr<<keys.column[i].attrName<<"=? and ";
 		}
-		stmtStr<<keys.column[size].attr<<"=?";
-		sqlite3_prepare_v2(db, stmtStr.str().c_str(), stmtStr.str().size(), &stmt, NULL);
+		stmtStr<<keys.column[size].attrName<<"=?";
+		sqlite3_prepare_v2(db, stmtStr.str().c_str(), stmtStr.str().size(), 
+			&stmt, NULL);
 		addParameter(s, keys, stmt);
 		step(stmt, stmtStr.str());
 		sqlite3_finalize(stmt);
@@ -373,7 +278,6 @@ public:
 		stmtStr<<';';
 		return makeIterator<S>(stmtStr.str());
 	}
-	
 
 private:
 	template<typename S>
@@ -395,38 +299,32 @@ private:
 	}
 	
 	template<typename S>
-	inline static void addParameter(S& t, SqlTable& tab, sqlite3_stmt* stmt) {
+	inline static void addParameter(S& t, SqlTable<S>& tab, 
+			sqlite3_stmt* stmt) {
 		int i = 1;
 		std::for_each(tab.column.begin(), tab.column.end(), [&t,&i,&stmt]
-			(const SqlColumn& c) {
-				auto tmp = reinterpret_cast<const std::string&(*)(S*)>(c.get);
-				if(c.type == typeid(int).hash_code()) {
-					sqlite3_bind_int(stmt, i++, stol((*tmp)(&t)));
-				} else if(c.type == typeid(float).hash_code()) {
-					sqlite3_bind_double(stmt, i++, stod((*tmp)(&t)));
-				} else {
-					const std::string& s = (*tmp)(&t);
-					sqlite3_bind_text(stmt, i++, s.c_str(), s.size(),
-						SQLITE_STATIC);
-				}
+			(const SqlColumn<S>& c) {
+				const std::string& s = (t.*(c.attr))();
+				sqlite3_bind_text(stmt, i++, s.c_str(), s.size(),
+					SQLITE_STATIC);
 			}
 		);
 
 	}
 
 	template<typename S>
-	inline SqlTable keyColumn() {
-		SqlTable ret;
-		SqlTable& tab = S::table();
+	inline SqlTable<S> keyColumn() {
+		SqlTable<S> ret;
+		SqlTable<S>& tab = S::table();
 		std::for_each(tab.column.begin(), tab.column.end(), [this,&ret,&tab]
-				(const SqlColumn& c) {
+				(const SqlColumn<S>& c) {
 			char const * dataType;
 			char const * seqN;
 			int nN = 0;
 			int pK = 0;
 			int aI = 0;
-			sqlite3_table_column_metadata(db,NULL,tab.name.c_str(),c.attr.c_str(),
-				&dataType, &seqN, &nN, &pK, &aI);
+			sqlite3_table_column_metadata(db,NULL,tab.name.c_str(),
+				c.attrName.c_str(), &dataType, &seqN, &nN, &pK, &aI);
 			if(pK) {
 				ret.column.push_back(c);
 			}
