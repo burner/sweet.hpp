@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/bin/sh
 
 if [ -f testtable.db ]; then
 	rm testtable.db
