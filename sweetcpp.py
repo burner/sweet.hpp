@@ -33,6 +33,21 @@ class BraceBeginsLine:
 	def msg(self):
 		return "A { should not start a line"
 
+class SharedPtrDirect:
+	def __init__(self):
+		#self.reg = re.compile("[ \t]+if[ \t]+")
+		pass
+
+	def test(self, line):
+		if line.find("shared_ptr<") != -1:
+			return line.find("typedef") != -1
+		else:
+			return True
+		
+	def msg(self):
+		return ("Don't use shared_ptr directly. "+
+			"Typedef them away with 'TYPENAME'Ptr.")
+
 class IfParent:
 	def __init__(self):
 		self.reg = re.compile("[ \t]+if[ \t]+")
@@ -91,7 +106,7 @@ def shortenFilename(name):
 		return name[s:]
 
 tests = [TabIndentTest(), WhiteSpaceAtEnd(), BraceBeginsLine(), IfParent(),
-ElseBrace(), LineLen()]
+ElseBrace(), LineLen(), SharedPtrDirect()]
 
 if __name__ == "__main__":
 	args = parseArgs()

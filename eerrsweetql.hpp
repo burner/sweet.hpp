@@ -35,6 +35,10 @@ public:
 		);
 				
 	}
+
+	void fun(std::shared_ptr<SqlColum> s) {
+		return;
+	}
 	std::string attr;
 	void* set;
 	void* get;

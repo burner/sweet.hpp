@@ -177,22 +177,21 @@ int main() {
 		std::cout<<rp.phonePrivat()<<std::endl;
 	});
 
-	/*std::cout<<"Selecting persons from the db took "<<s.micro()
+	std::cout<<"Selecting persons from the db took "<<s.micro()
 		<<" microsec"<<std::endl;
 	
-		std::cout<<toDel.getFirstname()<<' ';
-		std::cout<<toDel.getLastname()<<' ';
-		std::cout<<toDel.getCompany()<<' ';
-		std::cout<<toDel.getAddress()<<' ';
-		std::cout<<toDel.getCounty()<<' ';
-		std::cout<<toDel.getZip()<<' ';
-		std::cout<<toDel.getState()<<' ';
-		std::cout<<toDel.getPhoneWork()<<' ';
-		std::cout<<toDel.getPhonePrivat()<<' ';
-		std::cout<<toDel.getMail()<<' ';
-		std::cout<<toDel.getWww()<<std::endl;
+	std::cout<<toDel.firstname()<<' ';
+	std::cout<<toDel.lastname()<<' ';
+	std::cout<<toDel.company()<<' ';
+	std::cout<<toDel.address()<<' ';
+	std::cout<<toDel.county()<<' ';
+	std::cout<<toDel.zip()<<' ';
+	std::cout<<toDel.state()<<' ';
+	std::cout<<toDel.phoneWork()<<' ';
+	std::cout<<toDel.phonePrivat()<<' ';
+	std::cout<<toDel.mail()<<' ';
+	std::cout<<toDel.www()<<std::endl;
 
-	*/
 	db.remove(toDel);
 	sel = db.select<Person>("Firstname=\"Danny\" and Lastname=\"Zeckzer\"");
 	std::for_each(sel.first, sel.second, [](const Person& p) {
