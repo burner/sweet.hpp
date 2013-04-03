@@ -93,15 +93,42 @@ private:
 	double T::* fl;
 };
 
+template<typename S, typename T>
+std::shared_ptr<SqlAttribute<T>> makeAttr(S T::* i,
+		typename std::enable_if<std::is_integral<S>::value, S>::type = 0) {
+	return std::make_shared<SqlIntAttribute<T>>(i);
+}
+
+template<typename S, typename T>
+std::shared_ptr<SqlAttribute<T>> makeAttr(S T::* i,
+		typename std::enable_if<std::is_floating_point<S>::value, S>::type = 0) {
+	return std::make_shared<SqlFloatAttribute<T>>(i);
+}
+
+template<typename S, typename T>
+std::shared_ptr<SqlAttribute<T>> makeAttr(S T::* i,
+		typename std::enable_if<std::is_same<S,std::string>::value, S>::type = "") {
+	return std::make_shared<SqlStringAttribute<T>>(i);
+}
+
+template<typename S, typename T>
+std::shared_ptr<SqlAttribute<T>> makeAttr(S T::* i,
+		/*typename std::enable_if<!std::is_same<S,std::string>::value
+		&& !std::is_floating_point<S>::value
+		&& !std::is_integral<S>::value, S>::type = 0) {*/
+		size_t size, del d) {
+	return std::make_shared<SqlStringAttribute<T>>(i);
+}
+
 template<typename T>
 class SqlColumn {
 public:
-	SqlColumn(const std::string& a, SqlAttribute<T>* at) : attrName(a),
-		attr(at) {
+	SqlColumn(const std::string& a, std::shared_ptr<SqlAttribute<T>> at) : 
+			attrName(a), attr(at) {
 	}
 
 	std::string attrName;
-	SqlAttribute<T>* attr;
+	std::shared_ptr<SqlAttribute<T>> attr;
 };
 
 template<typename T>
