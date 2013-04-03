@@ -7,8 +7,7 @@
 #include <stdexcept>
 #include <sstream>
 #include <iterator>
-#include <stdlib.h>
-#include <string.h>
+#include <string>
 #include <sqlite3.h>
 
 typedef void(*del)(void*);
@@ -113,9 +112,6 @@ std::shared_ptr<SqlAttribute<T>> makeAttr(S T::* i,
 
 template<typename S, typename T>
 std::shared_ptr<SqlAttribute<T>> makeAttr(S T::* i,
-		/*typename std::enable_if<!std::is_same<S,std::string>::value
-		&& !std::is_floating_point<S>::value
-		&& !std::is_integral<S>::value, S>::type = 0) {*/
 		size_t size, del d) {
 	return std::make_shared<SqlStringAttribute<T>>(i);
 }
@@ -222,9 +218,6 @@ public:
 							typeStr<<"No case for "<<cm.attr->type;
 							throw std::logic_error(typeStr.str());
 						}}
-						/*(it.*(cm.attr))(reinterpret_cast<const char*>(
-							sqlite3_column_text(stmt, i)));
-						*/
 						break;
 					}
 				}
