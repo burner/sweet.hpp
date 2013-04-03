@@ -9,7 +9,7 @@
 #include "conv.hpp"
 #include "benchmark.hpp"
 
-class Reservation {
+/*class Reservation {
 public:
 	Reservation() {} // dummy
 	Reservation(const std::string& f, const std::string& l, 
@@ -34,23 +34,45 @@ public:
 	SqlAttribute lastname;
 	SqlAttribute location;
 	SqlAttribute date;
-};
+};*/
 
 class Person {
 public:
 	Person() {} // dummy
 	Person(const std::string& f, const std::string& l, const std::string& c, 
 			const std::string& a, const std::string& a2,
-			const std::string& ci, const std::string& s, const std::string& z, 
+			const std::string& ci, const std::string& s, int z, 
 			const std::string& pw, const std::string& pp, const std::string& m, 
-			const std::string& w) {
-		firstname(f);	 lastname(l);	 company(c);
- 		address(a);		 county(a2);	 city(ci);
- 		state(s);		 phoneWork(pw);	 phonePrivat(pp);
- 		mail(m);		 www(w);		 zip(z);
+			const std::string& w) :
+		firstname(f),	 lastname(l),	 company(c),
+ 		address(a),		 county(a2),	 city(ci),
+ 		state(s),		 phoneWork(pw),	 phonePrivat(pp),
+ 		mail(m),		 www(w),		 zip(z) {
 	}
 
+	std::string firstname;
+	std::string lastname;
+	std::string company;
+	std::string address;
+	std::string county;
+	std::string city;
+	std::string state;
+	std::string phoneWork;
+	std::string phonePrivat;
+	std::string mail;
+	std::string www;
+	int zip;
+
 	static SqlTable<Person>& table() {
+		static SqlTable<Person> tab = SqlTable<Person>::sqlTable("Person",
+			SqlColumn<Person>("Firstname", new SqlStringAttribute<Person>(&Person::firstname)),
+			SqlColumn<Person>("Lastname", new SqlStringAttribute<Person>(&Person::lastname)),
+			SqlColumn<Person>("Zip", new SqlIntAttribute<Person>(&Person::zip))
+		);
+		return tab;
+	}
+
+	/*static SqlTable<Person>& table() {
 		static SqlTable<Person> tab = SqlTable<Person>::sqlTable( "Person",
 		SqlColumn<Person>("Firstname", &Person::firstname),
 		SqlColumn<Person>("Lastname", &Person::lastname),
@@ -65,9 +87,10 @@ public:
 		SqlColumn<Person>("Mail", &Person::mail),
 		SqlColumn<Person>("Www", &Person::www));
 		return tab;
-	}
+	}*/
 
 //private:
+	/*
 	SqlAttribute firstname;
 	SqlAttribute lastname;
 	SqlAttribute company;
@@ -80,11 +103,12 @@ public:
 	SqlAttribute phonePrivat;
 	SqlAttribute mail;
 	SqlAttribute www;
+	*/
 };
 
 typedef std::vector<Person> PersonVec;
 
-class ReservationPerson {
+/*class ReservationPerson {
 public:
 	ReservationPerson() {}
 
@@ -108,7 +132,7 @@ public:
 	SqlAttribute location;
 	SqlAttribute date;
 	SqlAttribute phonePrivat;
-};
+};*/
 
 PersonVec parsePersonFile(const std::string& fn) {
 	PersonVec ret;
@@ -124,8 +148,8 @@ PersonVec parsePersonFile(const std::string& fn) {
 				return it.str().substr(1, it.str().size()-2);
 			}
 		);
-		ret.push_back(Person(v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7],
-					v[8], v[9], v[10], v[11]));
+		ret.push_back(Person(v[0], v[1], v[2], v[3], v[4], v[5], v[6],
+					stoi(v[7]), v[8], v[9], v[10], v[11]));
 		v.clear();
 	}
 
@@ -142,30 +166,33 @@ int main() {
 
 	Bench insert;
 	db.insert<Person>(per.begin(), per.end());
-	Reservation a("Danny", "Zeckzer", "Armsen", "02.04.2013");
-	db.insert<Reservation>(a);
+	//Reservation a("Danny", "Zeckzer", "Armsen", "02.04.2013");
+	//db.insert<Reservation>(a);
 	insert.stop();
-	std::cout<<"Writting the persons to the db took "<<insert.milli()
+	/*std::cout<<"Writting the persons to the db took "<<insert.milli()
 		<<" msec"<<std::endl;
 
 	Bench s;
+	*/
+	//auto sel(db.select<Person>("Firstname=\"Danny\" and Lastname=\"Zeckzer\""));
 	Person toDel;
-	auto sel(db.select<Person>("Firstname=\"Danny\" and Lastname=\"Zeckzer\""));
-	//auto sel(db.select<Person>());
+	auto sel(db.select<Person>());
 	std::for_each(sel.first, sel.second, [&toDel](const Person& p) {
-		std::cout<<p.firstname()<<' ';
-		std::cout<<p.lastname()<<' ';
-		std::cout<<p.company()<<' ';
-		std::cout<<p.address()<<' ';
-		std::cout<<p.county()<<' ';
-		std::cout<<p.zip()<<' ';
-		std::cout<<p.state()<<' ';
-		std::cout<<p.phoneWork()<<' ';
-		std::cout<<p.phonePrivat()<<' ';
-		std::cout<<p.mail()<<' ';
-		std::cout<<p.www()<<std::endl;
-		toDel = p;
+		std::cout<<p.firstname<<' ';
+		std::cout<<p.lastname<<' ';
+		//std::cout<<p.company()<<' ';
+		//std::cout<<p.address()<<' ';
+		//std::cout<<p.county()<<' ';
+		std::cout<<p.zip<<' ';
+		//std::cout<<p.state()<<' ';
+		//std::cout<<p.phoneWork()<<' ';
+		//std::cout<<p.phonePrivat()<<' ';
+		//std::cout<<p.mail()<<' ';
+		//std::cout<<p.www()<<std::endl;
+		std::cout<<std::endl;
+		//toDel = p;
 	});
+	/*
 	s.stop();
 
 	auto rpSel(db.join<ReservationPerson, Person, Reservation>());
@@ -207,4 +234,5 @@ int main() {
 		std::cout<<p.mail()<<' ';
 		std::cout<<p.www()<<std::endl;
 	});
+	*/
 }

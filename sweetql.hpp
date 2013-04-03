@@ -11,28 +11,97 @@
 #include <string.h>
 #include <sqlite3.h>
 
-struct SqlAttribute {
-	const std::string& operator()() const {
-		return this->data;
+typedef void(*del)(void*);
+
+template<typename T>
+class SqlAttribute {
+public:
+	SqlAttribute(unsigned char t) : type(t) {}
+	virtual long getInt(T&) const { 
+		throw std::logic_error("getInt not implemented"); 
+	}
+	virtual double getFloat(T&) const { 
+		throw std::logic_error("getFloat not implemented"); 
+	}
+	virtual std::string getString(T&) const { 
+		throw std::logic_error("getString not implemented"); 
+	}
+	virtual void* getBlob(T&) const { 
+		throw std::logic_error("getBlob not implemented"); 
+	}
+	virtual size_t getBlobSize(T&) const { 
+		throw std::logic_error("getBlobSize not implemented"); 
+	}
+	virtual del getBlobDel(T&) const { 
+		throw std::logic_error("getBlobSize not implemented"); 
+	}
+	virtual void setInt(T&,long) {
+		throw std::logic_error("setInt not implemented"); 
+	}
+	virtual void setFloat(T&,double) {
+		throw std::logic_error("setFloat not implemented"); 
+	}
+	virtual void setString(T&,const std::string&) {
+		throw std::logic_error("setString not implemented"); 
+	}
+	virtual void setBlob(T&,const void*,size_t) {
+		throw std::logic_error("setBlob not implemented"); 
 	}
 
-	void operator()(const std::string& s) {
-		this->data = s;
-	}
+	unsigned char type;
+};
 
-	private:
-		std::string data;
+template<typename T>
+class SqlStringAttribute : public SqlAttribute<T> {
+public:
+	SqlStringAttribute(std::string T::* s) : SqlAttribute<T>(SQLITE_TEXT), str(s) {}
+	std::string getString(T& t) const { 
+		return t.*str;
+	}
+	void setString(T& t,const std::string& s) {
+		t.*str = s;
+	}
+private:
+	std::string T::* str;
+};
+
+template<typename T>
+class SqlIntAttribute : public SqlAttribute<T> {
+public:
+	SqlIntAttribute(int T::* i) : SqlAttribute<T>(SQLITE_INTEGER), integer(i) {}
+	long getInt(T& t) const { 
+		return t.*integer;
+	}
+	void setInt(T& t, long i) {
+		t.*integer = i;
+	}
+private:
+	int T::* integer;
+};
+
+template<typename T>
+class SqlFloatAttribute : public SqlAttribute<T> {
+public:
+	SqlFloatAttribute(double T::* i) : SqlAttribute<T>(SQLITE_FLOAT), fl(i) {}
+	double getFloat(T& t) const { 
+		return t.*fl;
+	}
+	void setFloat(T& t, double i) {
+		t.*fl = i;
+	}
+private:
+	double T::* fl;
 };
 
 template<typename T>
 class SqlColumn {
 public:
-	SqlColumn(const std::string& a, SqlAttribute T::* at) : attrName(a),
+	SqlColumn(const std::string& a, SqlAttribute<T>* at) : attrName(a),
 		attr(at) {
 	}
 
 	std::string attrName;
-	SqlAttribute T::* attr;
+	SqlAttribute<T>* attr;
 };
 
 template<typename T>
@@ -96,8 +165,39 @@ public:
 					(sqlite3_column_name(stmt, i));
 				for(auto cm : tab.column) {
 					if(cn == cm.attrName) {
-						(it.*(cm.attr))(reinterpret_cast<const char*>(
+						switch(cm.attr->type) {
+						case SQLITE_INTEGER: {
+							long Integer = sqlite3_column_int(stmt,i);
+							cm.attr->setInt(it, Integer);
+							break;
+						}
+						case SQLITE_FLOAT: {
+							double Float = sqlite3_column_double(stmt,i);
+							cm.attr->setFloat(it, Float);
+							break;
+						}
+						case SQLITE_BLOB: {
+							const void* Void = sqlite3_column_blob(stmt,i);
+							size_t len = sqlite3_column_bytes(stmt,i);
+							cm.attr->setBlob(it, Void, len);
+							break;
+						}
+						case SQLITE_TEXT: {
+							const std::string& str = 
+								reinterpret_cast<const char*>(
+									sqlite3_column_text(stmt,i)
+							);
+							cm.attr->setString(it, str);
+							break;
+						}
+						default: {
+							std::stringstream typeStr;
+							typeStr<<"No case for "<<cm.attr->type;
+							throw std::logic_error(typeStr.str());
+						}}
+						/*(it.*(cm.attr))(reinterpret_cast<const char*>(
 							sqlite3_column_text(stmt, i)));
+						*/
 						break;
 					}
 				}
@@ -304,9 +404,32 @@ private:
 		int i = 1;
 		std::for_each(tab.column.begin(), tab.column.end(), [&t,&i,&stmt]
 			(const SqlColumn<S>& c) {
-				const std::string& s = (t.*(c.attr))();
-				sqlite3_bind_text(stmt, i++, s.c_str(), s.size(),
-					SQLITE_STATIC);
+				//const std::string& s = (t.*(c.attr))();
+				switch(c.attr->type) {
+				case SQLITE_INTEGER: {
+					sqlite3_bind_int(stmt, i++, c.attr->getInt(t));
+					break;
+				}
+				case SQLITE_FLOAT: {
+					sqlite3_bind_double(stmt, i++, c.attr->getFloat(t));
+					break;
+				}
+				case SQLITE_BLOB: {
+					sqlite3_bind_blob(stmt, i++, c.attr->getBlob(t),
+						c.attr->getBlobSize(t), c.attr->getBlobDel(t));
+					break;
+				}
+				case SQLITE_TEXT: {
+					const std::string ref = c.attr->getString(t);
+					sqlite3_bind_text(stmt, i++, ref.c_str(), ref.size(),
+						SQLITE_STATIC);
+					break;
+				}
+				default: {
+					std::stringstream typeStr;
+					typeStr<<"No case for "<<c.attr->type;
+					throw std::logic_error(typeStr.str());
+				} }
 			}
 		);
 
