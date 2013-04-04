@@ -21,7 +21,7 @@ struct Log {
 		int line;
 		bool warn;
 	public:
-	Log(const char* f, int l, bool w = false) {
+	explicit Log(const char* f, int l, bool w = false) {
 		fn = shortenString(f);
 		line = l;
 		warn = w;
@@ -55,7 +55,7 @@ struct Log {
 #define WARN Log(__FILE__,__LINE__,true)
 #else
 struct Log {
-	Log(const char*, int l, bool w = false) { }
+	explicit Log(const char*, int l, bool w = false) { }
 	void operator()() {
 	}
 	template<typename... Args>
