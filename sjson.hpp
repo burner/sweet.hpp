@@ -218,8 +218,8 @@ public:
 		if(e == std::string::npos) { 
 			throw std::logic_error(locToStr() + "excepted and '\"'"); }
 		else { 
-			std::string ret = curLine.substr(idx, e-idx-1); 
-			idx += e + 1; 
+			std::string ret = curLine.substr(idx, e-idx); 
+			idx = e+1; 
 			return ret;
 		}
 	}
@@ -248,6 +248,7 @@ public:
 			testAndEatOrThrow(',', true);
 
 		} while(curLine[idx] != '}');
+		++idx;
 		eatWhitespace();
 
 		return obj;
@@ -260,7 +261,8 @@ public:
 	 * @throws std::logic error if parsing fails.
 	 */
 	inline ValuePtr parseValue() {
-		if(testAndEatOrThrow('{', true)) {
+		eatWhitespace();
+		if(curLine[idx] == '{') {
 			ValuePtr ret(std::make_shared<value>());
 			ret->setObject(parseObject());
 			ret->setType(value::type_object);
@@ -271,9 +273,10 @@ public:
 			ret->setType(value::type_array);
 			return ret;
 		} else if(testAndEatOrThrow('"', true)) {
-			ValuePtr ret(std::make_shared<value>(parseString()));
-		} 
+			return std::make_shared<value>(parseString());
+		}
 		throw std::logic_error(locToStr() + "no value found");
+
 	}
 
 	/** Arrays consists of values or better said shared_ptr of values. The
@@ -292,6 +295,8 @@ public:
 				continue;
 			}
 		} while(curLine[idx] != ']');
+		++idx;
+		eatWhitespace();
 		return ret;
 	}
 
