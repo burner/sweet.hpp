@@ -8,8 +8,12 @@
 #	-pedantic
 #	./optiontest --test 1 -b true -c 3 -f 0 --funs 1 -f 2 -h
 
+#all:
+#	./makedb.sh
+#	g++ -Wall --std=c++11 -lsqlite3 -lboost_regex sweetqltest.cpp -o qltest \
+#	--std=c++11 -O1 -ggdb
+#	./qltest
+
 all:
-	./makedb.sh
-	g++ -Wall --std=c++11 -lsqlite3 -lboost_regex sweetqltest.cpp -o qltest \
-	--std=c++11 -O1 -ggdb
-	./qltest
+	g++ -Wall --std=c++11 sjsontest.cpp -o sjsontest -ggdb
+	./sjsontest
