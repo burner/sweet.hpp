@@ -16,34 +16,6 @@ def recu(r):
 	for c in r:
 		recu(c)
 
-def buildConstructMethods(f):
-	f.write("\nprivate:\n")
-	for n in names[1:]:
-		if n[0:3] == "tab":
-			continue
-		if n[0:len("placeholder")] == "placeholder":
-			continue
-
-		if nameCls[n] == "GtkBox":
-			continue
-
-		f.write("\tinline void make_{}() {{\n".format(n))
-		toCallFromConstruct.append("\t\tmake_{}();\n".format(n))
-		for a in proper[n]:
-			if a[0].find("pos") != -1:
-				f.write("\t\t{}.set_{}({});\n".format(n, a[0], "POS_"+a[1].upper()))
-			elif a[0].find("orientation") != -1:
-				f.write("\t\t{}.set_{}({});\n".format(n, a[0], "ORIENTATION_"+a[1].upper()))
-			elif(a[1].lower() == "true" or a[1].lower() == "false" 
-					or isConvToDouble(a[1])):
-				f.write("\t\t{}.set_{}({});\n".format(n, a[0], a[1].lower()))
-			else:
-				f.write("\t\t{}.set_{}({});\n".format(n, a[0], '"'+a[1].lower()+'"'))
-
-		f.write("\t\t{}.show();\n".format(n))
-
-		f.write("\t}\n\n")
-
 def buildDataMember(f):
 	f.write("protected:\n")
 	f.write("\tGlib::RefPtr<Gtk::Builder> _builder;\n")
@@ -88,7 +60,7 @@ tree = ET.parse(fn+".glade")
 root = tree.getroot()[0]
 recu(root)
 
-print(names)
-print("\nproperites")
+#print(names)
+#print("\nproperites")
 
 printer(fn+".hpp",fn,fn)
