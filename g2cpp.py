@@ -2,74 +2,16 @@
 
 import xml.etree.ElementTree as ET
 
-tabCnt = 1
-
 names = []
 nameCls = dict()
-childs = dict()
-proper = dict()
-types = dict()
-stack = []
-toCallFromConstruct = []
-
-def isConvToDouble(s):
-	if s.isdigit():
-		return True
-	else:
-		try:
-			float(s)
-			return True
-		except ValueError:
-			return False
-	return False
 
 def recu(r):
 	#print(r.tag, " ", stack)
 	t = None
-	try:
-		t = r.attrib["type"]
-	except KeyError:
-		pass
-
-	if r.tag == "object" and t == None:
-		if len(stack) > 0:
-			childs[stack[-1]].append(r.attrib["id"])
-
-		stack.append(r.attrib["id"])
-		nameCls[stack[-1]] = r.attrib["class"]
-		childs[r.attrib["id"]] = []
-		proper[r.attrib["id"]] = []
-		names.append(r.attrib["id"])
-		types[r.attrib["id"]] = r.attrib["class"]
-
-	if r.tag == "child" and t == "tab":
-		global tabCnt
-		na = "tab"+str(tabCnt)
-		tabCnt += 1
-		if len(stack) > 0:
-			childs[stack[-1]].append(na)
-
-		stack.append(na)
-		childs[na] = []
-		proper[na] = []
-		names.append(na)
-
-	if r.tag == "placeholder":
-		pn = "placeholder"+str(tabCnt)
-		names.append(pn)
-		nameCls[pn] = "GtkLabel"
-		proper[pn] = []
-		if len(stack) > 0:
-			childs[stack[-1]].append(pn)
-	
-	if r.tag == "property":
-		proper[stack[-1]].append( (r.attrib["name"], r.text) )	
-
-	for i in r:
-		recu(i)
-
-	if r.tag == "object" or (r.tag == "child" and t == "tab"):
-		stack.pop()
+	if r.tag == "object"
+		n = r.attrib["id"]
+		nameCls[n] = r.attrib["class"]
+		names[n]
 
 def buildConstructMethods(f):
 	f.write("\nprivate:\n")
