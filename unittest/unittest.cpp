@@ -3,8 +3,8 @@
 #include <iostream>
 #include <iostream> // optional
 #include <stdexcept> // optional
-#include "unit.hpp"
-#include "logger.hpp"
+#include <unit.hpp>
+#include <logger.hpp>
 	
 UNITTEST(fancyname) {
 	//std::ofstream unittestlog("testlog.tst");	// optional

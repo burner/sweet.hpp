@@ -14,25 +14,20 @@
 #include <vector>
 #include <assert.h>
 
-//namespace sjson {
+namespace sjson {
+
 class value;
 typedef std::shared_ptr<value> ValuePtr;
 typedef std::vector<std::shared_ptr<value>> ValuePtrVec;
 class object;
 typedef std::shared_ptr<object> ObjectPtr;
-//}
 
-//namespace sjson {
+void print(std::ostream&, ValuePtr, size_t, bool);
+void print(std::ostream&, ObjectPtr, size_t, bool);
 
 static bool isString(const std::string& toTest) {
 	return toTest.size() >= 1;
 }
-
-/*UNITTEST(isStringTest) {
-	AS_T(isString("h"));
-	AS_T(isString("hello"));
-	AS_F(isString(""));
-}*/
 
 static bool convertsToFloat(const std::string& s, double& ret) {
 	try { ret = std::stof(s); }
@@ -109,7 +104,7 @@ public:
 	inline void setString(const std::string& s) { str = s; }
 
 	/** If the value holds an array this function will return it. */
-	inline ValuePtrVec getArray() { return array; }
+	inline const ValuePtrVec& getArray() const { return array; }
 	inline void setArray(ValuePtrVec v) { array = v; }
 
 	/** If the value holds an object this function will return it. */
@@ -124,12 +119,47 @@ public:
 	inline bool operator==(const value& v) const { 
 		return str == v.getString(); }
 	inline bool operator<(const value& v) const { return str < v.getString(); }
-	inline void print(std::ostream&, size_t);
+
 };
 
 class object {
 private:
 	std::unordered_map<std::string,ValuePtr> mappings;
+
+	inline ValuePtr accessImpl(const std::string& path, const bool th, bool& rls) {
+		size_t pos = path.find('.');
+		auto pathSubString(path.substr(0,pos));
+		auto ret = this->mappings.find(pathSubString);
+		if(ret == this->mappings.end()) {
+			if(th) {
+				throw std::logic_error(std::string("Path not present ") + path);
+			} else {
+				rls = false;
+				ValuePtr r;
+				return r;
+			}
+		} else if(pos <= path.size()) {
+			if(ret->second->getType() != value::type_object) {
+				if(th) {
+					throw std::logic_error(std::string("Path ") + path + 
+						std::string(" did not lead to an object"));
+				} else {
+					rls = false;
+					ValuePtr r;
+					return r;
+				}
+			} else {
+				return ret->second->getObject()->accessImpl(
+					path.substr(pos+1,path.size()), th, rls
+				);
+			}
+		} else {
+			rls = true;
+			return ret->second;
+		}
+
+	}
+
 public:
 	/** This function returns the mapping contained by the object. */
 	inline std::unordered_map<std::string,ValuePtr>& getMappings() { 
@@ -139,34 +169,19 @@ public:
 	/** Given a dot separated path this function returns a corresponding
 	 * value. */
 	inline ValuePtr access(const std::string& path) {
-		size_t pos = path.find('.');
-		auto pathSubString(path.substr(0,pos));
-		auto ret = this->mappings.find(pathSubString);
-		if(ret == this->mappings.end()) {
-			throw std::logic_error(std::string("Path not present ") + path);
-		} else if(pos <= path.size()) {
-			if(ret->second->getType() != value::type_object) {
-				throw std::logic_error(std::string("Path ") + path + 
-					std::string(" did not lead to an object"));
-			} else {
-				return ret->second->getObject()->access(
-					path.substr(pos+1,path.size())
-				);
-			}
-		} else {
-			return ret->second;
-		}
+		bool dontCare;
+		return accessImpl(path, true, dontCare);
 	}
 
 	inline bool pathExists(const std::string& path) {
-		try { auto ret = this->access(path); }
-		catch(...) { return false; }
-		return true;
+		bool rslt;
+		accessImpl(path, false, rslt);
+		return rslt;
 	}
-	void print(std::ostream&, size_t);
 };
 
 class jsonparser {
+friend std::ostream& operator<<(std::ostream&, const jsonparser&);
 private:
 	ObjectPtr root;
 	size_t line;
@@ -197,6 +212,7 @@ public:
 	 * @return The root object of the tree.
 	 */
 	inline ObjectPtr getRoot() { return root; }
+	inline ObjectPtr getRoot() const { return root; }
 
 	/** The passed vector can contain the tokens for parsing
 	jsonparser(std::vector<std::string>);*/
@@ -214,12 +230,28 @@ public:
 	}
 
 	inline std::string parseString() {
-		size_t e = curLine.find('"', idx);
-		if(e == std::string::npos) { 
+		size_t f = idx;
+		for(; f < curLine.size(); ++f) {
+			if(curLine[f] == '"' && curLine[f-1] != '\\') {
+				break;
+			}
+		}
+		if(f == curLine.size()) { 
 			throw std::logic_error(locToStr() + "excepted and '\"'"); }
 		else { 
-			std::string ret = curLine.substr(idx, e-idx); 
-			idx = e+1; 
+			std::string ret = curLine.substr(idx, f-idx); 
+			idx = f+1; 
+			return ret;
+		}
+	}
+
+	inline std::string parseNumber() {
+		size_t f = curLine.find_first_not_of("0123456789.-+", idx);
+		if(f == std::string::npos) { 
+			throw std::logic_error(locToStr() + "excepted and '\"'"); }
+		else { 
+			std::string ret = curLine.substr(idx, f-idx); 
+			idx = f; 
 			return ret;
 		}
 	}
@@ -246,7 +278,7 @@ public:
 			obj->getMappings().insert(std::make_pair(name, vp));
 			eatWhitespace();
 			testAndEatOrThrow(',', true);
-
+			eatWhitespace();
 		} while(curLine[idx] != '}');
 		++idx;
 		eatWhitespace();
@@ -274,6 +306,14 @@ public:
 			return ret;
 		} else if(testAndEatOrThrow('"', true)) {
 			return std::make_shared<value>(parseString());
+		} else if(isdigit(curLine[idx])) {
+			return std::make_shared<value>(parseNumber());
+		} else if(curLine.find("false", idx) != std::string::npos) {
+			idx+=5;
+			return std::make_shared<value>("false");
+		} else if(curLine.find("true", idx) != std::string::npos) {
+			idx+=4;
+			return std::make_shared<value>("true");
 		}
 		throw std::logic_error(locToStr() + "no value found");
 
@@ -306,13 +346,6 @@ public:
 	inline const std::string& curToken() const;
 	 */
 
-	/** As a stream and the parsed json file will be pretty printed to it.
-	 *
-	 * @param The stream to print to.
-	 */
-	inline void print(std::ostream&);
-	//const std::string& nextToken();
-
 private:
 	inline void readline() {
 		if(!fileOrStr) {
@@ -327,20 +360,56 @@ private:
 
 	inline void eatWhitespace() {
 		if(idx >= curLine.size()) { readline(); }
-		while(!eof && (curLine[idx] == ' ' || curLine[idx] == '\t')) {
+		while(!eof && (curLine.size() == 0 
+				 || curLine[idx] == ' ' 
+				 || curLine[idx] == '\t')) {
 			++idx;
 			if(idx >= curLine.size()) { readline(); }
 		}
 	}
 };
 
-/** Returns a jsonparser who has parsed the file given by the parameter.
-jsonparser parseFile(const std::string&);
+inline void print(std::ostream& o, ValuePtr v, size_t tab, bool firstIn) {
+	if(v->getType() == value::type_number_int 
+			|| v->getType() == value::type_number_float 
+			|| v->getType() == value::type_boolean 
+			|| v->getType() == value::type_null) {
+		o<<v->getString(); } 
+	else if(v->getType() == value::type_string) { o<<'"'<<v->getString()<<'"'; }
+	else if(v->getType() == value::type_array) { 
+		o<<'['<<std::endl;
+		auto it = v->getArray().begin();
+		for(; it != v->getArray().end(); ++it) {
+			print(o, *it, tab+1, false);
+			if(it+1 != v->getArray().end()) { o<<','; }
+			o<<std::endl;
+		}
+		o<<']'<<std::endl; }
+	else if(v->getType() == value::type_object) { 
+		print(o, v->getObject(), tab+1, true); o<<std::endl; }
+}
 
-jsonparser parseString(const std::string&);
+void print(std::ostream& o, ObjectPtr p, size_t tab, bool firstIn) {
+	if(!firstIn) for(size_t i = 0; i < tab; ++i) { o<<'\t'; }
+	o<<'{'<<std::endl;
+	auto it = p->getMappings().begin();
+	for(; it != p->getMappings().end();) {
+		for(size_t i = 0; i < tab+1; ++i) { o<<'\t'; }
+		o<<(*it).first<<" : "; print(o, (*it).second, tab+1, false);
+		if((++it) != p->getMappings().end()) { o<<','; }
+		o<<std::endl;
+	}
+	o<<'}'<<std::endl;
+}
 
-std::vector<std::string> getJsonTokenFormFile(const std::string& filename);
-*/
+/** As a stream and the parsed json file will be pretty printed to it.
+ *
+ * @param The stream to print to.
+ */
+inline std::ostream& operator<<(std::ostream& o, const jsonparser& p) {
+	print(o, p.getRoot(), 0, false);
+	return o;
+}
 
-//} // cppjson
+} // cppjson
 #endif

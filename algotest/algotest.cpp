@@ -2,9 +2,9 @@
 #include <iostream>
 #include <chrono>
 #include <set>
-#include "parallelalgo.hpp"
-#include "logger.hpp"
-#include "benchmark.hpp"
+#include <parallelalgo.hpp>
+#include <logger.hpp>
+#include <benchmark.hpp>
 
 void fun(int& a) {
 	a *= 5;
