@@ -9,29 +9,23 @@
 //#include <conv.hpp>
 #include <benchmark.hpp>
 
-class Reservation {
-public:
-	Reservation() {} // dummy
-	Reservation(const std::string& f, const std::string& l, 
-			const std::string& lo, const std::string& d) :
-		firstname(f), lastname(l), location(lo), date(d) {
-	}
-
-	static SqlTable<Reservation>& table() {
-		static SqlTable<Reservation> tab = SqlTable<Reservation>::sqlTable( 
-			"Reservation",
-			SqlColumn<Reservation>("Firstname", makeAttr(&Reservation::firstname)),
-			SqlColumn<Reservation>("Lastname", 	makeAttr(&Reservation::lastname)),
-			SqlColumn<Reservation>("Location", 	makeAttr(&Reservation::location)),
-			SqlColumn<Reservation>("Date", 		makeAttr(&Reservation::date)));
-		return tab;
-	}
-
-	std::string firstname;
-	std::string lastname;
-	std::string location;
-	std::string date;
-};
+    class Person {
+    public:
+    	Person() {} // dummy
+    
+    	static SqlTable<Person>& table() {
+    		static SqlTable<Person> tab = SqlTable<Person>::sqlTable( 
+    			"Person",
+    			SqlColumn<Reservation>("Firstname", makeAttr(&Reservation::firstname)),
+    			SqlColumn<Reservation>("Lastname", 	makeAttr(&Reservation::lastname)),
+    			SqlColumn<Reservation>("Age", 		makeAttr(&Reservation::age)),
+    		return tab;
+    	}
+	private:
+    	std::string firstname;
+    	std::string lastname;
+    	int age;
+    };
 
 class Person {
 public:

@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import xml.etree.ElementTree as ET
+import sys
 
 names = []
 nameCls = dict()
@@ -38,25 +39,30 @@ def buildConstructorAndCast(f, cn):
 	
 
 def printer(fn,cn,pc):
-	f = open(fn, "w")
-	text = open(cn+".glade", "r")
+	h = fn.rfind("/")
+	nfn = fn[:h+1]+"g2cpp_"+fn[h+1:]
+	pci = pc.rfind("/")
+	f = open(nfn, "w")
+	text = open(cn, "r")
 	f.write("#ifndef {}_HPP\n"
 		"#define {}_HPP\n\n"
 		"#include <gtkmm.h>\n\n"
 		"using namespace Gtk;\n\n"
-		"class {} {{\n".format(cn, cn, pc))
+		"class {} {{\n".format("G2CPP_"+fn[h+1:-10].upper(), "G2CPP_"+fn[h+1:-10].upper(), pc[pci+1:-6]))
 	f.write("\tconst char* glade_file = \n")
 	for l in text:
 		f.write('"'+l.replace('"', '\\"')[:-1] + "\"\n")
 	f.write(";\n")
 	buildDataMember(f)
-	buildConstructorAndCast(f, cn)
+	buildConstructorAndCast(f, pc[pci+1:-6])
 	f.write("};\n\n#endif\n")
 
 
-fn = "glade"
+#fn = "glade"
+fn = sys.argv[1]
+print(fn)
 
-tree = ET.parse(fn+".glade")
+tree = ET.parse(fn)
 root = tree.getroot()[0]
 recu(root)
 
