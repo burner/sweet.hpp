@@ -311,8 +311,13 @@ public:
 		} else if(curLine.find("true", idx) != std::string::npos) {
 			idx+=4;
 			return std::make_shared<value>("true");
+		} else if(testAndEatOrThrow(']', true)) {
+			ValuePtr ret(std::make_shared<value>());
+			ret->setType(value::type_object);
+			return ret;
 		}
-		throw std::logic_error(locToStr() + "no value found");
+		throw std::logic_error(locToStr() + " no value found curLine(" +
+				curLine + ") curChar(" + curLine[idx] + ")");
 
 	}
 
@@ -325,6 +330,10 @@ public:
 		ValuePtrVec ret;
 		do {
 			eatWhitespace();	
+			if(curLine[idx] == ']') {
+				++idx;
+				return ret;
+			}
 			ret.push_back(parseValue());
 			eatWhitespace();
 			if(curLine[idx] == ',') {
@@ -386,7 +395,7 @@ inline void print(std::ostream& o, ValuePtr v, size_t tab, bool firstIn) {
 		print(o, v->getObject(), tab+1, true); o<<std::endl; }
 }
 
-void print(std::ostream& o, ObjectPtr p, size_t tab, bool firstIn) {
+inline void print(std::ostream& o, ObjectPtr p, size_t tab, bool firstIn) {
 	if(!firstIn) for(size_t i = 0; i < tab; ++i) { o<<'\t'; }
 	o<<'{'<<std::endl;
 	auto it = p->getMappings().begin();
