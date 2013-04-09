@@ -19,6 +19,10 @@ Sweet cpp header that help in daily life
 
 * conv.hpp : write `to<std::string>(variable)` and get a string. convenience wrapper around stream operator
 
+* sweetcpp.py : Tests if a given cpp file follows some random style rules
+
+* g2cpp.py : Hand in a gtk glade file and get a class in a header file that builds that widget and has protected data member pointing to all the widgets in the glade file. On top of that a cast operator is implemented that casts the class to the type of the top widget. 
+
 
 Example
 ------
