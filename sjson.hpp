@@ -237,9 +237,10 @@ public:
 			}
 		}
 		if(f == curLine.size()) { 
-			throw std::logic_error(locToStr() + "excepted and '\"'"); }
+			throw std::logic_error(locToStr() + " excepted and '\"'"); }
 		else { 
 			std::string ret = curLine.substr(idx, f-idx); 
+			//std::cout<<ret<<std::endl;
 			idx = f+1; 
 			return ret;
 		}
@@ -247,13 +248,9 @@ public:
 
 	inline std::string parseNumber() {
 		size_t f = curLine.find_first_not_of("0123456789.-+", idx);
-		if(f == std::string::npos) { 
-			throw std::logic_error(locToStr() + "excepted and '\"'"); }
-		else { 
-			std::string ret = curLine.substr(idx, f-idx); 
-			idx = f; 
-			return ret;
-		}
+		std::string ret = curLine.substr(idx, f-idx); 
+		idx = f; 
+		return ret;
 	}
 
 	/** This method parses an json object. The object needs to be enclosed by a 
