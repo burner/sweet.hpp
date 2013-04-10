@@ -25,6 +25,11 @@ def buildDataMember(f):
 			continue
 		f.write("\tGtk::{}* {};\n".format(nameCls[n][3:], n))
 
+def getCorrentFirstName():
+	for i in names:
+		if nameCls[i] == "GtkWindow" or nameCls[i] == "GtkDialog":
+			return i	
+
 def buildConstructorAndCast(f, cn):
 	f.write("\npublic:\n")
 	f.write("\tinline {}() {{\n".format(cn))
@@ -33,8 +38,10 @@ def buildConstructorAndCast(f, cn):
 		f.write("\t\t_builder->get_widget(\"{}\", {});\n".format(i, i))
 	f.write("\t}\n\n")
 
-	f.write("\tinline operator {}*() {{\n".format(nameCls[names[0]][3:]))
-	f.write("\t\treturn {};\n".format(names[0]))
+	#f.write("\tinline operator {}*() {{\n".format(nameCls[names[0]][3:]))
+	#f.write("\t\treturn {};\n".format(names[0]))
+	f.write("\tinline operator {}*() {{\n".format(nameCls[getCorrentFirstName()][3:]))
+	f.write("\t\treturn {};\n".format(getCorrentFirstName()))
 	f.write("\t}\n")
 	
 
@@ -63,8 +70,9 @@ fn = sys.argv[1]
 print(fn)
 
 tree = ET.parse(fn)
-root = tree.getroot()[0]
-recu(root)
+root = tree.getroot()
+for i in root:
+	recu(i)
 
 #print(names)
 #print("\nproperites")
