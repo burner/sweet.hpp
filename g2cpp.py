@@ -7,7 +7,6 @@ names = []
 nameCls = dict()
 
 def recu(r):
-	#print(r.tag, " ", stack)
 	t = None
 	if r.tag == "object":
 		n = r.attrib["id"]
@@ -36,10 +35,9 @@ def buildConstructorAndCast(f, cn):
 	f.write("\t\t_builder = Gtk::Builder::create_from_string(glade_file);\n")
 	for i in names:
 		f.write("\t\t_builder->get_widget(\"{}\", {});\n".format(i, i))
+
 	f.write("\t}\n\n")
 
-	#f.write("\tinline operator {}*() {{\n".format(nameCls[names[0]][3:]))
-	#f.write("\t\treturn {};\n".format(names[0]))
 	f.write("\tinline operator {}*() {{\n".format(nameCls[getCorrentFirstName()][3:]))
 	f.write("\t\treturn {};\n".format(getCorrentFirstName()))
 	f.write("\t}\n")
@@ -61,7 +59,9 @@ def printer(fn,cn,pc):
 		f.write('"'+l.replace('"', '\\"')[:-1] + "\"\n")
 	f.write(";\n")
 	buildDataMember(f)
+	#buildConstructorAndCast(f, pc[pci+1:-6])
 	buildConstructorAndCast(f, pc[pci+1:-6])
+
 	f.write("};\n\n#endif\n")
 
 
