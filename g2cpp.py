@@ -47,7 +47,7 @@ def printer(fn,cn,pc):
 	h = fn.rfind("/")
 	nfn = fn[:h+1]+"g2cpp_"+fn[h+1:]
 	pci = pc.rfind("/")
-	f = open(nfn, "w")
+	f = open(nfn, "w", encoding="utf-8")
 	text = open(cn, "r")
 	f.write("#ifndef {}_HPP\n"
 		"#define {}_HPP\n\n"
