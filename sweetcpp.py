@@ -90,6 +90,36 @@ class LineLen:
 	def msg(self):
 		return "Line is longer than 78. Format code differently."
 
+class FuncSep:
+	def __init__(self):
+		self.funcName = ""
+		self.ifCnt = 0
+		self.cCnt = 0
+
+	def curlyCnt(self, line):
+		inString = True
+		for idx, ch in enumerate(line):
+			if ch == '"' and ((idx == 0) or (ch[idx-1] != '\\')):
+				inString = not inString
+			elif ch == '}' and not inString:
+				self.cCnt -= 1
+			elif ch == '{' and not inString:
+				self.cCnt += 1
+
+	def printMsg(self):
+		pass
+
+	def isFuncStart(self, line):
+		pass
+
+	def process(self, line):
+		if self.cCnt > 0:
+			self.curlyCnt(line)
+			if self.cCnt == 0:
+				self.printMsg()
+		else:
+			self.isFuncStart(line)
+
 def parseArgs():
 	parser = argparse.ArgumentParser(description="Sweet Cpp Style Checker")
 	parser.add_argument("filesToTest", metavar="N", type=str, nargs="*",
@@ -119,7 +149,10 @@ if __name__ == "__main__":
 		lines = open(File).readlines()
 		numOfLines = int(math.log10(len(lines))+1)
 		lineNumber = 0
+
+		fs = FuncSep()
 		for line in lines:
+			fs.process(line)
 			for test in tests:
 				if not test.test(line):
 					print("{tn:{tl}} at {n}:{pos:{ln}} | {msg}".format(
