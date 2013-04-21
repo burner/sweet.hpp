@@ -8,6 +8,7 @@
 #include <sstream>
 #include <iterator>
 #include <string>
+#include <memory>
 #include <sqlite3.h>
 
 typedef void(*del)(void*);
