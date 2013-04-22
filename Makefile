@@ -17,3 +17,4 @@
 all:
 	g++ -Wall --std=c++11 sjsontest.cpp -o sjsontest -ggdb
 	./sjsontest
+	echo $?

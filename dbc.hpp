@@ -3,74 +3,145 @@
 #include <type_traits>
 #include <cmath>
 #include <sstream>
+#include <ostream>
+#include <iostream>
+//#include <stdexcept>
+#include <stdlib.h>
 
 // Range test
 template<typename T>
-struct Range {
+struct RangeTest {
 	T low;
-	T obj;
+	T value;
 	T high;
 	std::string name;
+	typedef T value_type;
 
-	inline Range(T l, T o, T h, const std::string& n) : low(l), obj(o), high(h), name(n) {}
-	inline bool test() { return low <= obj && obj <= high; }
-	inline void msg(std::stringstream& s) {
-		s<<"Range violation for \""<<name<<"\" "<<low<<" <= "<<obj<<" <= "<<high;
+	inline RangeTest(T l, T o, T h, const std::string& n) : low(l), value(o), high(h), name(n) {}
+	inline bool test() { return low <= value && value <= high; }
+	inline void msg(std::ostream& s) {
+		s<<"Range violation for \""<<name<<"\" "<<low<<" <= "<<value<<" <= "<<high;
 	}
 };
 
 template<typename T>
-inline Range<T> makeRange(T l, T o, T h, const std::string& n) {
-	return Range<T>(l,o,h,n);
+inline RangeTest<T> makeRange(T l, T o, T h, const std::string& n) {
+	return RangeTest<T>(l,o,h,n);
 }
 
 #define R(l,o,h) makeRange(l,o,h,#o)
 
 
 // NaN test
-
 template<class T, class Enable = void>
-class NaNclass; // undefined
+class NaNclassTest; // undefined
 
 template<typename T>
-struct NaNclass<T, typename std::enable_if<std::is_floating_point<T>::value >::type> {
+struct NaNclassTest<T, typename std::enable_if<std::is_floating_point<T>::value >::type> {
 	T value;
+	typedef T value_type;
 	std::string name;
-	inline NaNclass(T v, const std::string& n) : value(v), name(n) { }
+	inline NaNclassTest(T v, const std::string& n) : value(v), name(n) { }
 	inline bool test() { return !std::isnan(value); }
-	inline void msg(std::stringstream& s) {
-		s<<"Value is NaN";
+	inline void msg(std::ostream& s) {
+		s<<"Value of \""<<name<<"\" is NaN";
 	}
 };
 
 template<typename T>
-inline NaNclass<T> makeNaN(T v, const std::string& n) {
-	return NaNclass<T>(v,n);
+inline NaNclassTest<T> makeNaN(T v, const std::string& n) {
+	return NaNclassTest<T>(v,n);
 }
 
 #define NaN(v) makeNaN(v,#v)
 
 
-// Argument check
+// Null test
+template<typename T>
+struct NullTest {
+	T value;
+	typedef T value_type;
+	std::string name;
+	inline NullTest(T v, const std::string& n) : value(v), name(n) { }
+	inline bool test() { return value != nullptr; }
+	inline void msg(std::ostream& s) {
+		s<<"Value \""<<name<<"\" is null";
+	}
+};
+
+template<typename T>
+inline NullTest<T> makeNulltest(T v, const std::string& n) {
+	return NullTest<T>(v,n);
+}
+
+#define N(v) makeNulltest(v,#v)
+
+
+// Require check
+template<typename S>
+inline bool testConditionImplImpl(S s) {
+	bool passed = false;
+	bool excp = false;
+	try {
+		passed = s.test();
+	} catch(...) {
+		excp = true;
+	}
+	return passed || excp;
+}
 
 template<typename S>
-inline void testConditionImpl(std::stringstream& ss, S s) {
-
+inline bool testConditionImpl(std::ostream& ss, S s) {
+	bool testRslt = testConditionImplImpl(s);
+	if(!testRslt) {
+		s.msg(ss);
+		ss<<std::endl;
+	}
+	return testRslt;
 } 
 
 template<typename S,typename...Ts>
-inline void testConditionImpl(std::stringstream& ss, S s,Ts... t) {
-
-	testConditionImpl(ss, t...);
+inline bool testConditionImpl(std::ostream& ss, S s, Ts... t) {
+	bool testRslt = testConditionImplImpl(s);
+	if(!testRslt) {
+		s.msg(ss);
+		ss<<std::endl;
+	}
+	bool other = testConditionImpl(ss, t...);
+	return other && testRslt;
 
 } 
 
 template<typename... Ts>
 inline void testCondition(const char* File, int line, Ts... t) {
-	std::stringstream s;
-	testConditionImpl(s,t...);
-
+#ifdef DBC_RELEASE
+#else
+	//std::stringstream s;
+	bool passed = testConditionImpl(std::cerr,t...);
+	if(!passed) {
+		std::cerr<<"REQUIRMENT TEST IN "<<File<<':'<<line<<" FAILED"<<std::endl;
+		exit(1);
+	}
+#endif
 } 
 
-#define T(tests...) testCondition(__FILE__, __LINE__, tests)
+#define Rqr(tests...) testCondition(__FILE__, __LINE__, tests)
+
+
+// Ensure
+template<typename T>
+inline typename T::value_type testEnsure(const char* File, int line, T t) {
+#ifndef DBC_RELEASE
+	//std::stringstream s;
+	bool passed = testConditionImpl(std::cerr,t);
+	if(!passed) {
+		std::cerr<<"ENSURANCE TEST IN "<<File<<':'<<line<<" FAILED"<<std::endl;
+		exit(1);
+	}
+#endif
+
+	return t.value;
+} 
+
+#define Esr(tests) testEnsure(__FILE__, __LINE__, tests)
 #endif
