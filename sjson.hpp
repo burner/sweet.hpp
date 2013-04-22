@@ -178,6 +178,37 @@ public:
 		accessImpl(path, false, rslt);
 		return rslt;
 	}
+
+	template<typename T>
+	typename std::enable_if<std::is_integral<T>::value>::type conv(ValuePtr t) {
+		if(t->getType() != value::type_number_int) { throw std::logic_error("Value not of type int"); }
+		return t->getInt();
+	}
+
+	template<typename T>
+	typename std::enable_if<std::is_floating_point<T>::value>::type conv(ValuePtr t) {
+		if(t->getType() != value::type_number_float) { throw std::logic_error("Value not of type float"); }
+		return t->getFloat();
+	}
+
+	template<typename T>
+	typename std::enable_if<std::is_same<T,bool>::value>::type conv(ValuePtr t) {
+		if(t->getType() != value::type_boolean) { throw std::logic_error("Value not of type bool"); }
+		return t->getBool();
+	}
+
+	template<typename T>
+	typename std::enable_if<std::is_same<T,std::string>::value>::type conv(ValuePtr t) {
+		return t;
+	}
+
+	template<typename T>
+	inline T get(const std::string& path, T notFound) {
+		bool exis;
+		T rslt = accessImpl(path, false, exis);
+		if(exis) { return conv<T>(rslt); }
+		else { return notFound; }
+	}
 };
 
 class jsonparser {
