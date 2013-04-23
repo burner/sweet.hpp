@@ -30,40 +30,47 @@ logger.hpp
 
 easy to use logger
 
-* benchmark.hpp
+benchmark.hpp
 ---------
 
 benchmark struct that limits typing work
 
-* sjson.hpp
+sjson.hpp
 ---------
 
 single header json parser
 
-* sweetql.hpp
+sweetql.hpp
 ---------
 
-single header sqlite3 wrapper that makes the conversion from sql table to class and back again extremely simple with minimal typing and speed overhead. Has an iterator interface that makes integration easy.
+single header sqlite3 wrapper that makes the conversion from sql table to
+class and back again extremely simple with minimal typing and speed overhead.
+Has an iterator interface that makes integration easy.
 
-* options.hpp
+options.hpp
 ---------
 
-single header cmd line option parser. With automatic type conversation, short and long option names and pretty help printing.
+single header cmd line option parser. With automatic type conversation, short
+and long option names and pretty help printing.
 
-* conv.hpp
+conv.hpp
 ---------
 
-write `to<std::string>(variable)` and get a string. convenience wrapper around stream operator
+write `to<std::string>(variable)` and get a string. convenience wrapper around
+stream operator
 
-* sweetcpp.py
+sweetcpp.py
 ---------
 
 Tests if a given cpp file follows some random style rules
 
-* g2cpp.py
+g2cpp.py
 ---------
 
-Hand in a gtk glade file and get a class in a header file that builds that widget and has protected data member pointing to all the widgets in the glade file. On top of that a cast operator is implemented that casts the class to the type of the top widget. 
+Hand in a gtk glade file and get a class in a header file that builds that
+widget and has protected data member pointing to all the widgets in the glade
+file. On top of that a cast operator is implemented that casts the class to
+the type of the top widget. 
 
 
 Example
