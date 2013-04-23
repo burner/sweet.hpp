@@ -5,6 +5,17 @@ Sweet cpp header that help in daily life
 
 * unit.hpp : extremely small unit testing framework 
 
+    UNITTEST(InformativTestName) {
+    	// your test here
+    }
+    
+    int main() {
+    	if(!Unit::runTests()) {
+    		std::cerr<<"Some errors occoured"<<std::endl;
+    	}
+    	return 0;
+    }
+
 * format.hpp : variadic template printf string formatting 
 
 * logger.hpp : easy to use logger
