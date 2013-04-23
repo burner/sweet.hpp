@@ -42,6 +42,7 @@ dbc.hpp
 
 We have unittest maybe some Design by Contract might also.
 
+```C++
 struct SomeStupidClass {
 	int a = 0;
 	int b = 9;
@@ -58,7 +59,6 @@ struct SomeStupidClass {
 	}
 };
 
-```C++
 short testFunc(int a, double d, int* ip) {
 	Rqr(R(0,a,10), NaN(d), R(0.0,d,1.0), N(ip));
 	// some cracy computation
