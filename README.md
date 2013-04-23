@@ -8,16 +8,16 @@ unit.hpp
  extremely small unit testing framework 
 
 ```C++
-    UNITTEST(InformativTestName) {
-    	// your test here
-    }
-    
-    int main() {
-    	if(!Unit::runTests()) {
-    		std::cerr<<"Some errors occoured"<<std::endl;
-    	}
-    	return 0;
-    }
+UNITTEST(InformativTestName) {
+	// your test here
+}
+
+int main() {
+	if(!Unit::runTests()) {
+		std::cerr<<"Some errors occoured"<<std::endl;
+	}
+	return 0;
+}
 ```
 
  format.hpp
@@ -29,6 +29,51 @@ logger.hpp
 ------------ 
 
 easy to use logger
+```C++
+void someRandomFunction() {
+	LOG();
+	LOG("Hello");
+	LOG("Hello %s", "World");
+}
+```
+
+dbc.hpp
+---------
+
+We have unittest maybe some Design by Contract might also.
+
+struct SomeStupidClass {
+	int a = 0;
+	int b = 9;
+
+	INVARIANT_BEGIN
+		Inv(R(0,a,32));
+		Inv(R(0,b,10));
+	INVARIANT_END
+
+	inline void changeMethod() {
+		Invariant(); // This makes the Invariant tested at the beginning and
+					 //the end
+		a = 33;		 	// this contradicts the invariant
+	}
+};
+
+```C++
+short testFunc(int a, double d, int* ip) {
+	Rqr(R(0,a,10), NaN(d), R(0.0,d,1.0), N(ip));
+	// some cracy computation
+	return Esr(R(12, a +b *ip, 16));
+}
+
+void caller() {
+	int a;
+	int b = 9;
+	short rslt = testFunc(9, 0.1, &a);
+	SomeStupidClass ssc;
+	ssc.changeMethod();
+}
+```
+
 
 benchmark.hpp
 ---------
