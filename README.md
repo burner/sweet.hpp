@@ -3,7 +3,9 @@ SWEET_HPP
 
 Sweet cpp header that help in daily life
 
-* unit.hpp : extremely small unit testing framework 
+unit.hpp
+--------
+ extremely small unit testing framework 
 
 ```C++
     UNITTEST(InformativTestName) {
@@ -18,23 +20,50 @@ Sweet cpp header that help in daily life
     }
 ```
 
-* format.hpp : variadic template printf string formatting 
+ format.hpp
+------------
 
-* logger.hpp : easy to use logger
+ variadic template printf string formatting 
 
-* benchmark.hpp : benchmark struct that limits typing work
+logger.hpp 
+------------ 
 
-* sjson.hpp : single header json parser
+easy to use logger
 
-* sweetql.hpp : single header sqlite3 wrapper that makes the conversion from sql table to class and back again extremely simple with minimal typing and speed overhead. Has an iterator interface that makes integration easy.
+* benchmark.hpp
+---------
 
-* options.hpp : single header cmd line option parser. With automatic type conversation, short and long option names and pretty help printing.
+benchmark struct that limits typing work
 
-* conv.hpp : write `to<std::string>(variable)` and get a string. convenience wrapper around stream operator
+* sjson.hpp
+---------
 
-* sweetcpp.py : Tests if a given cpp file follows some random style rules
+single header json parser
 
-* g2cpp.py : Hand in a gtk glade file and get a class in a header file that builds that widget and has protected data member pointing to all the widgets in the glade file. On top of that a cast operator is implemented that casts the class to the type of the top widget. 
+* sweetql.hpp
+---------
+
+single header sqlite3 wrapper that makes the conversion from sql table to class and back again extremely simple with minimal typing and speed overhead. Has an iterator interface that makes integration easy.
+
+* options.hpp
+---------
+
+single header cmd line option parser. With automatic type conversation, short and long option names and pretty help printing.
+
+* conv.hpp
+---------
+
+write `to<std::string>(variable)` and get a string. convenience wrapper around stream operator
+
+* sweetcpp.py
+---------
+
+Tests if a given cpp file follows some random style rules
+
+* g2cpp.py
+---------
+
+Hand in a gtk glade file and get a class in a header file that builds that widget and has protected data member pointing to all the widgets in the glade file. On top of that a cast operator is implemented that casts the class to the type of the top widget. 
 
 
 Example
