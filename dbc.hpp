@@ -1,3 +1,7 @@
+/* unit.hpp - a small but elegant Desing by Contract framework for C++ 
+Author: Robert "burner" Schadek rburners@gmail.com License: LGPL 3 or higher
+*/
+
 #ifndef SWEET_DBC_HPP
 #define SWEET_DBC_HPP
 #include <type_traits>
@@ -5,9 +9,30 @@
 #include <sstream>
 #include <ostream>
 #include <iostream>
-//#include <stdexcept>
 #include <stdlib.h>
+#include <cxxabi.h>
 
+#define INVARIANT_BEGIN bool InvariantTestMethod(std::ostream& invar_stringstream) { \
+	bool InvarReturn = true;
+
+#define INVARIANT_END return InvarReturn; }
+
+#define Inv(tests) InvarReturn &= sweet::testEnsureB(__FILE__, __LINE__, tests, invar_stringstream)
+
+
+// Test macros
+#define R(l,o,h) sweet::makeRange(l,o,h,#o)
+#define NaN(v) sweet::makeNaN(v,#v)
+#define N(v) sweet::makeNulltest(v,#v)
+#define E(v) sweet::makeEmptytest(v,#v)
+#define S(v,s) sweet::makeSizetest(v,s,#v)
+#define T(v) sweet::makeTruetest(v,#v)
+#define Esr(tests) sweet::testEnsureB(__FILE__, __LINE__, tests, std::cerr)
+
+// Main convience macros
+#define Rqr(tests...) sweet::testCondition(__FILE__, __LINE__, tests)
+
+namespace sweet {
 // Range test
 template<typename T>
 struct RangeTest {
@@ -20,7 +45,7 @@ struct RangeTest {
 	inline RangeTest(T l, T o, T h, const std::string& n) : low(l), value(o), high(h), name(n) {}
 	inline bool test() { return low <= value && value <= high; }
 	inline void msg(std::ostream& s) {
-		s<<"Range violation for \""<<name<<"\" "<<low<<" <= "<<value<<" <= "<<high;
+		s<<'\t'<<"Range violation for \""<<name<<"\" "<<low<<" <= "<<value<<" <= "<<high;
 	}
 };
 
@@ -28,8 +53,6 @@ template<typename T>
 inline RangeTest<T> makeRange(T l, T o, T h, const std::string& n) {
 	return RangeTest<T>(l,o,h,n);
 }
-
-#define R(l,o,h) makeRange(l,o,h,#o)
 
 
 // NaN test
@@ -44,7 +67,7 @@ struct NaNclassTest<T, typename std::enable_if<std::is_floating_point<T>::value 
 	inline NaNclassTest(T v, const std::string& n) : value(v), name(n) { }
 	inline bool test() { return !std::isnan(value); }
 	inline void msg(std::ostream& s) {
-		s<<"Value of \""<<name<<"\" is NaN";
+		s<<'\t'<<"Value of \""<<name<<"\" is NaN";
 	}
 };
 
@@ -52,8 +75,6 @@ template<typename T>
 inline NaNclassTest<T> makeNaN(T v, const std::string& n) {
 	return NaNclassTest<T>(v,n);
 }
-
-#define NaN(v) makeNaN(v,#v)
 
 
 // Null test
@@ -65,7 +86,7 @@ struct NullTest {
 	inline NullTest(T v, const std::string& n) : value(v), name(n) { }
 	inline bool test() { return value != nullptr; }
 	inline void msg(std::ostream& s) {
-		s<<"Value \""<<name<<"\" is null";
+		s<<'\t'<<"Value \""<<name<<"\" is null";
 	}
 };
 
@@ -74,7 +95,64 @@ inline NullTest<T> makeNulltest(T v, const std::string& n) {
 	return NullTest<T>(v,n);
 }
 
-#define N(v) makeNulltest(v,#v)
+
+// Empty test
+template<typename T>
+struct EmptyTest {
+	T value;
+	typedef T value_type;
+	std::string name;
+	inline EmptyTest(T v, const std::string& n) : value(v), name(n) { }
+	inline bool test() { return !value.empty(); }
+	inline void msg(std::ostream& s) {
+		s<<'\t'<<"Value \""<<name<<"\" is empty";
+	}
+};
+
+template<typename T>
+inline EmptyTest<T> makeEmptytest(T v, const std::string& n) {
+	return EmptyTest<T>(v,n);
+}
+
+
+// Size test
+template<typename T>
+struct SizeTest {
+	T value;
+	typedef T value_type;
+	std::string name;
+	size_t size;
+	inline SizeTest(T v, size_t s, const std::string& n) : value(v), name(n), 
+			size(s) { }
+	inline bool test() { return value.size() >= size; }
+	inline void msg(std::ostream& s) {
+		s<<'\t'<<"Size of value \""<<name<<"\" is smaller than "<<size;
+	}
+};
+
+template<typename T>
+inline SizeTest<T> makeSizetest(T v, size_t s, const std::string& n) {
+	return SizeTest<T>(v,s,n);
+}
+
+
+// True test
+struct TrueTest {
+	bool value;
+	typedef bool value_type;
+	std::string name;
+	size_t size;
+	inline TrueTest(bool v, const std::string& n) : value(v), name(n) {}
+	inline bool test() { return value; }
+	inline void msg(std::ostream& s) {
+		s<<'\t'<<"Expression \""<<name<<"\" was not true";
+	}
+};
+
+inline TrueTest makeTruetest(bool v, const std::string& n) {
+	return TrueTest(v,n);
+}
+
 
 
 // Require check
@@ -125,23 +203,75 @@ inline void testCondition(const char* File, int line, Ts... t) {
 #endif
 } 
 
-#define Rqr(tests...) testCondition(__FILE__, __LINE__, tests)
 
 
 // Ensure
 template<typename T>
-inline typename T::value_type testEnsure(const char* File, int line, T t) {
+inline typename T::value_type testEnsure(const char* File, int line, T t, 
+		std::ostream& os, bool die) {
 #ifndef DBC_RELEASE
-	//std::stringstream s;
-	bool passed = testConditionImpl(std::cerr,t);
+	bool passed = testConditionImpl(os,t);
 	if(!passed) {
-		std::cerr<<"ENSURANCE TEST IN "<<File<<':'<<line<<" FAILED"<<std::endl;
-		exit(1);
+		os<<"ENSURANCE TEST IN "<<File<<':'<<line<<" FAILED"<<std::endl;
+		if(die) {
+			exit(1);
+		}
 	}
 #endif
-
 	return t.value;
 } 
 
-#define Esr(tests) testEnsure(__FILE__, __LINE__, tests)
+template<typename T>
+inline bool testEnsureB(const char* File, int line, T t, 
+		std::ostream& os) {
+#ifndef DBC_RELEASE
+	bool passed = testConditionImpl(os,t);
+	if(!passed) {
+		//os<<"ENSURANCE TEST IN "<<File<<':'<<line<<" FAILED"<<std::endl;
+		return false;
+	}
+#endif
+	return true;
+} 
+
+template<typename T>
+struct InvariantStruct {
+	T cls;
+	const char* file;
+	int line;
+	inline InvariantStruct(T c, const char* f, int l) : cls(c), file(f), 
+			line(l) {
+	}
+
+	inline ~InvariantStruct() {
+		(*this)(true);
+	}
+
+	inline void operator()(bool after = false) {
+		bool rslt = cls->InvariantTestMethod(std::cerr);
+		if(!rslt) {
+			int status;
+			char * demangled = abi::__cxa_demangle(
+				typeid(typename std::remove_pointer<T>::type).name(),0,0,&status
+			);
+
+			std::cerr<<"INVARAIANT OF CLASS \""<<demangled<<"\" FAILED FROM "<<file
+				<<':'<<line;
+			std::cerr<<(after ? " AFTER THE METHOD" : " AT METHOD ENTRY");
+			std::cerr<<std::endl;
+			free(demangled);
+			exit(1);
+		}
+	}
+};
+
+template<typename T>
+InvariantStruct<T> makeInvariantStruct(T c, const char* f, int l) {
+	return InvariantStruct<T>(c,f,l);
+}
+
+#define Invariant auto fancyNameNobodyWillEverGuess(sweet::makeInvariantStruct(this, __FILE__, __LINE__)); \
+fancyNameNobodyWillEverGuess
+
+}
 #endif

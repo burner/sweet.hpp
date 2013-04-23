@@ -1,4 +1,4 @@
-/* unit.hpp - a simple unit test framework for C++ based on QUnit and Testdog
+/* unit.hpp - a small but elegant unit test framework for C++ based on QUnit and Testdog
 Author: Robert "burner" Schadek rburners@gmail.com License: LGPL 3 or higher
 
 Example:
