@@ -12,12 +12,18 @@ Author: Robert "burner" Schadek rburners@gmail.com License: LGPL 3 or higher
 #include <stdlib.h>
 #include <cxxabi.h>
 
-#define INVARIANT_BEGIN bool InvariantTestMethod(std::ostream& invar_stringstream) { \
+
+// Invariant macros
+#define INVARIANT_BEGIN bool InvariantTestMethod() { \
 	bool InvarReturn = true;
 
 #define INVARIANT_END return InvarReturn; }
 
-#define Inv(tests) InvarReturn &= sweet::testEnsureB(__FILE__, __LINE__, tests, invar_stringstream)
+#define Inv(tests) InvarReturn &= sweet::testEnsureB(__FILE__, __LINE__, tests)
+
+#define Invariant auto fancyNameNobodyWillEverGuess(sweet::makeInvariantStruct(this, __FILE__, __LINE__)); \
+fancyNameNobodyWillEverGuess
+
 
 
 // Test macros
@@ -27,7 +33,7 @@ Author: Robert "burner" Schadek rburners@gmail.com License: LGPL 3 or higher
 #define E(v) sweet::makeEmptytest(v,#v)
 #define S(v,s) sweet::makeSizetest(v,s,#v)
 #define T(v) sweet::makeTruetest(v,#v)
-#define Esr(tests) sweet::testEnsureB(__FILE__, __LINE__, tests, std::cerr)
+#define Esr(tests) sweet::testEnsureB(__FILE__, __LINE__, tests)
 
 // Main convience macros
 #define Rqr(tests...) sweet::testCondition(__FILE__, __LINE__, tests)
@@ -208,11 +214,11 @@ inline void testCondition(const char* File, int line, Ts... t) {
 // Ensure
 template<typename T>
 inline typename T::value_type testEnsure(const char* File, int line, T t, 
-		std::ostream& os, bool die) {
+		bool die) {
 #ifndef DBC_RELEASE
-	bool passed = testConditionImpl(os,t);
+	bool passed = testConditionImpl(std::cerr,t);
 	if(!passed) {
-		os<<"ENSURANCE TEST IN "<<File<<':'<<line<<" FAILED"<<std::endl;
+		std::cerr<<"ENSURANCE TEST IN "<<File<<':'<<line<<" FAILED"<<std::endl;
 		if(die) {
 			exit(1);
 		}
@@ -222,10 +228,9 @@ inline typename T::value_type testEnsure(const char* File, int line, T t,
 } 
 
 template<typename T>
-inline bool testEnsureB(const char* File, int line, T t, 
-		std::ostream& os) {
+inline bool testEnsureB(const char* File, int line, T t) {
 #ifndef DBC_RELEASE
-	bool passed = testConditionImpl(os,t);
+	bool passed = testConditionImpl(std::cerr,t);
 	if(!passed) {
 		//os<<"ENSURANCE TEST IN "<<File<<':'<<line<<" FAILED"<<std::endl;
 		return false;
@@ -244,11 +249,14 @@ struct InvariantStruct {
 	}
 
 	inline ~InvariantStruct() {
+#ifndef DBC_RELEASE
 		(*this)(true);
+#endif
 	}
 
 	inline void operator()(bool after = false) {
-		bool rslt = cls->InvariantTestMethod(std::cerr);
+#ifndef DBC_RELEASE
+		bool rslt = cls->InvariantTestMethod();
 		if(!rslt) {
 			int status;
 			char * demangled = abi::__cxa_demangle(
@@ -262,6 +270,7 @@ struct InvariantStruct {
 			free(demangled);
 			exit(1);
 		}
+#endif
 	}
 };
 
@@ -269,9 +278,6 @@ template<typename T>
 InvariantStruct<T> makeInvariantStruct(T c, const char* f, int l) {
 	return InvariantStruct<T>(c,f,l);
 }
-
-#define Invariant auto fancyNameNobodyWillEverGuess(sweet::makeInvariantStruct(this, __FILE__, __LINE__)); \
-fancyNameNobodyWillEverGuess
 
 }
 #endif
