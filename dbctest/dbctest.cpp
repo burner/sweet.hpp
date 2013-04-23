@@ -1,3 +1,4 @@
+#include <memory>
 #include <dbc.hpp>
 #include <logger.hpp>
 
@@ -21,18 +22,19 @@ void testFunc(int a, double d, int* ip) {
 	Rqr(R(0,a,10), NaN(d), R(0.0,d,1.0), N(ip));
 }
 
-void testFunc2(std::vector<int>& a) {
-	Rqr( S(a,0), T(a.size() % 12 == 0));
+void testFunc2(std::vector<int>& a, std::shared_ptr<int> sp) {
+	Rqr( S(a,0), T(a.size() % 12 == 0), N(sp));
 }
 
 int main() {
 	int a;
 	int b = 9;
+	std::vector<int> v;
+	std::shared_ptr<int> sp(NULL);
 	InvarTest ivt;
+	testFunc2(v, sp);
 	ivt.changeMethod();
 	testFunc(9, 0.1, &a);
 	testFunc(Esr(R(8,b,12)), 0.7, &a);
-	std::vector<int> v;
-	testFunc2(v);
 	return 0;
 }
