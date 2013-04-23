@@ -5,6 +5,7 @@ Sweet cpp header that help in daily life
 
 * unit.hpp : extremely small unit testing framework 
 
+```C++
     UNITTEST(InformativTestName) {
     	// your test here
     }
@@ -15,6 +16,7 @@ Sweet cpp header that help in daily life
     	}
     	return 0;
     }
+```
 
 * format.hpp : variadic template printf string formatting 
 
