@@ -28,7 +28,7 @@ void testFunc2(std::vector<int>& a, std::shared_ptr<int> sp) {
 
 int main() {
 	int a;
-	int b = 9;
+	int b = Esr(R(8,a,10));
 	std::vector<int> v;
 	std::shared_ptr<int> sp(NULL);
 	InvarTest ivt;
