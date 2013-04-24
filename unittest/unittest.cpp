@@ -49,7 +49,7 @@ int main() {
 	//LOG();
 	//WARN("Hello warnign");
 	//LOG("Hello warnign %s", std::string("foobar"));
-	LOG("Hello warnign %p", std::string("foobar"));
+	LOG("Hello warning %p", std::string("foobar"));
 	//LOG("Hello warnign %p", "barfoo");
 	return 0;
 }
