@@ -33,7 +33,7 @@ fancyNameNobodyWillEverGuess
 #define E(v) sweet::makeEmptytest(v,#v)
 #define S(v,s) sweet::makeSizetest(v,s,#v)
 #define T(v) sweet::makeTruetest(v,#v)
-#define Esr(tests) sweet::testEnsureB(__FILE__, __LINE__, tests)
+#define Esr(tests) sweet::testEnsure(__FILE__, __LINE__, tests)
 
 // Main convience macros
 #define Rqr(tests...) sweet::testCondition(__FILE__, __LINE__, tests)
@@ -213,15 +213,12 @@ inline void testCondition(const char* File, int line, Ts... t) {
 
 // Ensure
 template<typename T>
-inline typename T::value_type testEnsure(const char* File, int line, T t, 
-		bool die) {
+inline typename T::value_type testEnsure(const char* File, int line, T t) {
 #ifndef DBC_RELEASE
 	bool passed = testConditionImpl(std::cerr,t);
 	if(!passed) {
 		std::cerr<<"ENSURANCE TEST IN "<<File<<':'<<line<<" FAILED"<<std::endl;
-		if(die) {
-			exit(1);
-		}
+		exit(1);
 	}
 #endif
 	return t.value;
@@ -232,7 +229,6 @@ inline bool testEnsureB(const char* File, int line, T t) {
 #ifndef DBC_RELEASE
 	bool passed = testConditionImpl(std::cerr,t);
 	if(!passed) {
-		//os<<"ENSURANCE TEST IN "<<File<<':'<<line<<" FAILED"<<std::endl;
 		return false;
 	}
 #endif

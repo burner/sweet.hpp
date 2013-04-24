@@ -32,9 +32,9 @@ int main() {
 	std::vector<int> v;
 	std::shared_ptr<int> sp(NULL);
 	InvarTest ivt;
-	testFunc2(v, sp);
+	testFunc(Esr(R(10,b,12)), 0.7, &a);
 	ivt.changeMethod();
 	testFunc(9, 0.1, &a);
-	testFunc(Esr(R(8,b,12)), 0.7, &a);
+	testFunc2(v, sp);
 	return 0;
 }
