@@ -27,12 +27,12 @@ fancyNameNobodyWillEverGuess
 
 
 // Test macros
-#define R(l,o,h) sweet::makeRange(l,o,h,#o)
+#define RN(l,o,h) sweet::makeRange(l,o,h,#o)
 #define NaN(v) sweet::makeNaN(v,#v)
-#define N(v) sweet::makeNulltest(v,#v)
-#define E(v) sweet::makeEmptytest(v,#v)
-#define S(v,s) sweet::makeSizetest(v,s,#v)
-#define T(v) sweet::makeTruetest(v,#v)
+#define NN(v) sweet::makeNulltest(v,#v)
+#define NE(v) sweet::makeEmptytest(v,#v)
+#define SB(v,s) sweet::makeSizetest(v,s,#v)
+#define TE(v) sweet::makeTruetest(v,#v)
 #define Esr(tests) sweet::testEnsure(__FILE__, __LINE__, tests)
 
 // Main convience macros

@@ -48,8 +48,8 @@ struct SomeStupidClass {
 	int b = 9;
 
 	INVARIANT_BEGIN
-		Inv(R(0,a,32));
-		Inv(R(0,b,10));
+		Inv(RN(0,a,32));
+		Inv(RN(0,b,10));
 	INVARIANT_END
 
 	inline void changeMethod() {
@@ -60,9 +60,9 @@ struct SomeStupidClass {
 };
 
 short testFunc(int a, double d, int* ip) {
-	Rqr(R(0,a,10), NaN(d), R(0.0,d,1.0), N(ip));
+	Rqr(RN(0,a,10), NaN(d), RN(0.0,d,1.0), NN(ip));
 	// some cracy computation
-	return Esr(R(12, a +b *ip, 16));
+	return Esr(RN(12, a +b *ip, 16));
 }
 
 void caller() {
@@ -73,6 +73,7 @@ void caller() {
 	ssc.changeMethod();
 }
 ```
+For a more in depth example take a look into the dbctest folder.
 
 
 benchmark.hpp
