@@ -12,7 +12,6 @@ Author: Robert "burner" Schadek rburners@gmail.com License: LGPL 3 or higher
 #include <stdlib.h>
 #include <cxxabi.h>
 
-
 // Invariant macros
 #define INVARIANT_BEGIN bool InvariantTestMethod() { \
 	bool InvarReturn = true;
@@ -21,37 +20,47 @@ Author: Robert "burner" Schadek rburners@gmail.com License: LGPL 3 or higher
 
 #define Inv(tests) InvarReturn &= sweet::testEnsureB(__FILE__, __LINE__, tests)
 
-#define Invariant auto fancyNameNobodyWillEverGuess(sweet::makeInvariantStruct(this, __FILE__, __LINE__)); \
+#define Invariant auto fancyNameNobodyWillEverGuess( \
+sweet::makeInvariantStruct(this, __FILE__, __LINE__)); \
 fancyNameNobodyWillEverGuess
 
-
-
 // Test macros
-#define RN(l,o,h) sweet::makeRange(l,o,h,#o)
-#define NaN(v) sweet::makeNaN(v,#v)
-#define NN(v) sweet::makeNulltest(v,#v)
-#define NE(v) sweet::makeEmptytest(v,#v)
-#define SB(v,s) sweet::makeSizetest(v,s,#v)
-#define TE(v) sweet::makeTruetest(v,#v)
+#define RN(l,o,h) 	sweet::makeRange(l,o,h,#o)
+#define NaN(v) 		sweet::makeNaN(v,#v)
+#define NN(v) 		sweet::makeNulltest(v,#v)
+#define NE(v) 		sweet::makeEmptytest(v,#v)
+#define SB(v,s) 	sweet::makeSizetest(v,s,#v)
+#define TE(v) 		sweet::makeTruetest(v,#v)
+
+// Ensure macros
 #define Esr(tests) sweet::testEnsure(__FILE__, __LINE__, tests)
 
 // Main convience macros
 #define Rqr(tests...) sweet::testCondition(__FILE__, __LINE__, tests)
 
 namespace sweet {
+
+template<typename T>
+struct BaseCls {
+	T value;
+	typedef T value_type;
+	std::string name;
+	inline BaseCls(T v, const std::string& n) : value(v), name(n) { }
+};
+
+
 // Range test
 template<typename T>
-struct RangeTest {
+struct RangeTest : BaseCls<T> {
 	T low;
-	T value;
 	T high;
-	std::string name;
-	typedef T value_type;
 
-	inline RangeTest(T l, T o, T h, const std::string& n) : low(l), value(o), high(h), name(n) {}
-	inline bool test() { return low <= value && value <= high; }
+	inline RangeTest(T l, T o, T h, const std::string& n) : BaseCls<T>(o, n), 
+		low(l), high(h) {}
+	inline bool test() { return low <= this->value && this->value <= high; }
 	inline void msg(std::ostream& s) {
-		s<<'\t'<<"Range violation for \""<<name<<"\" "<<low<<" <= "<<value<<" <= "<<high;
+		s<<'\t'<<"Range violation for \""<<this->name<<"\" "<<low<<" <= "
+			<<this->value<<" <= "<<high;
 	}
 };
 
@@ -66,14 +75,13 @@ template<class T, class Enable = void>
 class NaNclassTest; // undefined
 
 template<typename T>
-struct NaNclassTest<T, typename std::enable_if<std::is_floating_point<T>::value >::type> {
-	T value;
-	typedef T value_type;
-	std::string name;
-	inline NaNclassTest(T v, const std::string& n) : value(v), name(n) { }
-	inline bool test() { return !std::isnan(value); }
+struct NaNclassTest<T, 
+		typename std::enable_if<std::is_floating_point<T>::value >::type>
+		: public BaseCls<T> {
+	inline NaNclassTest(T v, const std::string& n) : BaseCls<T>(v,n) { }
+	inline bool test() { return !std::isnan(this->value); }
 	inline void msg(std::ostream& s) {
-		s<<'\t'<<"Value of \""<<name<<"\" is NaN";
+		s<<'\t'<<"Value of \""<<this->name<<"\" is NaN";
 	}
 };
 
@@ -85,14 +93,11 @@ inline NaNclassTest<T> makeNaN(T v, const std::string& n) {
 
 // Null test
 template<typename T>
-struct NullTest {
-	T value;
-	typedef T value_type;
-	std::string name;
-	inline NullTest(T v, const std::string& n) : value(v), name(n) { }
-	inline bool test() { return value != nullptr; }
+struct NullTest : BaseCls<T> {
+	inline NullTest(T v, const std::string& n) : BaseCls<T>(v, n) { }
+	inline bool test() { return this->value != nullptr; }
 	inline void msg(std::ostream& s) {
-		s<<'\t'<<"Value \""<<name<<"\" is null";
+		s<<'\t'<<"Value \""<<this->name<<"\" is null";
 	}
 };
 
@@ -104,14 +109,11 @@ inline NullTest<T> makeNulltest(T v, const std::string& n) {
 
 // Empty test
 template<typename T>
-struct EmptyTest {
-	T value;
-	typedef T value_type;
-	std::string name;
-	inline EmptyTest(T v, const std::string& n) : value(v), name(n) { }
-	inline bool test() { return !value.empty(); }
+struct EmptyTest : BaseCls<T> {
+	inline EmptyTest(T v, const std::string& n) : BaseCls<T>(v, n) { }
+	inline bool test() { return !this->value.empty(); }
 	inline void msg(std::ostream& s) {
-		s<<'\t'<<"Value \""<<name<<"\" is empty";
+		s<<'\t'<<"Value \""<<this->name<<"\" is empty";
 	}
 };
 
@@ -123,16 +125,13 @@ inline EmptyTest<T> makeEmptytest(T v, const std::string& n) {
 
 // Size test
 template<typename T>
-struct SizeTest {
-	T value;
-	typedef T value_type;
-	std::string name;
+struct SizeTest : BaseCls<T> {
 	size_t size;
-	inline SizeTest(T v, size_t s, const std::string& n) : value(v), name(n), 
+	inline SizeTest(T v, size_t s, const std::string& n) : BaseCls<T>(v, n),
 			size(s) { }
-	inline bool test() { return value.size() >= size; }
+	inline bool test() { return this->value.size() >= size; }
 	inline void msg(std::ostream& s) {
-		s<<'\t'<<"Size of value \""<<name<<"\" is smaller than "<<size;
+		s<<'\t'<<"Size of value \""<<this->name<<"\" is smaller than "<<size;
 	}
 };
 
@@ -143,15 +142,11 @@ inline SizeTest<T> makeSizetest(T v, size_t s, const std::string& n) {
 
 
 // True test
-struct TrueTest {
-	bool value;
-	typedef bool value_type;
-	std::string name;
-	size_t size;
-	inline TrueTest(bool v, const std::string& n) : value(v), name(n) {}
-	inline bool test() { return value; }
+struct TrueTest : BaseCls<bool> {
+	inline TrueTest(bool v, const std::string& n) : BaseCls<bool>(v, n) {}
+	inline bool test() { return this->value; }
 	inline void msg(std::ostream& s) {
-		s<<'\t'<<"Expression \""<<name<<"\" was not true";
+		s<<'\t'<<"Expression \""<<this->name<<"\" was not true";
 	}
 };
 
@@ -160,32 +155,38 @@ inline TrueTest makeTruetest(bool v, const std::string& n) {
 }
 
 
-
 // Require check
 template<typename S>
 inline bool testConditionImplImpl(S s) {
 	bool passed = false;
 	bool excp = false;
+#ifndef DBC_RELEASE
 	try {
 		passed = s.test();
 	} catch(...) {
 		excp = true;
 	}
+#endif
 	return passed || excp;
 }
 
 template<typename S>
 inline bool testConditionImpl(std::ostream& ss, S s) {
+#ifndef DBC_RELEASE
 	bool testRslt = testConditionImplImpl(s);
 	if(!testRslt) {
 		s.msg(ss);
 		ss<<std::endl;
 	}
 	return testRslt;
+#else
+	return true;
+#endif
 } 
 
 template<typename S,typename...Ts>
 inline bool testConditionImpl(std::ostream& ss, S s, Ts... t) {
+#ifndef DBC_RELEASE
 	bool testRslt = testConditionImplImpl(s);
 	if(!testRslt) {
 		s.msg(ss);
@@ -193,7 +194,9 @@ inline bool testConditionImpl(std::ostream& ss, S s, Ts... t) {
 	}
 	bool other = testConditionImpl(ss, t...);
 	return other && testRslt;
-
+#else
+	return true;
+#endif
 } 
 
 template<typename... Ts>
@@ -208,7 +211,6 @@ inline void testCondition(const char* File, int line, Ts... t) {
 	}
 #endif
 } 
-
 
 
 // Ensure
@@ -259,8 +261,8 @@ struct InvariantStruct {
 				typeid(typename std::remove_pointer<T>::type).name(),0,0,&status
 			);
 
-			std::cerr<<"INVARAIANT OF CLASS \""<<demangled<<"\" FAILED FROM "<<file
-				<<':'<<line;
+			std::cerr<<"INVARAIANT OF CLASS \""<<demangled<<"\" FAILED FROM "
+				<<file<<':'<<line;
 			std::cerr<<(after ? " AFTER THE METHOD" : " AT METHOD ENTRY");
 			std::cerr<<std::endl;
 			free(demangled);
