@@ -403,7 +403,7 @@ public:
 private:
 	template<typename S>
 	inline std::pair<SqliteDB::Iterator<S>,SqliteDB::Iterator<S>> makeIterator(
-			const std::string stmtStr) {
+			const std::string& stmtStr) {
 		sqlite3_stmt* stmt;
  		int rsltCode = sqlite3_prepare(db, stmtStr.c_str(), -1, 
 			&stmt, NULL
