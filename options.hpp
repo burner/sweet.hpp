@@ -29,7 +29,6 @@ class Options {
 				"  " : (s + ", "));
 			std::cout<<std::setw(ll)<<((l.size() == 0) ? std::string(" ") +
 				"  " : (l + "  "));
-			//cur = s.size() + 4 + l.size();
 			cur = ls + ll;
 			for(auto it : d) {
 				if(cur % 77 == 0) {

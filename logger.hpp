@@ -33,14 +33,14 @@ struct Log {
 	}
 
 	template<typename... Args>
-	void operator()(std::string form, Args... args) {
+	void operator()(const std::string& form, Args... args) {
 		format(std::cerr, "%s:%d ", fn, line);
 		format(std::cerr, form, args...);
 		std::cerr<<std::endl;
 	}
 
-	/*template<typename... Args>
-	void operator()(bool p, std::string form, Args... args) {
+	template<typename... Args>
+	void operator()(bool p, const std::string& form, Args... args) {
 		if(p) {
 			if(warn) {
 				std::cerr<<"WARN ";
@@ -49,7 +49,7 @@ struct Log {
 			format(std::cerr, form, args...);
 			std::cerr<<std::endl;
 		}
-	}*/
+	}
 };
 #define LOG Log(__FILE__,__LINE__)
 #define WARN Log(__FILE__,__LINE__,true)

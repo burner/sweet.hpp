@@ -12,8 +12,8 @@
 // yes I know
 #pragma GCC diagnostic ignored "-Wstrict-aliasing"
 
-static inline void setStreamFormat(std::ostream& out, const std::string& form, size_t s,
-		size_t e) {
+static inline void setStreamFormat(std::ostream& out, const std::string& form, 
+		size_t s, size_t e) {
 	// check the flags
 	if(form[s] == '-') {
 		out<<std::left;
@@ -72,13 +72,16 @@ static inline void setStreamFormat(std::ostream& out, const std::string& form, s
 	}
 }
 
-static inline void formImpl(std::ostream& out, const std::string& s, size_t pos) {
+static inline void formImpl(std::ostream& out, const std::string& s, 
+		size_t pos) {
     while(pos != s.size()) {
         if(s[pos] == '%') {
             if(s[pos + 1] == '%') {
                 ++pos;
             } else {
-                throw std::runtime_error("invalid format string: missing arguments");
+                throw std::runtime_error(
+					"invalid format string: missing arguments"
+				);
             }
         }
         out<<s[pos++];
@@ -86,7 +89,8 @@ static inline void formImpl(std::ostream& out, const std::string& s, size_t pos)
 }
  
 template<typename T, typename... Args>
-static inline void formImpl(std::ostream& out, const std::string& s, size_t pos, T value, Args... args) {
+static inline void formImpl(std::ostream& out, const std::string& s, 
+		size_t pos, T value, Args... args) {
     while(pos != s.size()) {
         if(s[pos] == '%') {
             if(s[pos + 1] == '%') {
@@ -103,7 +107,9 @@ static inline void formImpl(std::ostream& out, const std::string& s, size_t pos,
 				}
 				out.flags(savedFlags);
 				pos = next;
-                formImpl(out, s, pos+1, args...); // call even when *s == 0 to detect extra arguments
+
+				// call even when *s == 0 to detect extra arguments
+                formImpl(out, s, pos+1, args...); 
                 return;
             }
         }
