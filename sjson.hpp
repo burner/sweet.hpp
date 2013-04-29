@@ -126,7 +126,8 @@ class object {
 private:
 	std::unordered_map<std::string,ValuePtr> mappings;
 
-	inline ValuePtr accessImpl(const std::string& path, const bool th, bool& rls) {
+	inline ValuePtr accessImpl(const std::string& path, const bool th, 
+			bool& rls) {
 		size_t pos = path.find('.');
 		auto pathSubString(path.substr(0,pos));
 		auto ret = this->mappings.find(pathSubString);
@@ -181,24 +182,33 @@ public:
 
 	template<typename T>
 	typename std::enable_if<std::is_integral<T>::value>::type conv(ValuePtr t) {
-		if(t->getType() != value::type_number_int) { throw std::logic_error("Value not of type int"); }
+		if(t->getType() != value::type_number_int) { 
+			throw std::logic_error("Value not of type int"); 
+		}
 		return t->getInt();
 	}
 
 	template<typename T>
-	typename std::enable_if<std::is_floating_point<T>::value>::type conv(ValuePtr t) {
-		if(t->getType() != value::type_number_float) { throw std::logic_error("Value not of type float"); }
+	typename std::enable_if<std::is_floating_point<T>::value>::type 
+			conv(ValuePtr t) {
+		if(t->getType() != value::type_number_float) { 
+			throw std::logic_error("Value not of type float"); 
+		}
 		return t->getFloat();
 	}
 
 	template<typename T>
-	typename std::enable_if<std::is_same<T,bool>::value>::type conv(ValuePtr t) {
-		if(t->getType() != value::type_boolean) { throw std::logic_error("Value not of type bool"); }
+	typename std::enable_if<std::is_same<T,bool>::value>::type 
+			conv(ValuePtr t) {
+		if(t->getType() != value::type_boolean) { 
+			throw std::logic_error("Value not of type bool"); 
+		}
 		return t->getBool();
 	}
 
 	template<typename T>
-	typename std::enable_if<std::is_same<T,std::string>::value>::type conv(ValuePtr t) {
+	typename std::enable_if<std::is_same<T,std::string>::value>::type 
+			conv(ValuePtr t) {
 		return t;
 	}
 
