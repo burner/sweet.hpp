@@ -70,8 +70,10 @@ void test_name##_test_class::run_impl()
 #define ASSERT_T(e)			UNIT_COMPARED(false,true,e,true)
 #define ASSERT_F(e)			UNIT_COMPARED(false,true,e,false)
 
-#define UNIT_COMPARE(compare,result,e1,e2) evaluate(compare,			  \
-result, e1, e2, #e1, #e2,Unit::sname(__FILE__), __LINE__)
+#define IF_BREAK(e)			if(!e) return;
+
+#define UNIT_COMPARE(compare,result,e1,e2) IF_BREAK(evaluate(compare,result, \
+e1, e2, #e1, #e2,Unit::sname(__FILE__), __LINE__))
 #define UNIT_COMPARED(compare,result,e1,e2) Unit::Unittest::evaluates(compare,  \
 result, e1, e2, #e1, #e2,Unit::sname(__FILE__), __LINE__, &std::cout, "", true)
 
@@ -200,12 +202,13 @@ namespace Unit {
 		ostream* out_;
 	};
 
-	inline bool runTests(std::string benmarkrslt = "UnittestBenchmarkResult.ben") {
+	inline unsigned runTests(std::string benmarkrslt = "UnittestBenchmarkResult.ben") {
 		char timeStr[100];
 		std::time_t now_time = std::time(NULL);
 		std::strftime(timeStr, 100, "%Y:%m:%d-%H:%M:%S",
 				std::localtime(&now_time));
-		bool rs(true);
+		//bool rs(true);
+		unsigned rs = 0;
 		for(vector<Unittest*>::iterator it = getTests().begin(); it !=
 				getTests().end(); ++it) {
 			std::chrono::time_point<std::chrono::system_clock> strt(
@@ -213,18 +216,21 @@ namespace Unit {
 			try {
 				for(int i = 0; i < (*it)->numRounds; ++i) {
 					bool tmp = (*it)->run();
-					rs &= !tmp;
+					//rs &= !tmp;
+					rs += tmp;
 				}
 			} catch(std::exception& e) {
 				std::cerr<<(*it)->file<<":"<<(*it)->line<<" Unittest"<<
 					(*it)->name_<<" has thrown an "<< "uncaught exception "<<
 					" with message "<<e.what()<<std::endl;
-				rs &= false;
+				//rs &= false;
+				++rs;
 			} catch(...) {
 				std::cerr<<(*it)->file<<":"<<(*it)->line<<" Unittest"<<
 					(*it)->name_<<" has thrown an "<< "uncaught exception "
 					<<std::endl;
-				rs &= false;
+				//rs &= false;
+				++rs;
 			}
 			std::chrono::time_point<std::chrono::system_clock> stp(
 				std::chrono::system_clock::now());

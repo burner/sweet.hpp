@@ -14,9 +14,10 @@ UNITTEST(fancyname) {
 	AS_EQ(42, 42);
 	AS_NEQ(42, 43);
 
-	if(AS_T(true)) {
-		// do a test that is only possible if the previous test passed
-	}
+	AS_T(true)
+	LOG("Hello");
+	AS_T(false)
+	LOG();
 }
 
 UNITTEST(foo, 66) {
@@ -36,8 +37,9 @@ UNITTEST(bar2) {
 }
 
 int main() {
-	if(!Unit::runTests("TheNameOfTheFileWithTheBenchmarkResults")) {
-		std::cerr<<"Some errors occoured"<<std::endl;
+	unsigned c = 0;
+	if(c = Unit::runTests("TheNameOfTheFileWithTheBenchmarkResults")) {
+		WARN("%u errors occured", c);
 	}
 	//formatToStream(std::cout, "hello print world %10d\n", 10);
 	//format(std::cout, "%18.2E %s\n", 10.123, "hello world");
