@@ -127,19 +127,6 @@ inline void crit_err_hdlr(int sig_num, siginfo_t * info, void * ucontext) {
     exit(EXIT_FAILURE);
 }
 
-void installHandler() {
-	struct sigaction sigact;
-	
-	sigact.sa_sigaction = crit_err_hdlr;
-	sigact.sa_flags = SA_RESTART | SA_SIGINFO;
-	
-	if(sigaction(SIGSEGV, &sigact, (struct sigaction *)NULL) != 0) {
-		fprintf(stderr, "error setting signal handler for %d (%s)\n",
-			SIGSEGV, strsignal(SIGSEGV));
-		exit(EXIT_FAILURE);
-	}
-}
-
 #else
 
 inline void handler(int sig) {
@@ -175,3 +162,21 @@ inline void handler(int sig) {
 }
 
 #endif
+
+void installHandler() {
+#ifdef __X86_64__ 
+	struct sigaction sigact;
+	
+	sigact.sa_sigaction = crit_err_hdlr;
+	sigact.sa_flags = SA_RESTART | SA_SIGINFO;
+	
+	if(sigaction(SIGSEGV, &sigact, (struct sigaction *)NULL) != 0) {
+		fprintf(stderr, "error setting signal handler for %d (%s)\n",
+			SIGSEGV, strsignal(SIGSEGV));
+		exit(EXIT_FAILURE);
+	}
+#else
+	signal(SIGSEGV, handler); 
+#endif
+}
+
