@@ -261,11 +261,12 @@ public:
 	/** This methode starts the parsing process. */
 	inline void parse() { readline(); root = parseObject(); }
 
-	inline bool testAndEatOrThrow(const char c, bool nothrow = false) {
+	inline bool testAndEatOrThrow(const char c, const std::string& par, 
+			bool nothrow = false) {
 		if(curLine[idx] != c) { 
 			if(!nothrow) throw std::logic_error(locToStr() + std::string(
 				" excepeted a ") + c + " but found a " + curLine[idx] + " at " +
-				locToStr());
+				locToStr() + " while parsing a " + par);
 			else return false; }
 		else { ++idx; return true; }
 	}
@@ -303,19 +304,19 @@ public:
 	inline ObjectPtr parseObject() {
 		ObjectPtr obj = std::make_shared<object>();	
 		eatWhitespace();
-		testAndEatOrThrow('{');
+		testAndEatOrThrow('{', "Object");
 
 		do {
 			eatWhitespace();
-			testAndEatOrThrow('"');
+			testAndEatOrThrow('"', "Object");
 			std::string name(parseString());
 			eatWhitespace();
-			testAndEatOrThrow(':');
+			testAndEatOrThrow(':', "Object");
 			eatWhitespace();
 			ValuePtr vp = parseValue();
 			obj->getMappings().insert(std::make_pair(name, vp));
 			eatWhitespace();
-			testAndEatOrThrow(',', true);
+			testAndEatOrThrow(',', "Object", true);
 			eatWhitespace();
 		} while(curLine[idx] != '}');
 		++idx;
@@ -337,12 +338,12 @@ public:
 			ret->setObject(parseObject());
 			ret->setType(value::type_object);
 			return ret;
-		} else if(testAndEatOrThrow('[', true)) {
+		} else if(testAndEatOrThrow('[', "Value", true)) {
 			ValuePtr ret(std::make_shared<value>());
 			ret->setArray(parseArray());
 			ret->setType(value::type_array);
 			return ret;
-		} else if(testAndEatOrThrow('"', true)) {
+		} else if(testAndEatOrThrow('"', "Value", true)) {
 			return std::make_shared<value>(parseString());
 		} else if(isdigit(curLine[idx])) {
 			return std::make_shared<value>(parseNumber());
@@ -352,7 +353,7 @@ public:
 		} else if(curLine.find("true", idx) != std::string::npos) {
 			idx+=4;
 			return std::make_shared<value>("true");
-		} else if(testAndEatOrThrow(']', true)) {
+		} else if(testAndEatOrThrow(']', "Value", true)) {
 			ValuePtr ret(std::make_shared<value>());
 			ret->setType(value::type_object);
 			return ret;
