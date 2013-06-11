@@ -36,6 +36,40 @@ int main() {
 
 	std::vector<std::string> shuffle(words.begin(), words.end());
 	std::random_shuffle(shuffle.begin(), shuffle.end());	
+
+	std::vector<size_t> wf(words.size());
+	std::vector<size_t> ws(words.size());
+
+	Bench normal;
+	const size_t wordsSize = words.size();
+	for(size_t i = 0; i < wordsSize; ++i) {
+		for(size_t j = 0; j < wordsSize; ++j) {
+			if(words[i] == shuffle[j]) {
+				wf[i] = j;
+				break;
+			}
+		}
+	}
+	normal.stop();
+	LOG("normal %f", normal.milli());
 	LOG("%u %u", words.size(), shuffle.size());
+
+	Bench sse;
+	for(size_t i = 0; i < wordsSize; ++i) {
+		for(size_t j = 0; j < wordsSize; ++j) {
+			if(words[i] == shuffle[j]) {
+				ws[i] = j;
+				break;
+			}
+		}
+	}
+	sse.stop();
+	LOG("normal %f", sse.milli());
+
+	for(size_t i = 0; i < wordsSize; ++i) {
+		if(wf[i] != ws[i]) {
+			return 1;
+		}
+	}
 	return 0;
 }
