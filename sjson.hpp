@@ -29,15 +29,62 @@ static bool isString(const std::string& toTest) {
 	return toTest.size() >= 1;
 }
 
-static bool convertsToFloat(const std::string& s, double& ret) {
-	try { ret = std::stof(s); }
+static bool convertsToFloat(const std::string& s) {
+	/*try { ret = std::stof(s); }
 	catch(...) { return false; }
-	return true;
+	return true;*/
+	const size_t size = s.size();
+	size_t i = 0;
+	if(size > 0 && (s[0] == '+' || s[0] == '-')) {
+		i = 1;
+	}
+	for(i = 0; i < size; ++i) {
+		if(!isdigit(s[i])) {
+			break;
+		}
+	}
+	if(i == size) {
+		return true;
+	} else if(s[i] == '.') {
+		++i;
+		for(; i < size; ++i) {
+			if(!isdigit(s[i])) {
+				break;
+			}
+		}
+	}
+
+	if(i == size) {
+		return true;
+	} else if(s[i] == 'e' || s[i] == 'E') {
+		++i;
+		if(s[i] == '+' || s[i] == '-') {
+			++i;
+		}
+		for(; i < size; ++i) {
+			if(!isdigit(s[i])) {
+				break;
+			}
+		}
+	}
+
+	return i == size;
 }
 
-static bool convertsToInt(const std::string& s, long& ret) {
-	try { ret = std::stol(s); } 
+static bool convertsToInt(const std::string& s) {
+	/*try { ret = std::stol(s); } 
 	catch(...) { return false; }
+	return true;*/
+	const size_t size = s.size();
+	size_t i = 0;
+	if(size > 0 && (s[0] == '+' || s[0] == '-')) {
+		i = 1;
+	}
+	for(i = 0; i < size; ++i) {
+		if(!isdigit(s[i])) {
+			return false;
+		}
+	}
 	return true;
 }
 
@@ -71,10 +118,10 @@ public:
 		} else if(s == "null") {
 			this->type = value::type_null;
 		} else {
-			long i;
-			double d;
-			if(convertsToInt(s, i)) setType(value::type_number_int); 
-			else if(convertsToFloat(s, d)) setType(value::type_number_float); 
+			//long i;
+			//double d;
+			if(convertsToInt(s)) setType(value::type_number_int); 
+			else if(convertsToFloat(s)) setType(value::type_number_float); 
 			else if(s == "null") this->setType(value::type_null);
 			else if(isString(s)) this->setType(value::type_string);
 			else {throw std::logic_error(std::string("unexcepted input while"
