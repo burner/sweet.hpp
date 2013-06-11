@@ -288,6 +288,21 @@ public:
 		}
 	}
 
+	inline bool parseNull() {
+		size_t f = idx;
+		for(size_t i = 0; f < curLine.size() && i < 4; ++f, ++i) {
+			if(i == 0 && curLine[f] != 'n') {
+				return false;
+			} else if(i == 1 && curLine[f] != 'u') {
+				return false;
+			} else if((i == 2 || i == 3) && curLine[f] != 'l') {
+				return false;
+			}
+		}
+		idx = f+1;
+		return true;
+	}
+
 	inline std::string parseNumber() {
 		size_t f = curLine.find_first_not_of("0123456789.-+", idx);
 		std::string ret = curLine.substr(idx, f-idx); 
@@ -345,7 +360,8 @@ public:
 			return ret;
 		} else if(testAndEatOrThrow('"', "Value", true)) {
 			return std::make_shared<value>(parseString());
-		} else if(isdigit(curLine[idx])) {
+		} else if(isdigit(curLine[idx]) || curLine[idx] == '+' || 
+				curLine[idx] == '-') {
 			return std::make_shared<value>(parseNumber());
 		} else if(curLine.find("false", idx) != std::string::npos) {
 			idx+=5;
@@ -356,6 +372,10 @@ public:
 		} else if(testAndEatOrThrow(']', "Value", true)) {
 			ValuePtr ret(std::make_shared<value>());
 			ret->setType(value::type_object);
+			return ret;
+		} else if(parseNull()) {
+			ValuePtr ret(std::make_shared<value>());
+			ret->setType(value::type_null);
 			return ret;
 		}
 		throw std::logic_error(locToStr() + " no value found curLine(" +
