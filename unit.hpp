@@ -61,21 +61,29 @@ test_name##_test_class() : Unit::Unittest(#test_name,__FILE__,__LINE__,##__VA_AR
 void test_name##_test_class::run_impl()
 #endif
 
-#define AS_EQ(e1,e2)		UNIT_COMPARE(true,true,e1,e2)
-#define AS_NEQ(e1,e2)		UNIT_COMPARE(true,false,e1,e2)
-#define AS_T(e)				UNIT_COMPARE(false,true,e,true)
-#define AS_F(e)				UNIT_COMPARE(false,true,e,false)
-#define ASSERT_EQ(e1,e2)	UNIT_COMPARED(true,true,e1,e2)
-#define ASSERT_NEQ(e1,e2)	UNIT_COMPARED(true,false,e1,e2)
-#define ASSERT_T(e)			UNIT_COMPARED(false,true,e,true)
-#define ASSERT_F(e)			UNIT_COMPARED(false,true,e,false)
+#define AS_EQ(e1,e2)				UNIT_COMPARE(true,true,e1,e2,"")
+#define AS_NEQ(e1,e2)				UNIT_COMPARE(true,false,e1,e2,"")
+#define AS_T(e)						UNIT_COMPARE(false,true,e,true,"")
+#define AS_F(e)						UNIT_COMPARE(false,true,e,false,"")
+#define AS_EQ_MSG(e1,e2,msg)		UNIT_COMPARE(true,true,e1,e2,msg)
+#define AS_NEQ_MSG(e1,e2,msg)		UNIT_COMPARE(true,false,e1,e2,msg)
+#define AS_T_MSG(e,msg)				UNIT_COMPARE(false,true,e,true,msg)
+#define AS_F_MSG(e,msg)				UNIT_COMPARE(false,true,e,false,msg)
+#define ASSERT_EQ(e1,e2)			UNIT_COMPARED(true,true,e1,e2,"")
+#define ASSERT_NEQ(e1,e2)			UNIT_COMPARED(true,false,e1,e2,"")
+#define ASSERT_T(e)					UNIT_COMPARED(false,true,e,true,"")
+#define ASSERT_F(e)					UNIT_COMPARED(false,true,e,false,"")
+#define ASSERT_EQ_MSG(e1,e2,msg)	UNIT_COMPARED(true,true,e1,e2,msg)
+#define ASSERT_NEQ_MSG(e1,e2,msg)	UNIT_COMPARED(true,false,e1,e2,msg)
+#define ASSERT_T_MSG(e,msg)			UNIT_COMPARED(false,true,e,true,msg)
+#define ASSERT_F_MSG(e,msg)			UNIT_COMPARED(false,true,e,false,msg)
 
 #define IF_BREAK(e)			if(!e) return;
 
-#define UNIT_COMPARE(compare,result,e1,e2) IF_BREAK(evaluate(compare,result, \
-e1, e2, #e1, #e2,Unit::sname(__FILE__), __LINE__))
-#define UNIT_COMPARED(compare,result,e1,e2) Unit::Unittest::evaluates(compare,  \
-result, e1, e2, #e1, #e2,Unit::sname(__FILE__), __LINE__, &std::cout, "", true)
+#define UNIT_COMPARE(compare,result,e1,e2,msg) IF_BREAK(evaluate(compare,result, \
+e1, e2, #e1, #e2,Unit::sname(__FILE__), __LINE__,msg))
+#define UNIT_COMPARED(compare,result,e1,e2,msg) Unit::Unittest::evaluates(compare,  \
+result, e1, e2, #e1, #e2,Unit::sname(__FILE__), __LINE__, &std::cout, "", true, msg)
 
 namespace Unit {
 	using namespace std;
@@ -128,7 +136,7 @@ namespace Unit {
 		template<typename E1, typename E2> static bool evaluates(bool compare, 
 				bool result, const E1& e1, const E2& e2, const string& str1, 
 				const string& str2, const string& file, int line,
-				ostream* out, const string& name, bool die) {
+				ostream* out, const string& name, bool die, const string& msg) {
 
 			//if(result ? (e1 == e2) : (e1 != e2)) return true;
 			if(result ? 
@@ -156,7 +164,7 @@ namespace Unit {
 			} else {
 				*out<<"evalute {"<<str1<<"} == "<<s2.str();
 			}
-			*out<<endl;
+			*out<<' '<<msg<<endl;
 			if(die) {
 				exit(1);
 			}
@@ -165,9 +173,9 @@ namespace Unit {
 
 		template<typename E1, typename E2> bool evaluate(bool compare, 
 				bool result, const E1& e1, const E2& e2, const string& str1, 
-				const string& str2, const string& file, int line) {
+				const string& str2, const string& file, int line, const string& msg) {
 			bool rlst = Unittest::evaluates<E1,E2>(compare, result, e1, e2,
-					str1, str2, file, line, out_, name_, false);
+					str1, str2, file, line, out_, name_, false, msg);
 			if(!rlst) {
 				++errors_;
 			}
