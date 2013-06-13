@@ -17,7 +17,7 @@
 // size and resident set size, and return the results in KB.
 //
 // On failure, returns 0.0, 0.0
-inline void process_mem_usage(double& vm_usage, double& resident_set) {
+/*inline void process_mem_usage(double& vm_usage, double& resident_set) {
 	using std::ios_base;
 	using std::ifstream;
 	using std::string;
@@ -50,6 +50,15 @@ inline void process_mem_usage(double& vm_usage, double& resident_set) {
 	long page_size_kb = sysconf(_SC_PAGE_SIZE) / 1024; 
 	vm_usage = vsize / 1024.0;
 	resident_set = rss * page_size_kb;
+}*/
+
+inline void process_mem_usage(double& vm_usage, double& resident_set) {
+	FILE* file = fopen("/proc/self/statm", "r");
+	int a, b, c, d, e, f, g;
+	fscanf(file, "%d %d %d %d %d %d %d", &a, &b, &c, &d, &e, &f, &g);
+	fclose(file);
+	vm_usage = a;
+	resident_set = b;
 }
 
 #ifdef __X86_64__ 
@@ -163,7 +172,7 @@ inline void handler(int sig) {
 
 #endif
 
-void installHandler() {
+inline void installHandler() {
 #ifdef __X86_64__ 
 	struct sigaction sigact;
 	
