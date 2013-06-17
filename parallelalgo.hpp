@@ -15,7 +15,7 @@ inline unsigned getNumberOfCores() {
 	return sysconf(_SC_NPROCESSORS_ONLN);
 }
 
-inline template<typename Iterator, typename UnaryFunction>
+template<typename Iterator, typename UnaryFunction>
 UnaryFunction for_each_impl(Iterator first, Iterator second,
 		UnaryFunction f, std::random_access_iterator_tag, size_t numThreads) {
 
@@ -38,7 +38,7 @@ UnaryFunction for_each_impl(Iterator first, Iterator second,
 	return f;
 }
 
-inline template<typename Iterator, typename UnaryFunction>
+template<typename Iterator, typename UnaryFunction>
 UnaryFunction for_each(Iterator first, Iterator second, UnaryFunction f,
 		size_t numThreads = getNumberOfCores()) {
 	typedef typename std::iterator_traits<Iterator>::iterator_category category;
@@ -47,7 +47,7 @@ UnaryFunction for_each(Iterator first, Iterator second, UnaryFunction f,
 		category(), numThreads);
 }
 
-inline template<typename Iterator, typename OIterator, typename UnaryFunction>
+template<typename Iterator, typename OIterator, typename UnaryFunction>
 OIterator transform_impl(Iterator first, Iterator second, OIterator out, 
 		UnaryFunction f, size_t numThreads, std::random_access_iterator_tag, 
 		std::random_access_iterator_tag) {
@@ -73,7 +73,7 @@ OIterator transform_impl(Iterator first, Iterator second, OIterator out,
 	return out;
 }
 
-inline template<typename Iterator, typename OIterator, typename UnaryFunction>
+template<typename Iterator, typename OIterator, typename UnaryFunction>
 OIterator transform(Iterator first, Iterator second, OIterator out, 
 		UnaryFunction f, size_t numThreads = getNumberOfCores()) {
 	typedef typename std::iterator_traits<Iterator>::iterator_category iType;
@@ -84,7 +84,7 @@ OIterator transform(Iterator first, Iterator second, OIterator out,
 			std::forward<UnaryFunction>(f), numThreads, iType(), oType());
 }
 
-inline template<typename Iterator, typename OIterator, typename UnaryFunction>
+template<typename Iterator, typename OIterator, typename UnaryFunction>
 UnaryFunction transform(Iterator first, Iterator second, OIterator oit,
 		UnaryFunction f, size_t numThreads = 2) {
 	typedef typename std::iterator_traits<Iterator>::iterator_category category;
@@ -94,7 +94,7 @@ UnaryFunction transform(Iterator first, Iterator second, OIterator oit,
 		std::forward<UnaryFunction>(f), category(), numThreads);
 }
 
-inline template<typename Iterator, typename OIterator, typename Tmp, typename UnaryFunction>
+template<typename Iterator, typename OIterator, typename Tmp, typename UnaryFunction>
 OIterator mapReduce(Iterator first, Iterator second, OIterator out, 
 		UnaryFunction f, size_t numThreads = getNumberOfCores()) {
 	struct Job {
