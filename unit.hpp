@@ -169,8 +169,10 @@ namespace Unit {
 			if(die) {
 				exit(1);
 			}
-#endif
 			return false;
+#else
+			return true;
+#endif
 		}
 
 		template<typename E1, typename E2> bool evaluate(bool compare, 
