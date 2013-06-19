@@ -189,3 +189,6 @@ inline void installHandler() {
 #endif
 }
 
+inline size_t numberOfCpus() {
+	return sysconf(_SC_NPROCESSORS_ONLN);
+}
