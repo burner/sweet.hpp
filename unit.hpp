@@ -138,6 +138,7 @@ namespace Unit {
 				const string& str2, const string& file, int line,
 				ostream* out, const string& name, bool die, const string& msg) {
 
+#ifndef SWEET_NO_ASSERTS
 			//if(result ? (e1 == e2) : (e1 != e2)) return true;
 			if(result ? 
 					(comp_sel<is_floating_point<E1>::value>::comp(e1, e2)) :
@@ -168,6 +169,7 @@ namespace Unit {
 			if(die) {
 				exit(1);
 			}
+#endif
 			return false;
 		}
 
