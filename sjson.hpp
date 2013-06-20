@@ -295,6 +295,13 @@ public:
 			fileOrStr(true), strRef(&is), curLine("") { 
 		parse(); 
 	}
+
+	inline ~jsonparser() {
+		if(!fileOrStr) {
+			inputISS.close();
+		}
+	}
+
 	/** Returns the root of the parsed json tree.
 	 *
 	 * @return The root object of the tree.
