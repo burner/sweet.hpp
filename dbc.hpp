@@ -31,6 +31,7 @@ fancyNameNobodyWillEverGuess
 #define NE(v) 		sweet::makeEmptytest(v,#v)
 #define SB(v,s) 	sweet::makeSizetest(v,s,#v)
 #define TE(v) 		sweet::makeTruetest(v,#v)
+#define GT(v,l)		sweet::makeGreaterThantest(v,l,#v)
 
 // Ensure macros
 #define Esr(tests) sweet::testEnsure(__FILE__, __LINE__, tests)
@@ -64,15 +65,15 @@ struct RangeTest : BaseCls<T> {
 	}
 };
 
-template<typename T>
-inline RangeTest<T> makeRange(T l, T o, T h, const std::string& n) {
-	return RangeTest<T>(l,o,h,n);
+template<typename T, typename S, typename R>
+inline RangeTest<S> makeRange(T l, S o, R h, const std::string& n) {
+	return RangeTest<S>(static_cast<S>(l),o,static_cast<S>(h),n);
 }
 
 
 // NaN test
 template<class T, class Enable = void>
-class NaNclassTest; // undefined
+struct NaNclassTest; // undefined
 
 template<typename T>
 struct NaNclassTest<T, 
@@ -152,6 +153,24 @@ struct TrueTest : BaseCls<bool> {
 
 inline TrueTest makeTruetest(bool v, const std::string& n) {
 	return TrueTest(v,n);
+}
+
+
+// GreaterThan test
+template<typename T>
+struct GreaterThanTest : BaseCls<T> {
+	T lowerBound;
+	inline GreaterThanTest(T v, T lower, const std::string& n) : BaseCls<T>(v, n), 
+		lowerBound(lower) {}
+	inline bool test() { return this->value > lowerBound; }
+	inline void msg(std::ostream& s) {
+		s<<"\t\""<<this->name<<"\" was not greater than \""<<lowerBound<<"\"";
+	}
+};
+
+template<typename T, typename S>
+inline GreaterThanTest<T> makeGreaterThantest(T v, S l, const std::string& n) {
+	return GreaterThanTest<T>(v,l,n);
 }
 
 
