@@ -45,20 +45,54 @@ int main() {
 #include <type_traits>
 #include <limits>
 
-#ifdef SWEET_NO_UNITTEST
-#define UNITTEST(test_name,...) \
+#define PP_HAS_ARGS_IMPL2(_1, _2, _3, N, ...) N
+#define PP_HAS_ARGS_SOURCE() MULTI, MULTI, ONE, ERROR
+#define PP_HAS_ARGS_IMPL(...) PP_HAS_ARGS_IMPL2(__VA_ARGS__)
+#define PP_HAS_ARGS(...)      PP_HAS_ARGS_IMPL(__VA_ARGS__, PP_HAS_ARGS_SOURCE())
+
+
+#define __UTEST_NOTEST_ONE(test_name) \
 class test_name##_test_class : public Unit::Unittest { void nevercall(); \
 public: \
-test_name##_test_class() : Unit::Unittest(#test_name,__FILE__,__LINE__,##__VA_ARGS__) {} \
+test_name##_test_class() : Unit::Unittest(#test_name,__FILE__,__LINE__) {} \
 } test_name##_test_class_impl; \
 void test_name##_test_class::nevercall()
-#else
-#define UNITTEST(test_name,...) \
+
+#define __UTEST_NOTEST_MULTI(test_name,...) \
+class test_name##_test_class : public Unit::Unittest { void nevercall(); \
+public: \
+test_name##_test_class() : Unit::Unittest(#test_name,__FILE__,__LINE__,__VA_ARGS__) {} \
+} test_name##_test_class_impl; \
+void test_name##_test_class::nevercall()
+
+#define __UTEST_NOTEST_DISAMBIGUATE2(has_args, ...) __UTEST_NOTEST_ ## has_args (__VA_ARGS__)
+#define __UTEST_NOTEST_DISAMBIGUATE(has_args, ...) __UTEST_NOTEST_DISAMBIGUATE2(has_args, __VA_ARGS__)
+#define __UTEST_NOTEST(...) __UTEST_NOTEST_DISAMBIGUATE(PP_HAS_ARGS(__VA_ARGS__), __VA_ARGS__)
+
+
+#define __UTEST_ONE(test_name) \
 class test_name##_test_class : public Unit::Unittest { void run_impl(); \
 public: \
-test_name##_test_class() : Unit::Unittest(#test_name,__FILE__,__LINE__,##__VA_ARGS__) {} \
+test_name##_test_class() : Unit::Unittest(#test_name,__FILE__,__LINE__) {} \
 } test_name##_test_class_impl; \
 void test_name##_test_class::run_impl()
+
+#define __UTEST_MULTI(test_name,...) \
+class test_name##_test_class : public Unit::Unittest { void run_impl(); \
+public: \
+test_name##_test_class() : Unit::Unittest(#test_name,__FILE__,__LINE__,__VA_ARGS__) {} \
+} test_name##_test_class_impl; \
+void test_name##_test_class::run_impl()
+
+#define __UTEST_DISAMBIGUATE2(has_args, ...) __UTEST_ ## has_args (__VA_ARGS__)
+#define __UTEST_DISAMBIGUATE(has_args, ...) __UTEST_DISAMBIGUATE2(has_args, __VA_ARGS__)
+#define __UTEST(...) __UTEST_DISAMBIGUATE(PP_HAS_ARGS(__VA_ARGS__), __VA_ARGS__)
+
+
+#ifdef SWEET_NO_UNITTEST
+#define UNITTEST(...) __UTEST_NOTEST(__VA_ARGS__)
+#else
+#define UNITTEST(...) __UTEST(__VA_ARGS__)
 #endif
 
 #define AS_EQ(e1,e2)				UNIT_COMPARE(true,true,e1,e2,"")
