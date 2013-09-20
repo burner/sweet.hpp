@@ -32,6 +32,7 @@ fancyNameNobodyWillEverGuess
 #define SB(v,s) 	sweet::makeSizetest(v,s,#v)
 #define TE(v) 		sweet::makeTruetest(v,#v)
 #define GT(v,l)		sweet::makeGreaterThantest(v,l,#v)
+#define EQ(v,l)		sweet::makeEqualtest(v,l,#v)
 
 // Ensure macros
 #define Esr(tests) sweet::testEnsure(__FILE__, __LINE__, tests)
@@ -171,6 +172,25 @@ struct GreaterThanTest : BaseCls<T> {
 template<typename T, typename S>
 inline GreaterThanTest<T> makeGreaterThantest(T v, S l, const std::string& n) {
 	return GreaterThanTest<T>(v,l,n);
+}
+
+
+// Equal test
+template<typename T>
+struct EqualTest : BaseCls<T> {
+	T l;
+	T r;
+	inline EqualTest(T ll, T rr, const std::string& n) : BaseCls<T>(ll, n), 
+		l(ll), r(rr) {}
+	inline bool test() { return this->l == this->r; }
+	inline void msg(std::ostream& s) {
+		s<<"\t\""<<this->l<<"\" was not equal \""<<this->r<<"\"";
+	}
+};
+
+template<typename T, typename S>
+inline EqualTest<T> makeEqualtest(T v, S l, const std::string& n) {
+	return EqualTest<T>(v,l,n);
 }
 
 

@@ -113,7 +113,7 @@ namespace Unit {
 					std::numeric_limits<S>::infinity() == s) {
 				return true;
 			}
-			return fabs(t - s) <= 0.0001;
+			return fabs(t - s) <= 0.000001;
 		}
 	};
 	
