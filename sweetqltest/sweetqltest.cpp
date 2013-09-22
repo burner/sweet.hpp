@@ -9,7 +9,7 @@
 //#include <conv.hpp>
 #include <benchmark.hpp>
 
-    class Person {
+    /*class Person {
     public:
     	Person() {} // dummy
     
@@ -25,7 +25,7 @@
     	std::string firstname;
     	std::string lastname;
     	int age;
-    };
+    };*/
 
 class Person {
 public:
@@ -130,8 +130,8 @@ int main() {
 
 	Bench insert;
 	db.insert<Person>(per.begin(), per.end());
-	Reservation a("Danny", "Zeckzer", "Armsen", "02.04.2013");
-	db.insert<Reservation>(a);
+	//Reservation a("Danny", "Zeckzer", "Armsen", "02.04.2013");
+	//db.insert<Reservation>(a);
 	insert.stop();
 	std::cout<<"Writting the persons to the db took "<<insert.milli()
 		<<" msec"<<std::endl;
@@ -140,7 +140,7 @@ int main() {
 	auto sel(db.select<Person>("Firstname=\"Danny\" and Lastname=\"Zeckzer\""));
 	Person toDel;
 	//auto sel(db.select<Person>());
-	std::for_each(sel.first, sel.second, [&toDel](const Person& p) {
+	/*std::for_each(sel.first, sel.second, [&toDel](const Person& p) {
 		std::cout<<p.firstname<<' ';
 		std::cout<<p.lastname<<' ';
 		std::cout<<p.company<<' ';
@@ -154,11 +154,11 @@ int main() {
 		std::cout<<p.www;
 		std::cout<<std::endl;
 		toDel = p;
-	});
+	});*/
 	
 	s.stop();
 
-	auto rpSel(db.join<ReservationPerson, Person, Reservation>());
+	/*auto rpSel(db.join<ReservationPerson, Person, Reservation>());
 	std::for_each(rpSel.first, rpSel.second, [](const ReservationPerson& rp) {
 		std::cout<<rp.firstname<<' ';
 		std::cout<<rp.lastname<<' ';
@@ -196,5 +196,5 @@ int main() {
 		std::cout<<p.phonePrivat<<' ';
 		std::cout<<p.mail<<' ';
 		std::cout<<p.www<<std::endl;
-	});
+	});*/
 }
