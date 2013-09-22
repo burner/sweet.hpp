@@ -3,6 +3,10 @@
 #define SWEET_BENCHMARK
 
 #include <chrono>
+#include <vector>
+//#include <atomic>
+//#include <atomic.h>
+#include <algorithm>
 
 struct Bench {
 	std::chrono::time_point<std::chrono::system_clock> strt;
@@ -33,49 +37,66 @@ struct Bench {
 	}
 };
 
-template<size_t N, size_t I=0>
-struct hash_calc {
-   //static constexpr size_t apply (const char (&s)[N]) {
-   static constexpr size_t apply (const char* s) {
-      return  (hash_calc<N, I+1>::apply(s) ^ s[I]) * 16777619u;
-   };
-};
-
-template<size_t N>
-struct hash_calc<N,N> {
-   //static constexpr size_t apply (const char (&)[N]) {
-   static constexpr size_t apply (const char* z) {
-      return  2166136261u;
-   };
-};
-
-template<size_t N>
-constexpr size_t hash ( const char (&s)[N] ) {
-   return hash_calc<N>::apply(s);
-}
-
 class Bbase {
+private:
+	static std::vector<Bbase*> baseCls;
+
 public:
-	virtual void begin() { std::cout<<"Base Begin"<<std::endl; }
-	virtual void end() { std::cout<<"Base End"<<std::endl; }
+	std::string name;
+	std::string prettyFunc;
+	std::string filename;
+	int line;
+	unsigned long cnt;
+	unsigned long time;
+
+	inline Bbase() {}
+	inline Bbase(const std::string& n, const std::string& pf, const std::string& fn, int l) : 
+			name(n), prettyFunc(pf), filename(fn), line(l), cnt(0), time(0) {
+		Bbase::baseCls.push_back(this);
+	}
+
+	inline void saveTimeAndIncCounter(unsigned long time) { 
+		__sync_add_and_fetch(&this->cnt, static_cast<unsigned long>(1));
+		__sync_add_and_fetch(&this->time, time);
+	}
+
+	static inline std::vector<Bbase*> getBaseCls() {
+		return Bbase::baseCls;
+	}
+
+	static inline std::vector<Bbase> getTimeConsumer() {
+		size_t oldSize = Bbase::baseCls.size();
+		std::vector<Bbase> ret;
+		for(auto it : Bbase::baseCls) {
+			ret.push_back(*it);
+		}
+		std::sort(ret.begin(), ret.end(), [](const Bbase& a, const Bbase& b) {
+			return a.time > b.time;
+		});
+		std::cout<<oldSize<<" "<<ret.size()<<std::endl;
+		return ret;
+	}
 };
 
-template<size_t v>
-class B : public Bbase {
-	std::string name;
-public:
-	B(const std::string n) : name(n) {}
-	inline const std::string& getName() const { return name; }
-	void begin() { std::cout<<"Begin"<<std::endl; }
-	void end() { std::cout<<"End"<<std::endl; }
-};
+std::vector<Bbase*> Bbase::baseCls;
 
 class C {
 	Bbase* store;
+	std::chrono::time_point<std::chrono::system_clock> strt;
 public:
-	inline C(Bbase* s) : store(s) { store->begin(); }
-	inline ~C() { store->end(); }
+	inline C(Bbase* s) : store(s), strt(std::chrono::system_clock::now()) {}
+	inline ~C() { 
+		store->saveTimeAndIncCounter(
+			std::chrono::duration_cast<std::chrono::milliseconds>(
+				std::chrono::system_clock::now()-strt
+			).count()
+		);
+	}
 };
 
-#define BENCH(name) B<hash(#name)> name (__PRETTY_FUNCTION__); C __timeTakerBench(& name)
+#define CONCAT_IMPL( x, y ) x##y
+
+#define BENCH(name) static Bbase name (#name,__PRETTY_FUNCTION__,__FILE__,__LINE__); \
+C CONCAT_IMPL(name, __COUNTER__)(& name)
+
 #endif

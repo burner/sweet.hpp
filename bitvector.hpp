@@ -11,13 +11,6 @@ public:
 
 public:
 	static bool _bittest(unsigned int base, unsigned int offset) {
-	/*
-		int old = 0;
-		 __asm__ __volatile__("btl %2,%1\n\tsbbl %0,%0 "
-		:"=r" (old)
-		:"m" (*Base), "Ir" (Offset));
-		return (bool)(old!=0);
-	*/
 		return base & (1 << offset);
     }
 
