@@ -65,7 +65,6 @@ public:
 	}
 
 	static inline std::vector<Bbase> getTimeConsumer() {
-		size_t oldSize = Bbase::baseCls.size();
 		std::vector<Bbase> ret;
 		for(auto it : Bbase::baseCls) {
 			ret.push_back(*it);
@@ -73,7 +72,6 @@ public:
 		std::sort(ret.begin(), ret.end(), [](const Bbase& a, const Bbase& b) {
 			return a.time > b.time;
 		});
-		std::cout<<oldSize<<" "<<ret.size()<<std::endl;
 		return ret;
 	}
 };
