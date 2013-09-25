@@ -11,38 +11,60 @@
 #include <math.h>
 
 struct Bench {
+#ifndef SWEET_NO_BENCHMARK
 	std::chrono::time_point<std::chrono::system_clock> strt;
 	std::chrono::time_point<std::chrono::system_clock> stp;
+#endif
 
-	inline Bench() : strt(std::chrono::system_clock::now()) {}
+	inline Bench() 
+#ifndef SWEET_NO_BENCHMARK
+		: strt(std::chrono::system_clock::now()) 
+#endif
+	{}
 
 	inline void stop() {
+#ifndef SWEET_NO_BENCHMARK
 		stp = std::chrono::system_clock::now();
+#endif
 	}
 
 	inline size_t milli() const {
+#ifndef SWEET_NO_BENCHMARK
 		return std::chrono::duration_cast<
 			std::chrono::milliseconds
 		>(stp-strt).count();
+#else
+		return 0;
+#endif
 	}
 
 	inline size_t micro() const {
+#ifndef SWEET_NO_BENCHMARK
 		return std::chrono::duration_cast<
 			std::chrono::microseconds
 		>(stp-strt).count();
+#else
+		return 0;
+#endif
 	}
 
 	inline size_t second() const {
+#ifndef SWEET_NO_BENCHMARK
 		return std::chrono::duration_cast<
 			std::chrono::seconds
 		>(stp-strt).count();
+#else
+		return 0;
+#endif
 	}
 };
 
 class Benchmark {
 private:
-	static std::vector<Benchmark*> baseCls;
-
+	static std::vector<Benchmark*>& getBenchClasses() {
+		static std::vector<Benchmark*> baseCls;
+		return baseCls;
+	}
 public:
 	std::string name;
 	std::string prettyFunc;
@@ -54,16 +76,12 @@ public:
 	inline Benchmark() {}
 	inline Benchmark(const std::string& n, const std::string& pf, const std::string& fn, int l) : 
 			name(n), prettyFunc(pf), filename(fn), line(l), cnt(0), time(0) {
-		Benchmark::baseCls.push_back(this);
+		Benchmark::getBenchClasses().push_back(this);
 	}
 
 	inline void saveTimeAndIncCounter(unsigned long time) { 
 		__sync_add_and_fetch(&this->cnt, static_cast<unsigned long>(1));
 		__sync_add_and_fetch(&this->time, time);
-	}
-
-	static inline std::vector<Benchmark*> getBaseCls() {
-		return Benchmark::baseCls;
 	}
 
 	static inline std::string sname(const std::string& str) {
@@ -78,7 +96,7 @@ public:
 
 	static inline std::vector<Benchmark> getTimeConsumer() {
 		std::vector<Benchmark> ret;
-		for(auto it : Benchmark::baseCls) {
+		for(auto it : Benchmark::getBenchClasses()) {
 			ret.push_back(*it);
 		}
 		std::sort(ret.begin(), ret.end(), [](const Benchmark& a, const Benchmark& b) {
@@ -98,7 +116,7 @@ public:
 		for(auto& it : rslt) {
 			nLen = std::max(nLen, it.name.size());
 			tLen = std::max(tLen, it.time);
-			fLen = std::max(fLen, sname(it.filename.size()));
+			fLen = std::max(fLen, it.filename.size());
 			lLen = std::max(lLen, static_cast<size_t>(log10(it.line)));
 		}
 		tLen = std::max(static_cast<size_t>(log10(tLen)), time.size());
@@ -113,8 +131,6 @@ public:
 		}
 	}
 };
-
-std::vector<Benchmark*> Benchmark::baseCls;
 
 class C {
 	Benchmark* store;
@@ -132,7 +148,11 @@ public:
 
 #define CONCAT_IMPL( x, y ) x##y
 
+#ifndef SWEET_NO_BENCHMARK
+#define BENCH(name)
+#else
 #define BENCH(name) static Benchmark name (#name,__PRETTY_FUNCTION__,__FILE__,__LINE__); \
 C CONCAT_IMPL(name, __COUNTER__)(& name)
+#endif
 
 #endif

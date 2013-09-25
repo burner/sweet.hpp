@@ -199,7 +199,7 @@ template<typename S>
 inline bool testConditionImplImpl(S s) {
 	bool passed = false;
 	bool excp = false;
-#ifndef DBC_RELEASE
+#ifndef SWEET_NO_DBC
 	try {
 		passed = s.test();
 	} catch(...) {
@@ -211,7 +211,7 @@ inline bool testConditionImplImpl(S s) {
 
 template<typename S>
 inline bool testConditionImpl(std::ostream& ss, S s) {
-#ifndef DBC_RELEASE
+#ifndef SWEET_NO_DBC
 	bool testRslt = testConditionImplImpl(s);
 	if(!testRslt) {
 		s.msg(ss);
@@ -225,7 +225,7 @@ inline bool testConditionImpl(std::ostream& ss, S s) {
 
 template<typename S,typename...Ts>
 inline bool testConditionImpl(std::ostream& ss, S s, Ts... t) {
-#ifndef DBC_RELEASE
+#ifndef SWEET_NO_DBC
 	bool testRslt = testConditionImplImpl(s);
 	if(!testRslt) {
 		s.msg(ss);
@@ -240,7 +240,7 @@ inline bool testConditionImpl(std::ostream& ss, S s, Ts... t) {
 
 template<typename... Ts>
 inline void testCondition(const char* File, int line, Ts... t) {
-#ifdef DBC_RELEASE
+#ifdef SWEET_NO_DBC
 #else
 	//std::stringstream s;
 	bool passed = testConditionImpl(std::cerr,t...);
@@ -255,7 +255,7 @@ inline void testCondition(const char* File, int line, Ts... t) {
 // Ensure
 template<typename T>
 inline typename T::value_type testEnsure(const char* File, int line, T t) {
-#ifndef DBC_RELEASE
+#ifndef SWEET_NO_DBC
 	bool passed = testConditionImpl(std::cerr,t);
 	if(!passed) {
 		std::cerr<<"ENSURANCE TEST IN "<<File<<':'<<line<<" FAILED"<<std::endl;
@@ -267,7 +267,7 @@ inline typename T::value_type testEnsure(const char* File, int line, T t) {
 
 template<typename T>
 inline bool testEnsureB(const char* File, int line, T t) {
-#ifndef DBC_RELEASE
+#ifndef SWEET_NO_DBC
 	bool passed = testConditionImpl(std::cerr,t);
 	if(!passed) {
 		return false;
@@ -286,13 +286,13 @@ struct InvariantStruct {
 	}
 
 	inline ~InvariantStruct() {
-#ifndef DBC_RELEASE
+#ifndef SWEET_NO_DBC
 		(*this)(true);
 #endif
 	}
 
 	inline void operator()(bool after = false) {
-#ifndef DBC_RELEASE
+#ifndef SWEET_NO_DBC
 		bool rslt = cls->InvariantTestMethod();
 		if(!rslt) {
 			int status;

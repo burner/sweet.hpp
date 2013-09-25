@@ -77,4 +77,5 @@ int main() {
 	std::cout<<d.milli()<<std::endl;
 	ASSERT_EQ(ac, bc);
 	ASSERT_EQ(bc, cc);
+	std::cout<<sizeof(std::bitset<128>)<<std::endl;
 }
