@@ -18,8 +18,5 @@ int main() {
 		fun();
 	}
 
-	auto s = Bbase::getTimeConsumer();
-	for(auto it : s) {
-		std::cout<<it.name<<" "<<it.time<<std::endl;
-	}
+	Benchmark::printResults();
 }
