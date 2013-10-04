@@ -29,10 +29,11 @@ fancyNameNobodyWillEverGuess
 #define NaN(v) 		sweet::makeNaN(v,#v)
 #define NN(v) 		sweet::makeNulltest(v,#v)
 #define NE(v) 		sweet::makeEmptytest(v,#v)
-#define SB(v,s) 	sweet::makeSizetest(v,s,#v)
+#define SB(v,s) 	sweet::makeSizetest(v,s,#v,#s)
 #define TE(v) 		sweet::makeTruetest(v,#v)
-#define GT(v,l)		sweet::makeGreaterThantest(v,l,#v)
-#define EQ(v,l)		sweet::makeEqualtest(v,l,#v)
+#define GT(v,l)		sweet::makeGreaterThantest(v,l,#v,#l)
+#define SE(v,l)		sweet::makeSmallerEqualTest(v,l,#v,#l)
+#define EQ(v,l)		sweet::makeEqualtest(v,l,#v,#l)
 
 // Ensure macros
 #define Esr(tests) sweet::testEnsure(__FILE__, __LINE__, tests)
@@ -129,17 +130,19 @@ inline EmptyTest<T> makeEmptytest(T v, const std::string& n) {
 template<typename T>
 struct SizeTest : BaseCls<T> {
 	size_t size;
-	inline SizeTest(T v, size_t s, const std::string& n) : BaseCls<T>(v, n),
-			size(s) { }
+	std::string sn;
+	inline SizeTest(T v, size_t s, const std::string& n, const std::string& nn) : 
+			BaseCls<T>(v, n), size(s), sn(nn) { }
 	inline bool test() { return this->value.size() >= size; }
 	inline void msg(std::ostream& s) {
-		s<<'\t'<<"Size of value \""<<this->name<<"\" is smaller than "<<size;
+		s<<'\t'<<"Size of value \""<<this->name<<"\" is smaller than \""<<sn<<"("
+		<<size<<")\"";
 	}
 };
 
 template<typename T>
-inline SizeTest<T> makeSizetest(T v, size_t s, const std::string& n) {
-	return SizeTest<T>(v,s,n);
+inline SizeTest<T> makeSizetest(T v, size_t s, const std::string& n, const std::string& sn) {
+	return SizeTest<T>(v,s,n,sn);
 }
 
 
@@ -157,21 +160,41 @@ inline TrueTest makeTruetest(bool v, const std::string& n) {
 }
 
 
-// GreaterThan test
+// SmallerEqual test
 template<typename T>
-struct GreaterThanTest : BaseCls<T> {
+struct SmallerEqualTest : BaseCls<T> {
 	T lowerBound;
-	inline GreaterThanTest(T v, T lower, const std::string& n) : BaseCls<T>(v, n), 
-		lowerBound(lower) {}
-	inline bool test() { return this->value > lowerBound; }
+	std::string sme;
+	inline SmallerEqualTest(T v, T lower, const std::string& n, const std::string& se) : 
+		BaseCls<T>(v, n), lowerBound(lower), sme(se) {}
+	inline bool test() { return this->value <= lowerBound; }
 	inline void msg(std::ostream& s) {
-		s<<"\t\""<<this->name<<"\" was not greater than \""<<lowerBound<<"\"";
+		s<<"\t\""<<this->name<<"\" was not greater than \""<<sme<<"("<<lowerBound<<")\"";
 	}
 };
 
 template<typename T, typename S>
-inline GreaterThanTest<T> makeGreaterThantest(T v, S l, const std::string& n) {
-	return GreaterThanTest<T>(v,l,n);
+inline SmallerEqualTest<T> makeSmallerEqualtest(T v, S l, const std::string& n, const std::string& o) {
+	return SmallerEqualTest<T>(v,l,n,o);
+}
+
+
+// GreaterThan test
+template<typename T>
+struct GreaterThanTest : BaseCls<T> {
+	T lowerBound;
+	std::string grt;
+	inline GreaterThanTest(T v, T lower, const std::string& n, const std::string& gt) : 
+		BaseCls<T>(v, n), lowerBound(lower), grt(gt) {}
+	inline bool test() { return this->value > lowerBound; }
+	inline void msg(std::ostream& s) {
+		s<<"\t\""<<this->name<<"\" was not greater than \""<<grt<<"("<<lowerBound<<")\"";
+	}
+};
+
+template<typename T, typename S>
+inline GreaterThanTest<T> makeGreaterThantest(T v, S l, const std::string& n, const std::string& o) {
+	return GreaterThanTest<T>(v,l,n,o);
 }
 
 
@@ -180,17 +203,18 @@ template<typename T>
 struct EqualTest : BaseCls<T> {
 	T l;
 	T r;
-	inline EqualTest(T ll, T rr, const std::string& n) : BaseCls<T>(ll, n), 
-		l(ll), r(rr) {}
+	std::string other;
+	inline EqualTest(T ll, T rr, const std::string& n, const std::string& o) : 
+		BaseCls<T>(ll, n), l(ll), r(rr), other(o) {}
 	inline bool test() { return this->l == this->r; }
 	inline void msg(std::ostream& s) {
-		s<<"\t\""<<this->l<<"\" was not equal \""<<this->r<<"\"";
+		s<<"\t\""<<this->l<<"\" was not equal \""<<other<<"("<<this->r<<")\"";
 	}
 };
 
 template<typename T, typename S>
-inline EqualTest<T> makeEqualtest(T v, S l, const std::string& n) {
-	return EqualTest<T>(v,l,n);
+inline EqualTest<T> makeEqualtest(T v, S l, const std::string& n, const std::string& o) {
+	return EqualTest<T>(v,l,n,o);
 }
 
 
