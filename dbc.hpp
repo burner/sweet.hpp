@@ -7,6 +7,7 @@ Author: Robert "burner" Schadek rburners@gmail.com License: LGPL 3 or higher
 #include <type_traits>
 #include <cmath>
 #include <sstream>
+#include <iomanip>
 #include <ostream>
 #include <iostream>
 #include <stdlib.h>
@@ -32,7 +33,7 @@ fancyNameNobodyWillEverGuess
 #define SB(v,s) 	sweet::makeSizetest(v,s,#v,#s)
 #define TE(v) 		sweet::makeTruetest(v,#v)
 #define GT(v,l)		sweet::makeGreaterThantest(v,l,#v,#l)
-#define SE(v,l)		sweet::makeSmallerEqualTest(v,l,#v,#l)
+#define SE(v,l)		sweet::makeSmallerEqualtest(v,l,#v,#l)
 #define EQ(v,l)		sweet::makeEqualtest(v,l,#v,#l)
 
 // Ensure macros
@@ -62,8 +63,8 @@ struct RangeTest : BaseCls<T> {
 		low(l), high(h) {}
 	inline bool test() { return low <= this->value && this->value <= high; }
 	inline void msg(std::ostream& s) {
-		s<<'\t'<<"Range violation for \""<<this->name<<"\" "<<low<<" <= "
-			<<this->value<<" <= "<<high;
+		s<<std::fixed<<std::setprecision(7)<<'\t'<<"Range violation for \""<<
+			this->name<<"\" "<<low<<" <= " <<this->value<<" <= "<<high;
 	}
 };
 
@@ -169,7 +170,7 @@ struct SmallerEqualTest : BaseCls<T> {
 		BaseCls<T>(v, n), lowerBound(lower), sme(se) {}
 	inline bool test() { return this->value <= lowerBound; }
 	inline void msg(std::ostream& s) {
-		s<<"\t\""<<this->name<<"\" was not greater than \""<<sme<<"("<<lowerBound<<")\"";
+		s<<"\t\""<<this->name<<"("<<this->value<<")\" was not greater than \""<<sme<<"("<<lowerBound<<")\"";
 	}
 };
 
@@ -188,7 +189,7 @@ struct GreaterThanTest : BaseCls<T> {
 		BaseCls<T>(v, n), lowerBound(lower), grt(gt) {}
 	inline bool test() { return this->value > lowerBound; }
 	inline void msg(std::ostream& s) {
-		s<<"\t\""<<this->name<<"\" was not greater than \""<<grt<<"("<<lowerBound<<")\"";
+		s<<"\t\""<<this->name<<"("<<this->value<<")\" was not greater than \""<<grt<<"("<<lowerBound<<")\"";
 	}
 };
 
