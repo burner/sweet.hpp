@@ -114,10 +114,10 @@ public:
 		size_t nLen = funcName.size(), tLen = time.size(); 
 		size_t fLen = file.size(), lLen = line.size();
 		for(auto& it : rslt) {
-			nLen = std::max(nLen, it.name.size());
-			tLen = std::max(tLen, it.time);
-			fLen = std::max(fLen, it.filename.size());
-			lLen = std::max(lLen, static_cast<size_t>(log10(it.line)));
+			nLen = nLen > it.name.size() ? nLen : it.name.size();
+			tLen = tLen > it.time ? tLen : it.time;
+			fLen = fLen > it.filename.size() ? fLen : it.filename.size();
+			lLen = lLen > static_cast<size_t>(log10(it.line)) ? lLen : static_cast<size_t>(log10(it.line));
 		}
 		tLen = std::max(static_cast<size_t>(log10(tLen)), time.size());
 		++nLen; ++tLen; ++fLen; ++lLen;
