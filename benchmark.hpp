@@ -114,6 +114,7 @@ public:
 		size_t nLen = funcName.size(), tLen = time.size(); 
 		size_t fLen = file.size(), lLen = line.size();
 		for(auto& it : rslt) {
+			it.filename = sname(it.filename);
 			nLen = nLen > it.name.size() ? nLen : it.name.size();
 			tLen = tLen > it.time ? tLen : it.time;
 			fLen = fLen > it.filename.size() ? fLen : it.filename.size();
@@ -126,7 +127,7 @@ public:
 			<<std::setw(fLen)<<file<<" "<<std::setw(lLen)<<line<<std::endl;
 		for(auto& it : rslt) {
 			std::cout<<std::setw(nLen)<<it.name<<" "<<std::setw(tLen)<<it.time<<" "
-			<<std::setw(fLen)<<sname(it.filename)<<" "<<std::setw(lLen)<<it.line
+			<<std::setw(fLen)<<it.filename<<" "<<std::setw(lLen)<<it.line
 			<<std::endl;
 		}
 	}
@@ -136,7 +137,8 @@ class C {
 	Benchmark* store;
 	std::chrono::time_point<std::chrono::system_clock> strt;
 public:
-	inline C(Benchmark* s) : store(s), strt(std::chrono::system_clock::now()) {}
+	inline C(Benchmark* s) : store(s), strt(std::chrono::system_clock::now()) {
+	}
 	inline ~C() { 
 		store->saveTimeAndIncCounter(
 			std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -148,7 +150,7 @@ public:
 
 #define CONCAT_IMPL( x, y ) x##y
 
-#ifndef SWEET_NO_BENCHMARK
+#ifdef SWEET_NO_BENCHMARK
 #define BENCH(name)
 #else
 #define BENCH(name) static Benchmark name (#name,__PRETTY_FUNCTION__,__FILE__,__LINE__); \
