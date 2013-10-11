@@ -1,6 +1,6 @@
 // LGPL 3 or higher Robert Burner Schadek rburners@gmail.com
-#ifndef SWEET_BENCHMARK
-#define SWEET_BENCHMARK
+#ifndef SWEET_BENCHMARK_HPP
+#define SWEET_BENCHMARK_HPP
 
 #include <chrono>
 #include <string>
@@ -11,7 +11,7 @@
 #include <math.h>
 
 #ifndef _WIN32
-void __cpuid(int CPUInfo[4],int InfoType){
+inline void __cpuid(int CPUInfo[4],int InfoType) {
     __asm__ __volatile__ (
         "cpuid":
         "=a" (CPUInfo[0]),
@@ -37,7 +37,7 @@ __inline__ uint64_t __rdtsc() {
 }
 #endif
 
-static long long readTicks() {
+inline long long readTicks() {
 	int dummy[4];
 	volatile int DontSkip;
 	long long clock;
