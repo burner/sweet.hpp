@@ -9,7 +9,7 @@
 #include <rulestore.hpp>
 #include <ruleparser.hpp>
 
-std::string getFileContents(const std::string& filename) {
+/*std::string getFileContents(const std::string& filename) {
 	std::ifstream in(filename, std::ios::in | std::ios::binary);
 	if(in) {
 		std::string contents;
@@ -21,7 +21,7 @@ std::string getFileContents(const std::string& filename) {
 		return contents;
 	}
 	throw std::logic_error(format("Failed to read file with name '%s'", filename));
-}
+}*/
 
 int main(int argc, char** argv) {
 	std::string inputFile;
@@ -29,6 +29,6 @@ int main(int argc, char** argv) {
 	opts.get("-i", "--inputFile", "The grammar file to parse", inputFile);
 
 	RuleStore store;
-	RuleParser parser(getFileContents(inputFile), store.token, store.rules);
+	RuleParser parser(inputFile, store.token, store.rules);
 	return 0;
 }

@@ -1,18 +1,19 @@
 #pragma once
 
 #include <rulestore.hpp>
+#include <sjson.hpp>
 
 /*
-
-Comments start with # and fill the line
-
-TokenName ',' regex ',' ('true','false') ',' convertFunction ';'
-
-!
-
-ExprName § (Entry+ ;)+ §
-
-Entry := string '(' ('true'|'false') ',' [alpha]+ ')' ' '
+{
+	"Token" : [
+		{ "Name" : "Semicolon", "Regex" : ";" },
+	],
+	"Rules" : [
+		{ "A" : [
+			{ "Rule" : "Whitespace separated" },
+			{ "Rule" : "Another Whitespace separated" }
+			]
+		},
 
 */
 
@@ -25,14 +26,4 @@ struct RuleParser {
 	RuleMultiMap& ruleMap;
 
 	RuleParser(const std::string&,TokenMap&, RuleMultiMap&);
-
-	bool isWhiteSpace(const char);
-	void eatWhiteSpace();
-	char peek();
-	char get();
-	void parse();
-	void parseComment();
-	void parseRule();
-	void parseRules();
-	void parseToken();
 };
