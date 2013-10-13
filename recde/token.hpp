@@ -1,12 +1,15 @@
 #pragma once
 
+#include <ostream>
 #include <string>
+#include <format.hpp>
 
 struct Token {
+    friend std::ostream& operator<<(std::ostream&, const Token&);
+
 	std::string name;
 	std::string regex;
 	std::string convertFunction;
-	bool storeAnything;
 
-	Token(const std::string&, const std::string&, const std::string&, bool);
+	Token(const std::string&, const std::string&, const std::string&);
 };

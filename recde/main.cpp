@@ -8,6 +8,7 @@
 
 #include <rulestore.hpp>
 #include <ruleparser.hpp>
+#include <token.hpp>
 
 /*std::string getFileContents(const std::string& filename) {
 	std::ifstream in(filename, std::ios::in | std::ios::binary);
@@ -27,8 +28,14 @@ int main(int argc, char** argv) {
 	std::string inputFile;
 	Options opts(argc, argv);
 	opts.get("-i", "--inputFile", "The grammar file to parse", inputFile);
+	opts.finalize();
 
 	RuleStore store;
 	RuleParser parser(inputFile, store.token, store.rules);
+	parser.parse();
+
+	for(auto& it : store.token) {
+		format(std::cout, "%s\n", it.second);
+	}
 	return 0;
 }
