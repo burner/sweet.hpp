@@ -37,5 +37,8 @@ int main(int argc, char** argv) {
 	for(auto& it : store.token) {
 		format(std::cout, "%s\n", it.second);
 	}
+	for(auto& it : store.rules) {
+		format(std::cout, "%s : %s\n", it.first, it.second);
+	}
 	return 0;
 }

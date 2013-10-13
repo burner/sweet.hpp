@@ -1,15 +1,13 @@
 #pragma once
 
-enum RulePartType {
-	RulePartType_Unknown,
-	RulePartType_Token,
-	RulePartType_Rule
-};
+#include <string>
+#include <ostream>
 
 struct RulePart {
-	bool save;
-	RulePartType type;
+    friend std::ostream& operator<<(std::ostream&, const RulePart&);
 
-	inline RulePart() : save(false), type(RulePartType_Unknown) {
-	}
+	std::string name;
+	std::string storeName;
+
+	RulePart(const std::string&, const std::string&);
 };
