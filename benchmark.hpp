@@ -150,15 +150,17 @@ public:
 	static inline void printResults() {
 		auto rslt = Benchmark::getTimeConsumer();
 		const std::string funcName = "Function Name:";
-		const std::string time = "Time in Millisec:";
+		const std::string time = "Millisec spend:";
 		const std::string line = "Linenumber:";
 		const std::string file = "Filename:";
-		const std::string numTicks = "Number of Ticks:";
+		const std::string numTicks = "Num of Ticks:";
+		const std::string numCalls = "Num of Calls:";
 		size_t nLen = funcName.size();
 		unsigned long tLen = static_cast<long long>(time.size());
 		size_t fLen = file.size();
 		unsigned long lLen = static_cast<unsigned long>(line.size());
 		long long tiLen = 0;
+		unsigned long cLen = static_cast<unsigned long>(numCalls.size());
 
 		for(auto& it : rslt) {
 			it.filename = sname(it.filename);
@@ -171,18 +173,23 @@ public:
 			tiLen = static_cast<long long>(tiLen > static_cast<long long>(log10(it.ticks)) ? 
 				tiLen : log10(it.ticks)
 			);
+			cLen = static_cast<long long>(cLen > static_cast<long long>(log10(it.cnt)) ? 
+				cLen : log10(it.cnt)
+			);
 		}
 		tLen =  std::max(static_cast<long long>(log10(tLen)), static_cast<long long>(time.size()));
 		tiLen = std::max(static_cast<long long>(log10(tiLen)),static_cast<long long>(numTicks.size()));
-		++nLen; ++tLen; ++fLen; ++lLen;
+		cLen = std::max(static_cast<long long>(log10(cLen)),static_cast<long long>(numCalls.size()));
+		++nLen; ++tLen; ++fLen; ++lLen, ++cLen;
 
 		std::cout<<std::setw(nLen)<<funcName<<" "<<std::setw(tLen)<<time<<" "
-			<<std::setw(tiLen)<<numTicks<<" "
+			<<std::setw(tiLen)<<numTicks<<" "<<std::setw(cLen)<<numCalls<<" "
 			<<std::setw(fLen)<<file<<" "<<std::setw(lLen)<<line<<std::endl;
 		for(auto& it : rslt) {
 			std::cout<<std::setw(nLen)<<it.name<<" "
 			<<std::setw(tLen)<<it.time<<" "
 			<<std::setw(tiLen)<<it.ticks<<" "
+			<<std::setw(cLen)<<it.cnt<<" "
 			<<std::setw(fLen)<<it.filename<<" "
 			<<std::setw(lLen)<<it.line<<std::endl;
 		}
