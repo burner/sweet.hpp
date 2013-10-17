@@ -235,10 +235,11 @@ inline bool testConditionImplImpl(S s) {
 }
 
 template<typename S>
-inline bool testConditionImpl(std::ostream& ss, S s) {
+inline bool testConditionImpl(std::ostream& ss, const char* file, int line, S s) {
 #ifndef SWEET_NO_DBC
 	bool testRslt = testConditionImplImpl(s);
 	if(!testRslt) {
+		ss<<"At File '"<<file<<":"<<line<<" ";
 		s.msg(ss);
 		ss<<std::endl;
 	}
@@ -249,14 +250,15 @@ inline bool testConditionImpl(std::ostream& ss, S s) {
 } 
 
 template<typename S,typename...Ts>
-inline bool testConditionImpl(std::ostream& ss, S s, Ts... t) {
+inline bool testConditionImpl(std::ostream& ss, const char* file, int line, S s, Ts... t) {
 #ifndef SWEET_NO_DBC
 	bool testRslt = testConditionImplImpl(s);
 	if(!testRslt) {
+		ss<<"At File '"<<file<<":"<<line<<" ";
 		s.msg(ss);
 		ss<<std::endl;
 	}
-	bool other = testConditionImpl(ss, t...);
+	bool other = testConditionImpl(ss, file, line, t...);
 	return other && testRslt;
 #else
 	return true;
@@ -264,13 +266,13 @@ inline bool testConditionImpl(std::ostream& ss, S s, Ts... t) {
 } 
 
 template<typename... Ts>
-inline void testCondition(const char* File, int line, Ts... t) {
+inline void testCondition(const char* file, int line, Ts... t) {
 #ifdef SWEET_NO_DBC
 #else
 	//std::stringstream s;
-	bool passed = testConditionImpl(std::cerr,t...);
+	bool passed = testConditionImpl(std::cerr,file,line,t...);
 	if(!passed) {
-		std::cerr<<"REQUIRMENT TEST IN "<<File<<':'<<line<<" FAILED"<<std::endl;
+		std::cerr<<"REQUIRMENT TEST IN "<<file<<':'<<line<<" FAILED"<<std::endl;
 		exit(1);
 	}
 #endif
@@ -279,11 +281,11 @@ inline void testCondition(const char* File, int line, Ts... t) {
 
 // Ensure
 template<typename T>
-inline typename T::value_type testEnsure(const char* File, int line, T t) {
+inline typename T::value_type testEnsure(const char* file, int line, T t) {
 #ifndef SWEET_NO_DBC
-	bool passed = testConditionImpl(std::cerr,t);
+	bool passed = testConditionImpl(std::cerr,file,line,t);
 	if(!passed) {
-		std::cerr<<"ENSURANCE TEST IN "<<File<<':'<<line<<" FAILED"<<std::endl;
+		std::cerr<<"ENSURANCE TEST IN "<<file<<':'<<line<<" FAILED"<<std::endl;
 		exit(1);
 	}
 #endif
@@ -291,9 +293,9 @@ inline typename T::value_type testEnsure(const char* File, int line, T t) {
 } 
 
 template<typename T>
-inline bool testEnsureB(const char* File, int line, T t) {
+inline bool testEnsureB(const char* file, int line, T t) {
 #ifndef SWEET_NO_DBC
-	bool passed = testConditionImpl(std::cerr,t);
+	bool passed = testConditionImpl(std::cerr,file,line,t);
 	if(!passed) {
 		return false;
 	}

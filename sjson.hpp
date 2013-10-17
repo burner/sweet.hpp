@@ -491,7 +491,7 @@ private:
 	}
 };
 
-inline void print(std::ostream& o, ValuePtr v, size_t tab, bool firstIn) {
+inline void print(std::ostream& o, ValuePtr v, size_t tab, bool) {
 	if(v->getType() == value::type_number_int 
 			|| v->getType() == value::type_number_float 
 			|| v->getType() == value::type_boolean 

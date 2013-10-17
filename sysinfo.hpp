@@ -138,7 +138,7 @@ inline void crit_err_hdlr(int sig_num, siginfo_t * info, void * ucontext) {
 
 #else
 
-inline void handler(int sig) {
+inline void handler(int) {
 	/*
 	void *array[10];
 	size_t size;
