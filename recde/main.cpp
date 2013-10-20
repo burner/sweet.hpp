@@ -9,20 +9,7 @@
 #include <rulestore.hpp>
 #include <ruleparser.hpp>
 #include <token.hpp>
-
-/*std::string getFileContents(const std::string& filename) {
-	std::ifstream in(filename, std::ios::in | std::ios::binary);
-	if(in) {
-		std::string contents;
-		in.seekg(0, std::ios::end);
-		contents.resize(in.tellg());
-		in.seekg(0, std::ios::beg);
-		in.read(&contents[0], contents.size());
-		in.close();
-		return contents;
-	}
-	throw std::logic_error(format("Failed to read file with name '%s'", filename));
-}*/
+#include <recdec.hpp>
 
 int main(int argc, char** argv) {
 	std::string inputFile;
@@ -31,8 +18,11 @@ int main(int argc, char** argv) {
 	opts.finalize();
 
 	RuleStore store;
-	RuleParser parser(inputFile, store.token, store.rules);
+	RuleParser parser(inputFile, store);
 	parser.parse();
+	RecurDec rd(store, std::cout, std::cout);
+	rd.computeFirstSet();
+	//std::cout<<store.first<<std::endl;
 
 	for(auto& it : store.token) {
 		format(std::cout, "%s\n", it.second);
@@ -40,5 +30,7 @@ int main(int argc, char** argv) {
 	for(auto& it : store.rules) {
 		format(std::cout, "%s : %s\n", it.first, it.second);
 	}
+	std::cout<<std::endl;
+	rd.genRules();
 	return 0;
 }

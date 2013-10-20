@@ -32,6 +32,7 @@ struct RuleParser {
 	TokenMap& token;
 	RuleMultiMap& ruleMap;
 
-	RuleParser(const std::string&,TokenMap&, RuleMultiMap&);
+	RuleParser(const std::string&,RuleStore&);
 	void parse();
+	void computeFirstSet();
 };

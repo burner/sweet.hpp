@@ -33,7 +33,8 @@ static std::vector<std::string> split(const std::string& s, char delim) {
 	return elems;
 }
 
-RuleParser::RuleParser(const std::string& s, TokenMap& t, RuleMultiMap& r) : str(s), token(t), ruleMap(r) {
+RuleParser::RuleParser(const std::string& s, RuleStore& rs) : str(s), token(rs.token), 
+	ruleMap(rs.rules) {
 }
 
 void RuleParser::parse() {
@@ -88,4 +89,3 @@ void RuleParser::parse() {
 		}
 	}
 }
-

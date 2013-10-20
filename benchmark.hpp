@@ -30,11 +30,11 @@ __inline__ uint64_t __rdtsc() {
   return x;
 }
 #elif __amd64
-__inline__ uint64_t __rdtsc() {
-  uint64_t a, d;
-  __asm__ volatile ("rdtsc" : "=a" (a), "=d" (d));
-  return (d<<32) | a;
-}
+//__inline__ uint64_t __rdtsc() {
+//  uint64_t a, d;
+//  __asm__ volatile ("rdtsc" : "=a" (a), "=d" (d));
+//  return (d<<32) | a;
+//}
 #endif
 
 inline long long readTicks() {

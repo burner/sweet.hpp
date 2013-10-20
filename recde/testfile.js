@@ -1,17 +1,22 @@
 {
 	"Token" : [
-		{ "Name" : "Semicolon", "Regex" : ";", "ConvertFunction" : "nothing" },
-		{ "Name" : "Integer", "Regex" : "[0-9]+", "ConvertFunction" : "toInteger" }
+		{ "Name" : "Var", "Regex" : "var", "ConvertFunction" : "void" },
+		{ "Name" : "Int", "Regex" : "int", "ConvertFunction" : "void" },
+		{ "Name" : "Float", "Regex" : "float", "ConvertFunction" : "void" }
 	],
 	"Rules" : [
-		{ "Name" : "A", "Expression" : [
-			{ "Rule" : "Whitespace; separated" },
-			{ "Rule" : "Another; Whitespace; separated" }
+		{ "Name" : "VarDecl", "Expression" : [
+			{ "Rule" : "Var ; Identifier(identifier) ; Colon ; Type(type)" },
+			{ "Rule" : "Type" }
 			]
 		},
-		{ "Name" : "B", "Expression" : [
-			{ "Rule" : " Whitespace ; separated" },
-			{ "Rule" : "Another(condition); Whitespace; separated" }
+		{ "Name" : "Type", "Expression" : [
+			{ "Rule" : "Int" },
+			{ "Rule" : "Float" }
+			]
+		},
+		{ "Name" : "Start", "Expression" : [
+			{ "Rule" : "VarDecl" }
 			]
 		}
 	]
