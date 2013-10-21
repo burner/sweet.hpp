@@ -44,6 +44,7 @@ int main() {
 #include <cmath>
 #include <type_traits>
 #include <limits>
+#include <iomanip>
 
 #define PP_HAS_ARGS_IMPL2(_1, _2, _3, N, ...) N
 #define PP_HAS_ARGS_SOURCE() MULTI, MULTI, ONE, ERROR
@@ -187,11 +188,11 @@ namespace Unit {
 				*out<<sname(file)<< ":"<<line<<" Assert Failed: ";
 			}
 			stringstream s2;
-			s2<<boolalpha<<(e2);
+			s2<<std::fixed<<std::setprecision(9)<<boolalpha<<(e2);
 
 			if(compare) {
 				stringstream s1;
-				s1<<boolalpha<<(e1);
+				s1<<std::fixed<<std::setprecision(9)<<boolalpha<<(e1);
   
 				const string cmp(result ? "==" : "!=");
 				*out<<"compare {"<<str1<<"} "<< cmp<<" {"<<str2<<"} "<<"got {\""<<
