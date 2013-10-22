@@ -26,6 +26,7 @@ sweet::makeInvariantStruct(this, __FILE__, __LINE__)); \
 fancyNameNobodyWillEverGuess
 
 // Test macros
+#ifndef SWEET_NO_DBC
 #define RN(l,o,h) 	sweet::makeRange(l,o,h,#o)
 #define NaN(v) 		sweet::makeNaN(v,#v)
 #define NN(v) 		sweet::makeNulltest(v,#v)
@@ -35,6 +36,17 @@ fancyNameNobodyWillEverGuess
 #define GT(v,l)		sweet::makeGreaterThantest(v,l,#v,#l)
 #define SE(v,l)		sweet::makeSmallerEqualtest(v,l,#v,#l)
 #define EQ(v,l)		sweet::makeEqualtest(v,l,#v,#l)
+#else
+#define RN(l,o,h) sweet::makeDummy(o)
+#define NaN(v)	 sweet::makeDummy(v)
+#define NN(v) sweet::makeDummy(v) 
+#define NE(v) sweet::makeDummy(v) 
+#define SB(v,s) sweet::makeDummy(v) 
+#define TE(v) sweet::makeDummy(v)
+#define GT(v,l) sweet::makeDummy(v) 
+#define SE(v,l) sweet::makeDummy(v) 
+#define EQ(v,l) sweet::makeDummy(v) 
+#endif
 
 // Ensure macros
 #define Esr(tests) sweet::testEnsure(__FILE__, __LINE__, tests)
@@ -51,6 +63,18 @@ struct BaseCls {
 	std::string name;
 	inline BaseCls(T v, const std::string& n) : value(v), name(n) { }
 };
+
+template<typename T>
+struct DummyTest : BaseCls<T> {
+	inline DummyTest(T v) : BaseCls<T>(v, "") {}
+	inline bool test() const { return true; }
+	inline void msg(std::ostream&) {}
+};
+
+template<typename T>
+inline DummyTest<T> makeDummy(T v) {
+	return DummyTest<T>(v);
+}
 
 
 // Range test
