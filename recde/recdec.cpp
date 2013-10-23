@@ -51,10 +51,10 @@ void RecurDec::computeFirstSet() {
 	} while(changed);
 }
 
-std::vector<std::string> getNameVector(const Expr& e) {
-	std::vector<std::string> ret(e.rule.size());
+std::vector<RulePart> getNameVector(const Expr& e) {
+	std::vector<RulePart> ret;
 	for(auto& it : e.rule) {
-		ret.push_back(it.name);
+		ret.push_back(it);
 	}
 	return ret;
 }
@@ -63,6 +63,10 @@ void RecurDec::genRules() {
 	auto start = rs.rules.find("Start");
 	ASSERT_T(start != rs.rules.end());
 	genRules(start->first);
+}
+
+void RecurDec::walkTrie(const GrammarPrefix::TrieEntry& path, const size_t depth) {
+
 }
 
 void RecurDec::genRules(const std::string& start) {
@@ -93,10 +97,11 @@ void RecurDec::genRules(const std::string& start) {
 		} else {
 			format(srcS, " ||\n");
 		}
+		++i;
 	}
 	format(srcS, "\t}\n\n");
 
-	Trie<std::string,bool> trie;
+	GrammarPrefix trie;
 	auto range = rs.rules.equal_range(start);
 	for(; range.first != range.second; ++range.first) {
 		auto vec = getNameVector(range.first->second);
@@ -105,4 +110,6 @@ void RecurDec::genRules(const std::string& start) {
 
 	format(srcS, srcStringParse, start, start);
 	format(srcS, "\tauto curToken = textToken();\n");
+
+	std::cout<<trie<<std::endl;
 }

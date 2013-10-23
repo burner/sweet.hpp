@@ -35,7 +35,7 @@ set(recde_SOURCES
 
 
 ## we love c++0x and a chatty compiler that comments on our code
-set(CMAKE_CXX_FLAGS "-Wall -Wextra -ggdb --std=c++0x")
+set(CMAKE_CXX_FLAGS "-Wall -Wextra -ggdb --std=c++0x -pedantic")
 
 include_directories(
 	${CMAKE_CURRENT_BINARY_DIR} 

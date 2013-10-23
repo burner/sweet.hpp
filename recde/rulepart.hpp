@@ -10,4 +10,5 @@ struct RulePart {
 	std::string storeName;
 
 	RulePart(const std::string&, const std::string&);
+	bool operator<(const RulePart&) const;
 };
