@@ -116,9 +116,9 @@ void test_name##_test_class::run_impl()
 #define IF_BREAK(e)			if(!e) return;
 
 #define UNIT_COMPARE(compare,result,e1,e2,msg) IF_BREAK(evaluate(compare,result, \
-e1, e2, #e1, #e2,Unit::sname(__FILE__), __LINE__,msg))
+e1, e2, #e1, #e2,__FILE__, __LINE__,msg))
 #define UNIT_COMPARED(compare,result,e1,e2,msg) Unit::Unittest::evaluates(compare,  \
-result, e1, e2, #e1, #e2,Unit::sname(__FILE__), __LINE__, &std::cout, "", true, msg)
+result, e1, e2, #e1, #e2,__FILE__, __LINE__, &std::cout, "", true, msg)
 
 namespace Unit {
 	using namespace std;
@@ -169,8 +169,8 @@ namespace Unit {
 		}
 
 		template<typename E1, typename E2> static bool evaluates(bool compare, 
-				bool result, const E1& e1, const E2& e2, const string& str1, 
-				const string& str2, const string& file, int line,
+				bool result, const E1& e1, const E2& e2, const char* str1, 
+				const char* str2, const char* file, int line,
 				ostream* out, const string& name, bool die, const string& msg) {
 
 #ifndef SWEET_NO_ASSERTS
@@ -211,8 +211,8 @@ namespace Unit {
 		}
 
 		template<typename E1, typename E2> bool evaluate(bool compare, 
-				bool result, const E1& e1, const E2& e2, const string& str1, 
-				const string& str2, const string& file, int line, const string& msg) {
+				bool result, const E1& e1, const E2& e2, const char* str1, 
+				const char* str2, const char* file, int line, const string& msg) {
 			bool rlst = Unittest::evaluates<E1,E2>(compare, result, e1, e2,
 					str1, str2, file, line, out_, name_, false, msg);
 			if(!rlst) {

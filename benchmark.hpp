@@ -109,9 +109,9 @@ public:
 	std::string name;
 	std::string prettyFunc;
 	std::string filename;
-	unsigned long line;
-	unsigned long cnt;
-	unsigned long time;
+	long long line;
+	long long cnt;
+	long long time;
 	long long ticks;
 
 	inline Benchmark() {}
@@ -155,19 +155,20 @@ public:
 		const std::string file = "Filename:";
 		const std::string numTicks = "Num of Ticks:";
 		const std::string numCalls = "Num of Calls:";
-		size_t nLen = funcName.size();
-		unsigned long tLen = static_cast<long long>(time.size());
-		size_t fLen = file.size();
-		unsigned long lLen = static_cast<unsigned long>(line.size());
+		long long nLen = funcName.size();
+		long long tLen = static_cast<long long>(time.size());
+		long long fLen = file.size();
+		long long lLen = static_cast<long long>(line.size());
 		long long tiLen = 0;
-		unsigned long cLen = static_cast<unsigned long>(numCalls.size());
+		long long cLen = static_cast<long long>(numCalls.size());
 
 		for(auto& it : rslt) {
 			it.filename = sname(it.filename);
-			nLen = nLen > it.name.size() ? nLen : it.name.size();
-			fLen = fLen > it.filename.size() ? fLen : it.filename.size();
+			nLen = nLen > static_cast<long long>(it.name.size()) ? nLen : static_cast<long long>(it.name.size());
+			fLen = fLen > static_cast<long long>(it.filename.size()) ? fLen : 
+					static_cast<long long>(it.filename.size());
 			tLen = tLen > it.time ? tLen : it.time;
-			lLen = static_cast<unsigned long>(lLen > static_cast<unsigned long>(log10(it.line)) ? 
+			lLen = static_cast<long long>(lLen > static_cast<long long>(log10(it.line)) ? 
 				lLen : log10(it.line)
 			);
 			tiLen = static_cast<long long>(tiLen > static_cast<long long>(log10(it.ticks)) ? 
