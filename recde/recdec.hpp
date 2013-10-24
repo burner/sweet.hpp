@@ -10,7 +10,7 @@ class RecurDec {
 	std::ostream& headerS;
 	std::ostream& srcS;
 
-	void walkTrie(const GrammarPrefix::TrieEntry&, const size_t);
+	void walkTrie(const GrammarPrefix::TrieEntry*, const size_t);
 
 public:
 	RuleStore& rs;

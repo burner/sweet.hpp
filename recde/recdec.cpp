@@ -65,8 +65,12 @@ void RecurDec::genRules() {
 	genRules(start->first);
 }
 
-void RecurDec::walkTrie(const GrammarPrefix::TrieEntry& path, const size_t depth) {
-
+void RecurDec::walkTrie(const GrammarPrefix::TrieEntry* path, const size_t depth) {
+	std::string prefix(depth, '\t');
+	for(auto& it : path->map) {
+		format(srcS, prefix + "if(lookAheadTest%s(cur)) {\n", it.first.name);
+		walkTrie(&(it.second), depth+1);
+	}	
 }
 
 void RecurDec::genRules(const std::string& start) {
@@ -110,6 +114,7 @@ void RecurDec::genRules(const std::string& start) {
 
 	format(srcS, srcStringParse, start, start);
 	format(srcS, "\tauto curToken = textToken();\n");
+	walkTrie(&trie.getRoot(), 0);
 
 	std::cout<<trie<<std::endl;
 }
