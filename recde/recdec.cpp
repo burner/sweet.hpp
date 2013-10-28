@@ -60,16 +60,49 @@ std::vector<RulePart> getNameVector(const Expr& e) {
 }
 
 void RecurDec::genRules() {
-	auto start = rs.rules.find("Start");
+	current = "VarDecl";
+	auto start = rs.rules.find(current);
 	ASSERT_T(start != rs.rules.end());
 	genRules(start->first);
+	//for(auto& it : rs.rules) {
+	//	genRules(it.first);
+	//}
 }
 
 void RecurDec::walkTrie(const GrammarPrefix::TrieEntry* path, const size_t depth) {
 	std::string prefix(depth, '\t');
 	for(auto& it : path->map) {
-		format(srcS, prefix + "if(lookAheadTest%s(cur)) {\n", it.first.name);
+		bool pushed = false;
+		format(srcS, "%sif(lookAheadTest%s(cur)) {\n", prefix, it.first.name);
+		if(rs.token.find(it.first.name) != rs.token.end() && !it.first.storeName.empty()) {
+			nameStack.push_back(it.first.storeName);
+			pushed = true;
+			format(srcS, "%s\tToken %s(curToken);\n",prefix, it.first.storeName);
+			format(srcS, "%s\tnextToken();\n", prefix);
+		} else if(rs.rules.find(it.first.name) != rs.rules.end() && !it.first.storeName.empty()) {
+			nameStack.push_back(it.first.storeName);
+			pushed = true;
+			format(srcS, "%s\t%sPtr %s(parse());\n", prefix, it.first.name, it.first.storeName);
+		} else {
+			format(srcS, "%s\tnextToken();\n", prefix);
+		}
+		if(it.second.isValue) {
+			format(srcS, "\t%sstd::make_shared<%s>(", prefix, current);
+			size_t idx = 0;
+			for(auto& name : nameStack) {
+				format(srcS, "%s", name);
+				if(idx+1 < nameStack.size()) {
+					format(srcS, ", ");
+				}
+				++idx;
+			}
+			format(srcS, ");\n");
+		}
 		walkTrie(&(it.second), depth+1);
+		if(pushed) {
+			nameStack.pop_back();
+		}
+		format(srcS, "%s}\n", prefix);
 	}	
 }
 
@@ -77,25 +110,25 @@ void RecurDec::genRules(const std::string& start) {
 	allreadyDone.insert(start);
 
 	// header
-	const std::string headerStringTest("\tbool lookAheadTest%s(const Token&);\n");
-	const std::string headerStringParse("\t%sPtr parse%s();\n");
+	const std::string headerStringTest("bool lookAheadTest%s(const Token&);\n");
+	const std::string headerStringParse("%sPtr parse%s();\n");
 
 	format(headerS, headerStringTest, start);
 	format(headerS, headerStringParse, start, start);
 
 
 	// source
-	const std::string srcStringTest("\tbool Parser::lookAheadTest%s(const Token& token) {\n");
-	const std::string srcStringParse("\t%sPtr Parser::parse%s() {\n");
+	const std::string srcStringTest("bool Parser::lookAheadTest%s(const Token& token) {\n");
+	const std::string srcStringParse("%sPtr Parser::parse%s() {\n");
 
 	format(srcS, srcStringTest, start);
-	format(srcS, "\t\treturn\n");
+	format(srcS, "\treturn");
 	auto lookAheadSet = rs.first.find(start);
 	ASSERT_T(lookAheadSet != rs.first.end());
 	const size_t lookAheadSetSize = lookAheadSet->second.size();
 	size_t i = 0;
 	for(auto& it : lookAheadSet->second) {
-		format(srcS, "\t\t\ttoken.type == %s", it);
+		format(srcS, "%stoken.type == TokenType::%s", (i != 0 ? "\t\t" : " "), it);
 		if(i+1 == lookAheadSetSize) {
 			format(srcS, ";\n");
 		} else {
@@ -103,7 +136,7 @@ void RecurDec::genRules(const std::string& start) {
 		}
 		++i;
 	}
-	format(srcS, "\t}\n\n");
+	format(srcS, "}\n\n");
 
 	GrammarPrefix trie;
 	auto range = rs.rules.equal_range(start);
@@ -113,8 +146,8 @@ void RecurDec::genRules(const std::string& start) {
 	}
 
 	format(srcS, srcStringParse, start, start);
-	format(srcS, "\tauto curToken = textToken();\n");
-	walkTrie(&trie.getRoot(), 0);
+	walkTrie(&trie.getRoot(), 1);
+	format(srcS, "}\n");
 
 	std::cout<<trie<<std::endl;
 }
