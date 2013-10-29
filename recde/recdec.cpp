@@ -1,7 +1,9 @@
 #include <recdec.hpp>
 #include <unit.hpp>
 
-RecurDec::RecurDec(RuleStore& r, std::ostream& h, std::ostream& s) :  headerS(h), srcS(s), rs(r) {
+RecurDec::RecurDec(RuleStore& r, std::ostream& h, std::ostream& s,
+	std::ostream& ah, std::ostream& as) :  headerS(h), srcS(s), rs(r),
+	astH(ah), astS(as) {
 }
 
 void RecurDec::computeFirstSet() {
@@ -60,13 +62,19 @@ std::vector<RulePart> getNameVector(const Expr& e) {
 }
 
 void RecurDec::genRules() {
-	current = "VarDecl";
-	auto start = rs.rules.find(current);
-	ASSERT_T(start != rs.rules.end());
-	genRules(start->first);
-	//for(auto& it : rs.rules) {
-	//	genRules(it.first);
-	//}
+	//current = "VarDecl";
+	//auto start = rs.rules.find(current);
+	//ASSERT_T(start != rs.rules.end());
+	//genRules(start->first);
+	std::set<std::string> done;
+	for(auto& it : rs.rules) {
+		if(done.find(it.first) != done.end()) {
+			continue;
+		}
+		current = it.first;
+		genRules(it.first);
+		done.insert(it.first);
+	}
 }
 
 void RecurDec::walkTrie(const GrammarPrefix::TrieEntry* path, const size_t depth) {

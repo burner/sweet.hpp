@@ -12,8 +12,8 @@
 			]
 		},
 		{ "Name" : "Type", "Expression" : [
-			{ "Rule" : "Int" },
-			{ "Rule" : "Float" }
+			{ "Rule" : "Int(integer)" },
+			{ "Rule" : "Float(floatingpoint)" }
 			]
 		},
 		{ "Name" : "Start", "Expression" : [
