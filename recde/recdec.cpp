@@ -1,9 +1,7 @@
 #include <recdec.hpp>
 #include <unit.hpp>
 
-RecurDec::RecurDec(RuleStore& r, std::ostream& h, std::ostream& s,
-	std::ostream& ah, std::ostream& as) :  headerS(h), srcS(s), rs(r),
-	astH(ah), astS(as) {
+RecurDec::RecurDec(RuleStore& r, Output& o) : out(o), rs(r) {
 }
 
 void RecurDec::computeFirstSet() {
@@ -79,39 +77,44 @@ void RecurDec::genRules() {
 
 void RecurDec::walkTrie(const GrammarPrefix::TrieEntry* path, const size_t depth) {
 	std::string prefix(depth, '\t');
+	bool wasFirst = false;
 	for(auto& it : path->map) {
 		bool pushed = false;
-		format(srcS, "%sif(lookAheadTest%s(cur)) {\n", prefix, it.first.name);
+		format(out.prsS, "%s%s(lookAheadTest%s(cur)) {\n", wasFirst ? "" : prefix, 
+			wasFirst ? " else if" : "if", it.first.name
+		);
 		if(rs.token.find(it.first.name) != rs.token.end() && !it.first.storeName.empty()) {
 			nameStack.push_back(it.first.storeName);
 			pushed = true;
-			format(srcS, "%s\tToken %s(curToken);\n",prefix, it.first.storeName);
-			format(srcS, "%s\tnextToken();\n", prefix);
+			format(out.prsS, "%s\tToken %s(curToken);\n",prefix, it.first.storeName);
+			format(out.prsS, "%s\tnextToken();\n", prefix);
 		} else if(rs.rules.find(it.first.name) != rs.rules.end() && !it.first.storeName.empty()) {
 			nameStack.push_back(it.first.storeName);
 			pushed = true;
-			format(srcS, "%s\t%sPtr %s(parse());\n", prefix, it.first.name, it.first.storeName);
+			format(out.prsS, "%s\t%sPtr %s(parse());\n", prefix, it.first.name, it.first.storeName);
 		} else {
-			format(srcS, "%s\tnextToken();\n", prefix);
+			format(out.prsS, "%s\tnextToken();\n", prefix);
 		}
 		if(it.second.isValue) {
-			format(srcS, "\t%sstd::make_shared<%s>(", prefix, current);
+			format(out.prsS, "\t%sreturn std::make_shared<%s>(", prefix, current);
 			size_t idx = 0;
 			for(auto& name : nameStack) {
-				format(srcS, "%s", name);
+				format(out.prsS, "%s", name);
 				if(idx+1 < nameStack.size()) {
-					format(srcS, ", ");
+					format(out.prsS, ", ");
 				}
 				++idx;
 			}
-			format(srcS, ");\n");
+			format(out.prsS, ");");
 		}
 		walkTrie(&(it.second), depth+1);
 		if(pushed) {
 			nameStack.pop_back();
 		}
-		format(srcS, "%s}\n", prefix);
-	}	
+		format(out.prsS, "%s}", prefix);
+		wasFirst = true;
+	}
+	format(out.prsS, "\n");
 }
 
 void RecurDec::genRules(const std::string& start) {
@@ -121,30 +124,30 @@ void RecurDec::genRules(const std::string& start) {
 	const std::string headerStringTest("bool lookAheadTest%s(const Token&);\n");
 	const std::string headerStringParse("%sPtr parse%s();\n");
 
-	format(headerS, headerStringTest, start);
-	format(headerS, headerStringParse, start, start);
+	format(out.prsH, headerStringTest, start);
+	format(out.prsH, headerStringParse, start, start);
 
 
 	// source
 	const std::string srcStringTest("bool Parser::lookAheadTest%s(const Token& token) {\n");
 	const std::string srcStringParse("%sPtr Parser::parse%s() {\n");
 
-	format(srcS, srcStringTest, start);
-	format(srcS, "\treturn");
+	format(out.prsS, srcStringTest, start);
+	format(out.prsS, "\treturn");
 	auto lookAheadSet = rs.first.find(start);
 	ASSERT_T(lookAheadSet != rs.first.end());
 	const size_t lookAheadSetSize = lookAheadSet->second.size();
 	size_t i = 0;
 	for(auto& it : lookAheadSet->second) {
-		format(srcS, "%stoken.type == TokenType::%s", (i != 0 ? "\t\t" : " "), it);
+		format(out.prsS, "%stoken.type == TokenType::%s", (i != 0 ? "\t\t" : " "), it);
 		if(i+1 == lookAheadSetSize) {
-			format(srcS, ";\n");
+			format(out.prsS, ";\n");
 		} else {
-			format(srcS, " ||\n");
+			format(out.prsS, " ||\n");
 		}
 		++i;
 	}
-	format(srcS, "}\n\n");
+	format(out.prsS, "}\n\n");
 
 	GrammarPrefix trie;
 	auto range = rs.rules.equal_range(start);
@@ -153,9 +156,9 @@ void RecurDec::genRules(const std::string& start) {
 		trie.insert(vec.begin(), vec.end(), true);
 	}
 
-	format(srcS, srcStringParse, start, start);
+	format(out.prsS, srcStringParse, start, start);
 	walkTrie(&trie.getRoot(), 1);
-	format(srcS, "}\n");
+	format(out.prsS, "}\n");
 
 	std::cout<<trie<<std::endl;
 }

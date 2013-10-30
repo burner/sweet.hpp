@@ -20,7 +20,8 @@ int main(int argc, char** argv) {
 	RuleStore store;
 	RuleParser parser(inputFile, store);
 	parser.parse();
-	RecurDec rd(store, std::cout, std::cout, std::cout, std::cout);
+	Output out(std::cout,std::cout,std::cout,std::cout,std::cout,std::cout);
+	RecurDec rd(store, out);
 	rd.computeFirstSet();
 	//std::cout<<store.first<<std::endl;
 

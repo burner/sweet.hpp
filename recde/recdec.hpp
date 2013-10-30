@@ -2,7 +2,9 @@
 
 #include <unordered_set>
 #include <stack>
+
 #include <rulestore.hpp>
+#include <output.hpp>
 
 class RecurDec {
 	typedef Trie<RulePart,bool> GrammarPrefix;
@@ -11,17 +13,14 @@ class RecurDec {
 	std::string current;
 
 	void genRules(const std::string&);
-	std::ostream& headerS;
-	std::ostream& srcS;
-	std::ostream& astH;
-	std::ostream& astS;
+	Output& out;
 
 	void walkTrie(const GrammarPrefix::TrieEntry*, const size_t);
 
 public:
 	RuleStore& rs;
 
-	RecurDec(RuleStore&,std::ostream&,std::ostream&,std::ostream&,std::ostream&);
+	RecurDec(RuleStore&,Output&);
 
 	void computeFirstSet();
 	void genRules();

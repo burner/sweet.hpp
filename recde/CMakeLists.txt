@@ -20,6 +20,7 @@ set(recde_HEADERS
 	rulepart.hpp  
 	rulestore.hpp
 	token.hpp
+	output.hpp
 )
 
 ## well and the sources
@@ -31,6 +32,7 @@ set(recde_SOURCES
 	rulepart.cpp
 	rulestore.cpp  
 	token.cpp
+	output.cpp
 )
 
 
