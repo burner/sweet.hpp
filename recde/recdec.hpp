@@ -15,7 +15,7 @@ class RecurDec {
 	void genRules(const std::string&);
 	Output& out;
 
-	void walkTrie(const GrammarPrefix::TrieEntry*, const size_t);
+	void walkTrie(const GrammarPrefix::TrieEntry*, const std::string&, const size_t);
 
 public:
 	RuleStore& rs;

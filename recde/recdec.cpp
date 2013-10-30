@@ -75,9 +75,12 @@ void RecurDec::genRules() {
 	}
 }
 
-void RecurDec::walkTrie(const GrammarPrefix::TrieEntry* path, const size_t depth) {
+void RecurDec::walkTrie(const GrammarPrefix::TrieEntry* path, const std::string& know, const size_t depth) {
 	std::string prefix(depth, '\t');
 	bool wasFirst = false;
+	if(path->map.empty()) {
+		return;
+	}
 	for(auto& it : path->map) {
 		bool pushed = false;
 		format(out.prsS, "%s%s(lookAheadTest%s(cur)) {\n", wasFirst ? "" : prefix, 
@@ -105,15 +108,27 @@ void RecurDec::walkTrie(const GrammarPrefix::TrieEntry* path, const size_t depth
 				}
 				++idx;
 			}
-			format(out.prsS, ");");
+			format(out.prsS, ");\n");
 		}
-		walkTrie(&(it.second), depth+1);
+		walkTrie(&(it.second), it.first.name, depth+1);
 		if(pushed) {
 			nameStack.pop_back();
 		}
 		format(out.prsS, "%s}", prefix);
 		wasFirst = true;
 	}
+	format(out.prsS, " else {\n");
+	format(out.prsS, "%s\tthrow ParseException(%s, %s, %d,\n%s\t\t{\n", prefix,
+			current, know, depth, prefix
+	);
+	size_t cnt = 0;
+	for(auto& it : path->map) {
+		format(out.prsS, "%s\t\t\t\"%s\"%s", prefix, it.first.name, cnt+1 == path->map.size() ? "\n" : ",\n");
+		++cnt;
+	}
+	format(out.prsS, "%s\t\t}\n", prefix);
+	format(out.prsS, "%s\t);\n", prefix);
+	format(out.prsS, "%s}", prefix);
 	format(out.prsS, "\n");
 }
 
@@ -157,7 +172,7 @@ void RecurDec::genRules(const std::string& start) {
 	}
 
 	format(out.prsS, srcStringParse, start, start);
-	walkTrie(&trie.getRoot(), 1);
+	walkTrie(&trie.getRoot(), start, 1);
 	format(out.prsS, "}\n");
 
 	std::cout<<trie<<std::endl;
