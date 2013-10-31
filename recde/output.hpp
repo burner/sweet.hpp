@@ -10,5 +10,8 @@ struct Output {
 	std::ostream& errS;
 	std::ostream& errH;
 
-	explicit Output(std::ostream&,std::ostream&,std::ostream&,std::ostream&,std::ostream&,std::ostream&);
+	std::string errHfn;
+
+	explicit Output(std::ostream&,std::ostream&,std::ostream&,std::ostream&,std::ostream&,std::ostream&,
+		const std::string&);
 };
