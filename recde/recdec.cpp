@@ -175,5 +175,10 @@ void RecurDec::genRules(const std::string& start) {
 	walkTrie(&trie.getRoot(), start, 1);
 	format(out.prsS, "}\n");
 
-	std::cout<<trie<<std::endl;
+	//std::cout<<trie<<std::endl;
+}
+
+void RecurDec::walkTrieConstructor(const GrammarPrefix::TrieEntry* path, 
+		std::vector<std::string> cur, std::vector<std::vector<<std::string>>& store) {
+
 }
