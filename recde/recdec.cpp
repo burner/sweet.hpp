@@ -142,7 +142,7 @@ void RecurDec::writeErrorStuff() {
 	format(out.errS, "}\n\n");
 }
 
-void RecurDec::walkTrie(const GrammarPrefix::TrieEntry* path, const std::string& part, const size_t depth) {
+void RecurDec::alkTrie(const GrammarPrefix::TrieEntry* path, const std::string& part, const size_t depth) {
 	std::string prefix(depth, '\t');
 	bool wasFirst = false;
 	if(path->map.empty()) {
@@ -150,23 +150,32 @@ void RecurDec::walkTrie(const GrammarPrefix::TrieEntry* path, const std::string&
 	}
 	for(auto& it : path->map) {
 		bool pushed = false;
-		format(out.prsS, "%s%s(lookAheadTest%s(curToken)) {\n", wasFirst ? "" : prefix, 
+		format(out.prsS, "%s%s(lookAheadTest%s(curToken)) {\n", 
+			wasFirst ? "" : prefix, 
 			wasFirst ? " else if" : "if", it.first.name
 		);
-		if(rs.token.find(it.first.name) != rs.token.end() && !it.first.storeName.empty()) {
+		if(rs.token.find(it.first.name) != rs.token.end() && 
+				!it.first.storeName.empty()) {
 			nameStack.push_back(it.first.storeName);
 			pushed = true;
-			format(out.prsS, "%s\tToken %s(curToken);\n",prefix, it.first.storeName);
+			format(out.prsS, "%s\tToken %s(curToken);\n",prefix, 
+				it.first.storeName
+			);
 			format(out.prsS, "%s\tnextToken();\n", prefix);
-		} else if(rs.rules.find(it.first.name) != rs.rules.end() && !it.first.storeName.empty()) {
+		} else if(rs.rules.find(it.first.name) != rs.rules.end() && 
+				!it.first.storeName.empty()) {
 			nameStack.push_back(it.first.storeName);
 			pushed = true;
-			format(out.prsS, "%s\t%sPtr %s(parse());\n", prefix, it.first.name, it.first.storeName);
+			format(out.prsS, "%s\t%sPtr %s(parse());\n", prefix, it.first.name, 
+				it.first.storeName
+			);
 		} else {
 			format(out.prsS, "%s\tnextToken();\n", prefix);
 		}
 		if(it.second.isValue) {
-			format(out.prsS, "\t%sreturn std::make_shared<%s>(", prefix, current);
+			format(out.prsS, "\t%sreturn std::make_shared<%s>(", prefix, 
+				current
+			);
 			size_t idx = 0;
 			for(auto& name : nameStack) {
 				format(out.prsS, "%s", name);
@@ -249,11 +258,20 @@ void RecurDec::genRules(const std::string& start) {
 	walkTrie(&trie.getRoot(), start, 1);
 	format(out.prsS, "}\n");
 
+	walkTrieConstructor(&trie.getRoot(), std::vector<std::string>());
+
 	//std::cout<<trie<<std::endl;
 }
 
 void RecurDec::walkTrieConstructor(const GrammarPrefix::TrieEntry* path, 
-		std::vector<std::string> cur, std::vector<std::vector<<std::string>>& store) {
+		std::vector<std::string> cur) {
+	if(path->isValue) {
+		this->store.push_back(cur);
+	}
+
+	for(auto& it : path->map) {
+	}
+
 }
 
 void RecurDec::gen() {

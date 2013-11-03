@@ -35,7 +35,7 @@ class RecurDec {
 	std::vector<std::vector<std::string>> store;
 	void walkTrieConstructor(std::vector<std::string>);
 	void walkTrieConstructor(const GrammarPrefix::TrieEntry*,
-		std::vector<std::string>, std::vector<std::vector<<std::string>>&);
+		std::vector<std::string>);
 
 public:
 	RuleStore& rs;
