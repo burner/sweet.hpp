@@ -117,7 +117,9 @@ void RecurDec::writeErrorStuff() {
 	format(out.errH, "\tconst std::string part;\n");
 	format(out.errH, "\tconst size_t depth;\n");
 	format(out.errH, "\tconst std::vector<std::string> follow;\n");
-	format(out.errH, "\tErrorType(const size_t,const std::string&,const std::string&,const size_t,std::initializer_list<std::string>);\n");
+	format(out.errH, "\tErrorType(const size_t,const std::string&,const std::string&,const size_t,"
+		"std::initializer_list<std::string>);\n"
+	);
 	format(out.errH, "};\n\n");
 	format(out.errH, "const ErrorType& getError(const size);\n\n");
 	format(out.errH, "typedef std::vector<const ErrorType> ErrorTypeVector;\n\n");
@@ -137,12 +139,14 @@ void RecurDec::writeErrorStuff() {
 
 	format(out.errS, "#include <%s>\n\n", out.errHfn);
 	format(out.errH, "ParseException::ParseException(const Token& t, const size_t i) : token(t), id(i) {}\n\n");
-	format(out.errS, "ErrorType::ErrorType(const size_t i,const std::string& r, const std::string& p, const size_t d, \n\tstd::initializer_list<std::string> f) : \n");
+	format(out.errS, "ErrorType::ErrorType(const size_t i,const std::string& r, const std::string& p, "
+		"const size_t d, \n\tstd::initializer_list<std::string> f) : \n"
+	);
 	format(out.errS, "\tid(i), rule(r), part(p), depth(d), follow(f) {\n");
 	format(out.errS, "}\n\n");
 }
 
-void RecurDec::alkTrie(const GrammarPrefix::TrieEntry* path, const std::string& part, const size_t depth) {
+void RecurDec::walkTrie(const GrammarPrefix::TrieEntry* path, const std::string& part, const size_t depth) {
 	std::string prefix(depth, '\t');
 	bool wasFirst = false;
 	if(path->map.empty()) {
@@ -258,24 +262,35 @@ void RecurDec::genRules(const std::string& start) {
 	walkTrie(&trie.getRoot(), start, 1);
 	format(out.prsS, "}\n");
 
-	walkTrieConstructor(&trie.getRoot(), std::vector<std::string>());
+	this->store.clear();
+	walkTrieConstructor(&trie.getRoot(), std::vector<RulePart>());
+	for(auto& it : this->store) {
+		for(auto& jt : it) {
+			format(std::cout, "%s ", jt);
+		}
+		std::cout<<std::endl;
+	}
 
 	//std::cout<<trie<<std::endl;
 }
 
 void RecurDec::walkTrieConstructor(const GrammarPrefix::TrieEntry* path, 
-		std::vector<std::string> cur) {
+		std::vector<RulePart> cur) {
 	if(path->isValue) {
 		this->store.push_back(cur);
 	}
 
 	for(auto& it : path->map) {
+		std::vector<RulePart> n(cur.begin(), cur.end());
+		if(!it.first.storeName.empty()) {
+			n.push_back(it.first);
+		}
+		walkTrieConstructor(&(it.second), n);
 	}
-
 }
 
 void RecurDec::gen() {
-	this->genRules();
-	this->writeErrorStuff();
 	this->genAstForwardDecl();
+	this->genRules();
+	//this->writeErrorStuff();
 }
