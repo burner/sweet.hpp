@@ -1,5 +1,6 @@
 #include <recdec.hpp>
 #include <unit.hpp>
+#include <format.hpp>
 
 ErrorStuff::ErrorStuff(const std::string& r, const std::string& p, const size_t d,
 		const std::vector<std::string>& po) : rule(r), part(p), depth(d), possible(po)
@@ -69,6 +70,21 @@ void RecurDec::genRules() {
 	//auto start = rs.rules.find(current);
 	//ASSERT_T(start != rs.rules.end());
 	//genRules(start->first);
+	format(out.prsH, "#pragma once\n\n");
+	format(out.prsH, "#include <ast.hpp>\n");
+	format(out.prsH, "#include <token.hpp>\n");
+	format(out.prsH, "\nclass Parser {\n");
+	format(out.prsH, "public:\n");
+	format(out.prsH, "\tParser(Lexer&);\n");
+
+	format(out.prsS, "#include <parser.hpp>\n");
+	format(out.prsS, "#include <ast.hpp>\n");
+	format(out.prsS, "\nParser::Parser(Lexer& l) : lexer(l) {\n");
+	format(out.prsS, "}\n\n");
+	format(out.prsS, "void Parser::nextToken() {\n");
+	format(out.prsS, "\tthis->curToken = this->lexer.nextToken();\n");
+	format(out.prsS, "}\n");
+
 	std::set<std::string> done;
 	for(auto& it : rs.rules) {
 		if(done.find(it.first) != done.end()) {
@@ -78,13 +94,18 @@ void RecurDec::genRules() {
 		genRules(it.first);
 		done.insert(it.first);
 	}
+	format(out.prsH, "\nprivate:\n");
+	format(out.prsH, "\tLexer& lexer;\n");
+	format(out.prsH, "\tToken curToken;\n");
+	format(out.prsH, "\tvoid nextToken();\n");
+	format(out.prsH, "};\n");
 }
 
 void RecurDec::genAstForwardDecl() {
 	format(out.astH, "#pragma once\n\n");
 	format(out.astH,  "#include <memory>\n\n");
 	format(out.astH,  "#include <token.hpp>\n\n");
-	format(out.astH,  "\n//Forward Decl\n\n");
+	format(out.astH,  "\n// Forward Decl\n\n");
 	std::set<std::string> done;
 	for(auto& it : rs.rules) {
 		if(done.find(it.first) != done.end()) {
@@ -95,7 +116,7 @@ void RecurDec::genAstForwardDecl() {
 		format(out.astH, "typedef std::shared_ptr<%s> %sPtr;\n", it.first, it.first);
 		format(out.astH, "typedef std::shared_ptr<const %s> %sConstPtr;\n", it.first, it.first);
 	}
-	format(out.astH,  "\n\n//Decl");
+	format(out.astH,  "\n\n// Decl");
 	format(out.astH, "\n");
 
 	format(out.astS, "#include <ast.hpp>\n");
@@ -108,13 +129,14 @@ size_t RecurDec::newErrorStuff(const std::string& rule, const std::string& part,
 }
 
 void RecurDec::writeErrorStuff() {
-	format(out.errH, "pragma once\n\n");
+	format(out.errH, "#pragma once\n\n");
 	format(out.errH, "#include <vector>\n\n");
-	format(out.errH, "#include <token.hpp>\n\n");
+	format(out.errH, "#include <token.hpp>\n");
+	format(out.errH, "#include <ast.hpp>\n\n");
 	format(out.errH, "class ParseException : public std::exception {\n");
 	format(out.errH, "public:\n");
 	format(out.errH, "\tconst size_t id;\n");
-	format(out.errH, "\tconst Token token;\n");
+	format(out.errH, "\tconst Token token;\n\n");
 	format(out.errH, "\tParseException(const Token&, const size_t);\n");
 	format(out.errH, "};\n\n");
 
@@ -128,8 +150,8 @@ void RecurDec::writeErrorStuff() {
 		"std::initializer_list<std::string>);\n"
 	);
 	format(out.errH, "};\n\n");
-	format(out.errH, "const ErrorType& getError(const size);\n\n");
-	format(out.errH, "typedef std::vector<const ErrorType> ErrorTypeVector;\n\n");
+	format(out.errH, "const ErrorType& getError(const size_t);\n\n");
+	format(out.errH, "typedef std::vector<ErrorType> ErrorTypeVector;\n\n");
 	format(out.errH, "const ErrorTypeVector vectorOfError = {\n");
 	for(size_t i = 0; i < errorStuff.size(); ++i) {
 		format(out.errH, "\tErrorType(%u, \"%s\", \"%s\", %u, {\n", i, errorStuff[i].rule, 
@@ -140,17 +162,17 @@ void RecurDec::writeErrorStuff() {
 				j+1 == errorStuff[i].possible.size() ? "\n" : ",\n"
 			);
 		}
-		format(out.errH, "\t})%s", i+1 == errorStuff.size() ? "\n" : ";\n");
+		format(out.errH, "\t})%s", i+1 == errorStuff.size() ? "\n" : ",\n");
 	}
 	format(out.errH, "};\n");
 
 	format(out.errS, "#include <%s>\n\n", out.errHfn);
-	format(out.errH, "ParseException::ParseException(const Token& t, const size_t i) : token(t), id(i) {}\n\n");
+	format(out.errS, "ParseException::ParseException(const Token& t, const size_t i) : token(t), id(i) {}\n\n");
 	format(out.errS, "ErrorType::ErrorType(const size_t i,const std::string& r, const std::string& p, "
 		"const size_t d, \n\tstd::initializer_list<std::string> f) : \n"
 	);
 	format(out.errS, "\tid(i), rule(r), part(p), depth(d), follow(f) {\n");
-	format(out.errS, "}\n\n");
+	format(out.errS, "}\n");
 }
 
 void RecurDec::walkTrie(const GrammarPrefix::TrieEntry* path, const std::string& part, const size_t depth) {
@@ -231,9 +253,10 @@ void RecurDec::genRules(const std::string& start) {
 	allreadyDone.insert(start);
 
 	// header
-	const std::string headerStringTest("bool lookAheadTest%s(const Token&);\n");
-	const std::string headerStringParse("%sPtr parse%s();\n");
+	const std::string headerStringTest("\tbool lookAheadTest%s(const Token&);\n");
+	const std::string headerStringParse("\t%sPtr parse%s();\n");
 
+	format(out.prsH, "\n\n\t// %s\n", current);
 	format(out.prsH, headerStringTest, start);
 	format(out.prsH, headerStringParse, start, start);
 
@@ -242,6 +265,7 @@ void RecurDec::genRules(const std::string& start) {
 	const std::string srcStringTest("bool Parser::lookAheadTest%s(const Token& token) {\n");
 	const std::string srcStringParse("%sPtr Parser::parse%s() {\n");
 
+	format(out.prsS, "\n\n// %s\n\n", current);
 	format(out.prsS, srcStringTest, start);
 	format(out.prsS, "\treturn");
 	auto lookAheadSet = rs.first.find(start);
@@ -322,7 +346,7 @@ void RecurDec::genAstClassDeclEnd(const std::set<RulePart>& allValues) {
 			format(out.astS, "\n%sPtr %s::get%s() {\n", it.name, current, name);
 			format(out.astS, "\treturn this->%s;\n}\n\n", it.storeName);
 			format(out.astS, "%sConstPtr %s::get%s() const {\n", it.name, current, name);
-			format(out.astS, "\treturn this->%s;\n}\n\n", it.storeName);
+			format(out.astS, "\treturn this->%s;\n}\n", it.storeName);
 		}
 	}
 	format(out.astH, "\n\t%sEnum getRule() const;\n\n", current);
@@ -340,7 +364,7 @@ void RecurDec::genAstClassDeclEnd(const std::set<RulePart>& allValues) {
 
 void RecurDec::genAst(const std::vector<std::vector<RulePart>>& r) {
 	format(out.astH, "\n\n// %s\n\n", current);
-	format(out.astS, "\n\n// %s\n\n", current);
+	format(out.astS, "\n// %s\n\n", current);
 	std::set<RulePart> allToStore;
 	std::set<std::string> enumNames;
 	std::vector<std::vector<RulePart>> minimized;
@@ -435,5 +459,5 @@ void RecurDec::genAst(const std::vector<std::vector<RulePart>>& r) {
 void RecurDec::gen() {
 	this->genAstForwardDecl();
 	this->genRules();
-	//this->writeErrorStuff();
+	this->writeErrorStuff();
 }

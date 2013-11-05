@@ -1,5 +1,7 @@
 #include <token.hpp>
 
+#include <format.hpp>
+
 Token::Token(const std::string& n, const std::string& r, const std::string& c) :
 		name(n), regex(r), convertFunction(c) {
 }

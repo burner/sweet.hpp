@@ -22,7 +22,11 @@ int main(int argc, char** argv) {
 	parser.parse();
 	std::ofstream astH("ast.hpp");
 	std::ofstream astS("ast.cpp");
-	Output out(std::cout,std::cout,astS,astH,std::cout,std::cout, "error.hpp");
+	std::ofstream prsH("parser.hpp");
+	std::ofstream prsS("parser.cpp");
+	std::ofstream errH("error.hpp");
+	std::ofstream errS("error.cpp");
+	Output out(prsS,prsH,astS,astH,errS,errH, "error.hpp");
 	RecurDec rd(store, out);
 	rd.computeFirstSet();
 	//std::cout<<store.first<<std::endl;

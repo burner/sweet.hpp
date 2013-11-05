@@ -1,4 +1,5 @@
 #include <rulestore.hpp>
+#include <format.hpp>
 
 std::ostream& operator<<(std::ostream& ss, const FirstSets& f) {
 	for(auto& it : f) {
