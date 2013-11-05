@@ -71,6 +71,7 @@ void RuleParser::parse() {
 			for(auto& jt : entry) {
 				RuleVector rv;
 				auto semiSplit = split(jt->getObject()->access("Rule")->getString(), ';');
+				std::string ruleEnd = jt->getObject()->get<std::string>("Id", "");
 				for(auto& ht : semiSplit) {
 					std::string type = trim(ht.substr(0, ht.find('(')));
 					size_t lParen = ht.find('(');
@@ -80,7 +81,7 @@ void RuleParser::parse() {
 						saveName = trim(ht.substr(lParen+1, rParen), "\t ()");
 					}
 
-					rv.push_back(RulePart(type, saveName));
+					rv.push_back(RulePart(type, saveName, ruleEnd));
 				}
 
 				ruleMap.insert(std::make_pair(ruleName, Expr(rv)));

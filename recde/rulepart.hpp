@@ -8,7 +8,9 @@ struct RulePart {
 
 	std::string name;
 	std::string storeName;
+	std::string endName;
 
 	RulePart(const std::string&, const std::string&);
+	RulePart(const std::string&, const std::string&, const std::string&);
 	bool operator<(const RulePart&) const;
 };

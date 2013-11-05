@@ -228,7 +228,7 @@ public:
 	}
 
 	template<typename T>
-	typename std::enable_if<std::is_integral<T>::value>::type conv(ValuePtr t) {
+	typename std::enable_if<std::is_integral<T>::value,T>::type conv(ValuePtr t) {
 		if(t->getType() != value::type_number_int) { 
 			throw std::logic_error("Value not of type int"); 
 		}
@@ -236,7 +236,7 @@ public:
 	}
 
 	template<typename T>
-	typename std::enable_if<std::is_floating_point<T>::value>::type 
+	typename std::enable_if<std::is_floating_point<T>::value,T>::type 
 			conv(ValuePtr t) {
 		if(t->getType() != value::type_number_float) { 
 			throw std::logic_error("Value not of type float"); 
@@ -245,7 +245,7 @@ public:
 	}
 
 	template<typename T>
-	typename std::enable_if<std::is_same<T,bool>::value>::type 
+	typename std::enable_if<std::is_same<T,bool>::value,bool>::type 
 			conv(ValuePtr t) {
 		if(t->getType() != value::type_boolean) { 
 			throw std::logic_error("Value not of type bool"); 
@@ -254,15 +254,15 @@ public:
 	}
 
 	template<typename T>
-	typename std::enable_if<std::is_same<T,std::string>::value>::type 
+	typename std::enable_if<std::is_same<T,std::string>::value,std::string>::type 
 			conv(ValuePtr t) {
-		return t;
+		return t->getString();
 	}
 
 	template<typename T>
 	inline T get(const std::string& path, T notFound) {
 		bool exis;
-		T rslt = accessImpl(path, false, exis);
+		auto rslt = accessImpl(path, false, exis);
 		if(exis) { return conv<T>(rslt); }
 		else { return notFound; }
 	}

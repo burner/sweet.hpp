@@ -20,7 +20,9 @@ int main(int argc, char** argv) {
 	RuleStore store;
 	RuleParser parser(inputFile, store);
 	parser.parse();
-	Output out(std::cout,std::cout,std::cout,std::cout,std::cout,std::cout, "error.hpp");
+	std::ofstream astH("ast.hpp");
+	std::ofstream astS("ast.cpp");
+	Output out(std::cout,std::cout,astS,astH,std::cout,std::cout, "error.hpp");
 	RecurDec rd(store, out);
 	rd.computeFirstSet();
 	//std::cout<<store.first<<std::endl;

@@ -36,6 +36,9 @@ class RecurDec {
 	void walkTrieConstructor(std::vector<std::string>);
 	void walkTrieConstructor(const GrammarPrefix::TrieEntry*,
 		std::vector<RulePart>);
+	void genAst(const std::vector<std::vector<RulePart>>&);
+	void genAstClassDeclStart();
+	void genAstClassDeclEnd(const std::set<RulePart>&);
 
 public:
 	RuleStore& rs;
