@@ -74,6 +74,7 @@ void RecurDec::genRules() {
 	format(out.prsH, "#pragma once\n\n");
 	format(out.prsH, "#include <ast.hpp>\n");
 	format(out.prsH, "#include <token.hpp>\n");
+	format(out.prsS, "#include <lexer.hpp>\n");
 	format(out.prsH, "\nclass Parser {\n");
 	format(out.prsH, "public:\n");
 	format(out.prsH, "\tParser(Lexer&);\n");
@@ -115,8 +116,10 @@ void RecurDec::genRules() {
 void RecurDec::genAstForwardDecl() {
 	format(out.astH, "// DO not MODIFY this FILE it IS generated\n\n");
 	format(out.astH, "#pragma once\n\n");
-	format(out.astH, "#include <memory>\n");
 	format(out.astH, "#include <cstdint>\n\n");
+	format(out.astH, "#include <memory>\n");
+	format(out.astH, "#include <ostream>\n");
+	format(out.astH, "#include <string>\n");
 	format(out.astH, "#include <token.hpp>\n\n");
 	format(out.astH, "uint64_t getNextAstId();\n\n");
 	format(out.astH, "class AstNode {\n"); 
@@ -125,10 +128,10 @@ void RecurDec::genAstForwardDecl() {
 	format(out.astH, "\tuint64_t getId() const;\n"); 
 	format(out.astH, "\tAstNode* getParent();\n"); 
 	format(out.astH, "\tconst AstNode* getParent() const;\n"); 
-	format(out.astH, "\tvoid getParent(AstNode*);\n"); 
-	format(out.astH, "\tstd::ostream operator<<(std::ostream&) const;\n"); 
+	format(out.astH, "\tvoid setParent(AstNode*);\n"); 
+	format(out.astH, "\tstd::ostream& operator<<(std::ostream&) const;\n"); 
 	format(out.astH, "\tvirtual void toOutStream(std::ostream&,uint32_t=0) const = 0;\n"); 
-	format(out.astH, "\tvirtual void toDotStream(std::ostream&,uint32_t=0) const = 0;\n"); 
+	format(out.astH, "\tvirtual void toDotStream(std::ostream&) const = 0;\n"); 
 	format(out.astH, "\nprivate:\n"); 
 	format(out.astH, "\tuint64_t id;\n");
 	format(out.astH, "\tAstNode* parent;\n");
@@ -155,7 +158,7 @@ void RecurDec::genAstForwardDecl() {
 	format(out.astS, "const AstNode* AstNode::getParent() const {\n\treturn this->parent;\n}\n\n");
 	format(out.astS, "AstNode* AstNode::getParent() {\n\treturn this->parent;\n}\n\n");
 	format(out.astS, "void AstNode::setParent(AstNode* p) {\n\tthis->parent = p;\n}\n\n");
-	format(out.astS, "std::ostream& AstNode::operator<<(std::ostream& ss) "
+	format(out.astS, "std::ostream& AstNode::operator<<(std::ostream& ss) const "
 		"{\n\ttoOutStream(ss);\n\treturn ss;\n}\n\n"
 	);
 }
@@ -206,7 +209,7 @@ void RecurDec::writeErrorStuff() {
 
 	format(out.errS, "#include <%s>\n\n", out.errHfn);
 	format(out.errS, "ParseException::ParseException(const Token& t, const size_t i) : "
-		"token(t), id(i) {}\n\n"
+		"id(i), token(t) {}\n\n"
 	);
 	format(out.errS, "ErrorType::ErrorType(const size_t i,const std::string& r, const std::string& p, "
 		"const size_t d, \n\tstd::initializer_list<std::string> f) : \n"
@@ -376,10 +379,10 @@ void RecurDec::genAstClassDeclStart() {
 }
 
 void RecurDec::genAstOutputMethods(const std::map<std::string,std::vector<RulePart>>& rules) {
-	format(out.astS, "void %s::toOutStream(std::ostream& ss, uint32_t depth) {\n", current);
+	format(out.astS, "void %s::toOutStream(std::ostream& ss, uint32_t depth) const {\n", current);
 	format(out.astS, "\tconst std::string indent('\\t', depth);\n");
 	format(out.astS, "\tss<<indent<<\"%s\"<<\" id(\"<<", current);
-	out.astS<<"this->getId()"<<"<<\") rule(\"<<this->rule\")\"<<std::endl;\n";
+	out.astS<<"this->getId()"<<"<<\") rule(\"<<this->rule<<\")\"<<std::endl;\n";
 	bool first = true;
 	for(auto& it : rules) {
 		format(out.astS, "\t%s(this->rule == %sEnum::%s) {\n", first ? "if" : "} else if",
@@ -388,7 +391,11 @@ void RecurDec::genAstOutputMethods(const std::map<std::string,std::vector<RulePa
 		first = false;
 		for(auto& jt : it.second) {
 			if(!jt.storeName.empty()) {
-				format(out.astS, "\t\tthis->%s->toOutStream(ss, depth+1);\n", jt.storeName);
+				if(rs.token.find(jt.name) != rs.token.end()) {
+					format(out.astS, "\t\tthis->%s.toOutStream(ss, depth+1);\n", jt.storeName);
+				} else {
+					format(out.astS, "\t\tthis->%s->toOutStream(ss, depth+1);\n", jt.storeName);
+				}
 			}
 		}
 	}
@@ -420,7 +427,7 @@ void RecurDec::genAstClassDeclEnd(const std::set<RulePart>& allValues) {
 	}
 	format(out.astH, "\n\t%sEnum getRule() const;\n\n", current);
 	format(out.astH, "\tvoid toOutStream(std::ostream&,uint32_t=0) const override;\n"); 
-	format(out.astH, "\tvoid toDotStream(std::ostream&,uint32_t=0) const override;\n\n"); 
+	format(out.astH, "\tvoid toDotStream(std::ostream&) const override;\n\n"); 
 	format(out.astH, "private:\n");
 	for(auto& it : allValues) {
 		if(rs.token.find(it.name) != rs.token.end()) {
@@ -507,9 +514,9 @@ void RecurDec::genAst(const std::vector<std::vector<RulePart>>& r) {
 	format(out.astH, "};\n\n");
 
 	//format(out.astH, "std::string %sEnumToString(%sEnum);\n", current, current);
-	format(out.astH, "std::ostream& operator<<(std::ostream&,%sEnum);\n\n", current);
+	format(out.astH, "std::ostream& operator<<(std::ostream&, const %sEnum);\n\n", current);
 	//format(out.astS, "\nstd::string %sEnumToString(%sEnum en) {\n", current, current);
-	format(out.astS, "\nstd::ostream& operator<<(std::ostream& ss, %sEnum en) {\n", current);
+	format(out.astS, "\nstd::ostream& operator<<(std::ostream& ss, const %sEnum en) {\n", current);
 	bool first = true;
 	for(auto& it : enumNames) {
 		format(out.astS, "%s(en == %sEnum::%s) {\n\t\tss<<\"%s\";\n\t}", 
@@ -518,7 +525,7 @@ void RecurDec::genAst(const std::vector<std::vector<RulePart>>& r) {
 		first = false;
 	}
 	format(out.astS, " else {\n\t\tthrow std::logic_error(std::string(\"No %sEnum for value \'\")"
-		"\n\t\t\t+ std::to_string(std::reinterpret_cast<int>(en) + \"'\")\n\t\t);\n\t}\n", current
+		"\n\t\t\t+ std::to_string(static_cast<int>(en)) + \"'\"\n\t\t);\n\t}\n", current
 	);
 	format(out.astS, "\treturn ss;\n");
 	//format(out.astS, "}\n");
@@ -539,7 +546,6 @@ void RecurDec::genAst(const std::vector<std::vector<RulePart>>& r) {
 	format(out.astS, "\tss<<\"<td align=\\\"right\\\">\"<<this->getId()<<\"</td>\";\n");
 	format(out.astS, "\tss<<\"</tr>\";\n");
 	format(out.astS, "\tss<<\"</table>\";\n");
-	format(out.astS, "\treturn ss;\n");
 	format(out.astS, "}\n");
 
 	this->genAstClassDeclStart();
