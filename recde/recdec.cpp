@@ -126,6 +126,7 @@ void RecurDec::genAstForwardDecl() {
 	format(out.astH, "\tAstNode* getParent();\n"); 
 	format(out.astH, "\tconst AstNode* getParent() const;\n"); 
 	format(out.astH, "\tvoid getParent(AstNode*);\n"); 
+	format(out.astH, "\tstd::ostream operator<<(std::ostream&) const;\n"); 
 	format(out.astH, "\tvirtual void toOutStream(std::ostream&,uint32_t=0) const = 0;\n"); 
 	format(out.astH, "\tvirtual void toDotStream(std::ostream&,uint32_t=0) const = 0;\n"); 
 	format(out.astH, "\nprivate:\n"); 
@@ -154,6 +155,9 @@ void RecurDec::genAstForwardDecl() {
 	format(out.astS, "const AstNode* AstNode::getParent() const {\n\treturn this->parent;\n}\n\n");
 	format(out.astS, "AstNode* AstNode::getParent() {\n\treturn this->parent;\n}\n\n");
 	format(out.astS, "void AstNode::setParent(AstNode* p) {\n\tthis->parent = p;\n}\n\n");
+	format(out.astS, "std::ostream& AstNode::operator<<(std::ostream& ss) "
+		"{\n\ttoOutStream(ss);\n\treturn ss;\n}\n\n"
+	);
 }
 
 size_t RecurDec::newErrorStuff(const std::string& rule, const std::string& part, const size_t depth,
@@ -392,8 +396,7 @@ void RecurDec::genAstOutputMethods(const std::map<std::string,std::vector<RulePa
 	format(out.astS, "}\n");
 }
 
-void RecurDec::genAstClassDeclEnd(const std::set<RulePart>& allValues, 
-		const std::map<std::string,std::vector<RulePart>>& enumPlusRules) {
+void RecurDec::genAstClassDeclEnd(const std::set<RulePart>& allValues) {
 	for(auto& it : allValues) {
 		std::string name = it.storeName;
 		name[0] = toupper(name[0]);
@@ -503,12 +506,41 @@ void RecurDec::genAst(const std::vector<std::vector<RulePart>>& r) {
 	}
 	format(out.astH, "};\n\n");
 
-	format(out.astH, "std::string %sEnumToString(%sEnum);\n\n", current, current);
-	format(out.astS, "\nstd::string %sEnumToString(%sEnum en) {\n", current, current);
+	//format(out.astH, "std::string %sEnumToString(%sEnum);\n", current, current);
+	format(out.astH, "std::ostream& operator<<(std::ostream&,%sEnum);\n\n", current);
+	//format(out.astS, "\nstd::string %sEnumToString(%sEnum en) {\n", current, current);
+	format(out.astS, "\nstd::ostream& operator<<(std::ostream& ss, %sEnum en) {\n", current);
+	bool first = true;
 	for(auto& it : enumNames) {
-		format(out.astS, "\tif(en == %sEnum::%s) return \"%s\";\n", current, it.first, it.first);
+		format(out.astS, "%s(en == %sEnum::%s) {\n\t\tss<<\"%s\";\n\t}", 
+			first ? "\tif" : " else if", current, it.first, it.first
+		);
+		first = false;
 	}
+	format(out.astS, " else {\n\t\tthrow std::logic_error(std::string(\"No %sEnum for value \'\")"
+		"\n\t\t\t+ std::to_string(std::reinterpret_cast<int>(en) + \"'\")\n\t\t);\n\t}\n", current
+	);
+	format(out.astS, "\treturn ss;\n");
+	//format(out.astS, "}\n");
+	//format(out.astS, "\tss<<%sEnumToString(en);\n", current);
+	//format(out.astS, "\treturn ss;\n");
 	format(out.astS, "}\n\n");
+
+	format(out.astS, "void %s::toDotStream(std::ostream& ss) const {\n", current); 
+	format(out.astS, "\tss<<\"<table border=\\\"0\\\" cellborder=\\\"0\\\" cellpadding=\\\"3\\\" \";\n");
+	format(out.astS, "\tss<<\"bgcolor=\\\"white\\\">\";\n");
+	format(out.astS, "\tss<<\"<tr>\";\n");
+	format(out.astS, "\tss<<\"\t<td bgcolor=\\\"black\\\" align=\\\"center\\\" colspan=\\\"2\\\">\";\n");
+	format(out.astS, "\tss<<\"\t\t<font color=\\\"white\\\">%s</font>\";\n", current);
+	format(out.astS, "\tss<<\"\t</td>\";\n");
+	format(out.astS, "\tss<<\"</tr>\";\n");
+	format(out.astS, "\tss<<\"<tr>\";\n");
+	format(out.astS, "\tss<<\"<td align=\\\"left\\\">Token</td>\";\n");
+	format(out.astS, "\tss<<\"<td align=\\\"right\\\">\"<<this->getId()<<\"</td>\";\n");
+	format(out.astS, "\tss<<\"</tr>\";\n");
+	format(out.astS, "\tss<<\"</table>\";\n");
+	format(out.astS, "\treturn ss;\n");
+	format(out.astS, "}\n");
 
 	this->genAstClassDeclStart();
 	for(auto& it : minimized) {
@@ -529,7 +561,7 @@ void RecurDec::genAst(const std::vector<std::vector<RulePart>>& r) {
 		format(out.astH, "const %sEnum);\n", current);
 	}
 	this->genAstOutputMethods(enumNames);
-	this->genAstClassDeclEnd(allToStore, enumNames);
+	this->genAstClassDeclEnd(allToStore);
 }
 
 void RecurDec::gen() {
