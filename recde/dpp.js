@@ -32,6 +32,8 @@ postfix
 
 postnext
 	: . postnext
+	| . primary 
+	| . primary postfix
 	| ( ) 
 	| ( ) postnext
 	| ++
