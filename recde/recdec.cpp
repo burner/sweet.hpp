@@ -513,9 +513,7 @@ void RecurDec::genAst(const std::vector<std::vector<RulePart>>& r) {
 	}
 	format(out.astH, "};\n\n");
 
-	//format(out.astH, "std::string %sEnumToString(%sEnum);\n", current, current);
 	format(out.astH, "std::ostream& operator<<(std::ostream&, const %sEnum);\n\n", current);
-	//format(out.astS, "\nstd::string %sEnumToString(%sEnum en) {\n", current, current);
 	format(out.astS, "\nstd::ostream& operator<<(std::ostream& ss, const %sEnum en) {\n", current);
 	bool first = true;
 	for(auto& it : enumNames) {
@@ -528,25 +526,114 @@ void RecurDec::genAst(const std::vector<std::vector<RulePart>>& r) {
 		"\n\t\t\t+ std::to_string(static_cast<int>(en)) + \"'\"\n\t\t);\n\t}\n", current
 	);
 	format(out.astS, "\treturn ss;\n");
-	//format(out.astS, "}\n");
-	//format(out.astS, "\tss<<%sEnumToString(en);\n", current);
-	//format(out.astS, "\treturn ss;\n");
 	format(out.astS, "}\n\n");
 
 	format(out.astS, "void %s::toDotStream(std::ostream& ss) const {\n", current); 
+	format(out.astS, "\tss<<\"node\"<<this->getId()<<\" [label=\\\"\";\n");
 	format(out.astS, "\tss<<\"<table border=\\\"0\\\" cellborder=\\\"0\\\" cellpadding=\\\"3\\\" \";\n");
 	format(out.astS, "\tss<<\"bgcolor=\\\"white\\\">\";\n");
 	format(out.astS, "\tss<<\"<tr>\";\n");
-	format(out.astS, "\tss<<\"\t<td bgcolor=\\\"black\\\" align=\\\"center\\\" colspan=\\\"2\\\">\";\n");
-	format(out.astS, "\tss<<\"\t\t<font color=\\\"white\\\">%s</font>\";\n", current);
-	format(out.astS, "\tss<<\"\t</td>\";\n");
+	format(out.astS, "\tss<<\"\\t<td bgcolor=\\\"black\\\" align=\\\"center\\\" colspan=\\\"2\\\">\";\n");
+	format(out.astS, "\tss<<\"\\t\\t<font color=\\\"white\\\">%s</font>\";\n", current);
+	format(out.astS, "\tss<<\"\\t</td>\";\n");
 	format(out.astS, "\tss<<\"</tr>\";\n");
 	format(out.astS, "\tss<<\"<tr>\";\n");
-	format(out.astS, "\tss<<\"<td align=\\\"left\\\">Token</td>\";\n");
-	format(out.astS, "\tss<<\"<td align=\\\"right\\\">\"<<this->getId()<<\"</td>\";\n");
+	format(out.astS, "\tss<<\"\\t<td align=\\\"left\\\">Id</td>\";\n");
+	format(out.astS, "\tss<<\"\\t<td align=\\\"right\\\">\"<<this->getId()<<\"</td>\";\n");
 	format(out.astS, "\tss<<\"</tr>\";\n");
+	format(out.astS, "\tss<<\"<tr>\";\n");
+	format(out.astS, "\tss<<\"\\t<td align=\\\"left\\\">Rule</td>\";\n");
+	format(out.astS, "\tss<<\"\\t<td align=\\\"right\\\">\"<<this->rule<<\"</td>\";\n");
+	format(out.astS, "\tss<<\"</tr>\";\n");
+	first = true;
+	for(auto& it : enumNames) {
+		bool containsToken = false;
+		for(auto& jt : it.second) {
+			if(rs.token.count(jt.name)) {
+				containsToken = true;
+				goto br;
+			}
+		}
+		br:
+		if(!containsToken) {
+			break;
+		}
+		format(out.astS, "%s(this->rule == %sEnum::%s) {\n", first ? "\tif" : " else if", 
+			current, it.first
+		);
+		for(auto& jt : it.second) {
+			if(rs.token.count(jt.name)) {
+				format(out.astS, "\t\tss<<\"<tr>\";\n");
+				format(out.astS, "\t\tss<<\"\\t<td align=\\\"left\\\">Token(%s)</td>\";\n", jt.storeName);
+				format(out.astS, "\t\tss<<\"\\t<td align=\\\"right\\\">\"<<this->%s<<\"</td>\";\n",
+					jt.storeName
+				);
+				format(out.astS, "\t\tss<<\"</tr>\";\n");
+			}
+		}
+		format(out.astS, "\t}");
+		first = false;
+
+	}
+	format(out.astS, "\n");
 	format(out.astS, "\tss<<\"</table>\";\n");
-	format(out.astS, "}\n");
+	format(out.astS, "\tss<<\"\\\"]\";\n");
+	first = true;
+	for(auto& it : enumNames) {
+		bool containsRules = false;
+		for(auto& jt : it.second) {
+			if(rs.rules.count(jt.name)) {
+				containsRules = true;
+				goto br3;
+			}
+		}
+		br3:
+		if(!containsRules) {
+			break;
+		}
+		format(out.astS, "%s(this->rule == %sEnum::%s) {\n", first ? "\tif" : " else if", 
+			current, it.first
+		);
+		for(auto& jt : it.second) {
+			if(rs.rules.count(jt.name)) {
+				format(out.astS, "\t\tss<<this->%s;\n",
+					jt.storeName
+				);
+			}
+		}
+		format(out.astS, "\t}");
+		first = false;
+	}
+	format(out.astS, "\n\n");
+	
+	first = true;
+	for(auto& it : enumNames) {
+		bool containsRules = false;
+		for(auto& jt : it.second) {
+			if(rs.rules.count(jt.name)) {
+				containsRules = true;
+				goto br2;
+			}
+		}
+		br2:
+		if(!containsRules) {
+			break;
+		}
+		format(out.astS, "%s(this->rule == %sEnum::%s) {\n", first ? "\tif" : " else if", 
+			current, it.first
+		);
+		for(auto& jt : it.second) {
+			if(rs.rules.count(jt.name)) {
+				format(out.astS, "\t\tss<<\"\\tnode\"<<this->getId()<<\" -> \"<<this->%s->getId()<<\";\";\n",
+					jt.storeName
+				);
+			}
+		}
+		format(out.astS, "\t}");
+		first = false;
+	}
+	
+	format(out.astS, "}\n\n");
 
 	this->genAstClassDeclStart();
 	for(auto& it : minimized) {
