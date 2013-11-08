@@ -11,6 +11,13 @@ RulePart::RulePart(const std::string& n, const std::string& s, const std::string
 
 bool RulePart::operator<(const RulePart& o) const {
 	return this->name < o.name;
+	/*if(this->name == o.name) {
+		if(this->storeName == o.storeName) {
+			return this->endName < o.endName;
+		}
+		return this->storeName < o.storeName;
+	}
+	return this->name < o.name;*/
 }
 
 std::ostream& operator<<(std::ostream& s, const RulePart& t) {

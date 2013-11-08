@@ -18,7 +18,7 @@ class FormatException : public std::exception {
 }; 
 
 template <typename Type>
-bool valueTest(const Type value) {
+bool valueTest(const long long value) {
 	if(value < std::numeric_limits<Type>::min() || 
 			value > std::numeric_limits<Type>::max()) {
 		return false;
@@ -47,7 +47,7 @@ long charToBase10(const char in) {
 	}
 }
 
-const bool isDigit(const char in) {
+bool isDigit(const char in) {
 	if(in >= '0' && in <= '9') {
 		return true;
 	} else {
@@ -60,7 +60,7 @@ Ret stringToIntegerImpl(const std::string& str, int base) {
 	bool neg = false;
 	long tmp = 0;
 	long mul = 1;
-	long ret = 0;
+	long long ret = 0;
 	auto it = str.rbegin();
 
 	for(; it != str.rend(); it++) {

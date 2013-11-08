@@ -6,7 +6,7 @@ Values::Values() {
 	stringValue = "";
 }
 
-bool Values::operator==(const Values& o) const {
+bool Values::operator==(const Values& /*o*/) const {
 	//return longLongValue == o.longLongValue && stringValue ==
 		//o.stringValue;
 	return true;
@@ -68,7 +68,7 @@ Values::Values(const long double v) {
 	longDoubleValue = v;
 }
 
-Token::Token() : type(TokenType::ERROR_TYPE) {
+Token::Token() : type(TokenType::Error_Type) {
 		
 }
 
@@ -140,6 +140,11 @@ Token::Token(const TokenType t, unsigned l, unsigned c, const long double v) :
 	value.longDoubleValue = v;
 }
 
+void Token::toOutStream(std::ostream& ss, uint32_t in) const {
+	std::string prefix(in, '\t');
+	ss<<prefix<<(*this)<<std::endl;
+}
+
 Token::~Token() { }
 
 /*Token& Token::operator=(const Token& o) {
@@ -159,13 +164,13 @@ std::string Token::toString() const {
 	std::stringstream ss;
 	ss<<line<<":"<<column<<": ";
 	switch(type) {
-		case TokenType::IDENTIFIER:
+		case TokenType::Identifier:
 			ss<<std::fixed<<value.stringValue;
-		case TokenType::DOUBLE_VALUE: 
+		case TokenType::Double_Value: 
 			ss<<std::fixed<<value.doubleValue;
-		case TokenType::FLOAT_VALUE: 
+		case TokenType::Float_Value: 
 			ss<<std::fixed<<value.floatValue;
-		case TokenType::REAL_VALUE:
+		case TokenType::Real_Value:
 			ss<<std::fixed<<value.longDoubleValue;
 			t = ss.str();
 			break;
@@ -178,122 +183,122 @@ std::string Token::toString() const {
 
 std::string tokenTypeToString(const TokenType tt) {
 	switch(tt) {
-	case TokenType::ABSTRACT: return "ABSTRACT";
-	case TokenType::ALIAS: return "ALIAS";
-	case TokenType::ALIGN: return "ALIGN";
-	case TokenType::AND: return "AND";
-	case TokenType::ANDASSIGN: return "ANDASSIGN";
-	case TokenType::ASSIGN: return "ASSIGN";
-	case TokenType::BANG: return "BANG";
-	case TokenType::BANGEQUAL: return "BANGEQUAL";
-	case TokenType::BANGIS: return "BANGIS";
-	case TokenType::BOOL: return "BOOL";
-	case TokenType::BYTE: return "BYTE";
-	case TokenType::BYTE_VALUE: return "BYTE_VALUE";
-	case TokenType::CASE: return "CASE";
-	case TokenType::CHAR: return "CHAR";
-	case TokenType::CHAR_VALUE: return "CHAR_VALUE";
-	case TokenType::COLON: return "COLON";
-	case TokenType::COMMA: return "COMMA";
-	case TokenType::CONCAT: return "CONCAT";
-	case TokenType::CONCATASSIGN: return "CONCATASSIGN";
-	case TokenType::CONST: return "CONST";
-	case TokenType::DCHAR: return "DCHAR";
-	case TokenType::DEFAULT: return "DEFAULT";
-	case TokenType::DIV: return "DIV";
-	case TokenType::DIVASSIGN: return "DIVASSIGN";
-	case TokenType::DO: return "DO";
-	case TokenType::DOT: return "DOT";
-	case TokenType::DOUBLE: return "DOUBLE";
-	case TokenType::DOUBLE_VALUE: return "DOUBLE_VALUE";
-	case TokenType::DSTRING: return "DSTRING";
-	case TokenType::DSTRING_VALUE: return "DSTRING_VALUE";
-	case TokenType::EOI: return "ENDOFINPUT";
-	case TokenType::EQUAL: return "EQUAL";
-	case TokenType::ERROR_TYPE: return "ERROR_TYPE";
-	case TokenType::FLOAT: return "FLOAT";
-	case TokenType::FINAL: return "FINAL";
-	case TokenType::FLOAT_VALUE: return "FLOAT_VALUE";
-	case TokenType::FOR: return "FOR";
-	case TokenType::GREATER: return "GREATER";
-	case TokenType::GREATEREQUAL: return "GREATEREQUAL";
-	case TokenType::IDENTIFIER: return "IDENTIFIER";
-	case TokenType::IF: return "IF";
-	case TokenType::INT: return "INT";
-	case TokenType::INT_VALUE: return "INT_VALUE";
-	case TokenType::IS: return "IS";
-	case TokenType::LBRACK: return "LBRACK";
-	case TokenType::LCURLY: return "LCURLY";
-	case TokenType::LEFTSHIFT: return "LEFTSHIFT";
-	case TokenType::LEFTSHIFTASSIGN: return "LEFTSHIFTASSIGN";
-	case TokenType::LESS: return "LESS";
-	case TokenType::LESSEQUAL: return "LESSEQUAL";
-	case TokenType::LOGICALAND: return "LOGICALAND";
-	case TokenType::LOGICALOR: return "LOGICALOR";
-	case TokenType::LOGICALXOR: return "LOGICALXOR";
-	case TokenType::LONG: return "LONG";
-	case TokenType::LONGLONG: return "LONGLONG";
-	case TokenType::LONGLONG_VALUE: return "LONGLONG_VALUE";
-	case TokenType::LONG_VALUE: return "LONG_VALUE";
-	case TokenType::LPAREN: return "LPAREN";
-	case TokenType::MINUS: return "MINUS";
-	case TokenType::MINUSASSIGN: return "MINUSASSIGN";
-	case TokenType::MINUSMINUS: return "MINUSMINUS";
-	case TokenType::MODULO: return "MODULO";
-	case TokenType::MODULOASSIGN: return "MODULOASSIGN";
-	case TokenType::OR: return "OR";
-	case TokenType::ORASSIGN: return "ORASSIGN";
-	case TokenType::PLUS: return "PLUS";
-	case TokenType::PLUSASSIGN: return "PLUSASSIGN";
-	case TokenType::PLUSPLUS: return "PLUSPLUS";
-	case TokenType::QUESTIONMARK: return "QUESTIONMARK";
-	case TokenType::RBRACK: return "RBRACK";
-	case TokenType::RCURLY: return "RCURLY";
-	case TokenType::REF: return "REF";
-	case TokenType::REAL: return "REAL";
-	case TokenType::RETURN: return "RETURN";
-	case TokenType::REAL_VALUE: return "REAL_VALUE";
-	case TokenType::RIGHTSHIFT: return "RIGHTSHIFT";
-	case TokenType::RIGHTSHIFTASSIGN: return "RIGHTSHIFTASSIGN";
-	case TokenType::RPAREN: return "RPAREN";
-	case TokenType::SEMICOLON: return "SEMICOLON";
-	case TokenType::SHORT: return "SHORT";
-	case TokenType::SCOPE: return "SCOPE";
-	case TokenType::TYPEOF: return "TYPEOF";
-	case TokenType::SHORT_VALUE: return "SHORT_VALUE";
-	case TokenType::STAR: return "STAR";
-	case TokenType::STARASSIGN: return "STARASSIGN";
-	case TokenType::STRING: return "STRING";
-	case TokenType::STRING_VALUE: return "STRING_VALUE";
-	case TokenType::SWITCH: return "SWITCH";
-	case TokenType::UBYTE: return "UBYTE";
-	case TokenType::UBYTE_VALUE: return "UBYTE_VALUE";
-	case TokenType::UINT: return "UINT";
-	case TokenType::UINT_VALUE: return "UINT_VALUE";
-	case TokenType::ULONG: return "ULONG";
-	case TokenType::ULONGLONG: return "ULONGLONG";
-	case TokenType::ULONGLONG_VALUE: return "ULONGLONG_VALUE";
-	case TokenType::ULONG_VALUE: return "ULONG_VALUE";
-	case TokenType::UNKNOWN: return "UNKNOWN";
-	case TokenType::URIGHTSHIFT: return "URIGHTSHIFT";
-	case TokenType::URIGHTSHIFTASSIGN: return "RIGHTSHIFTASSIGN";
-	case TokenType::USHORT: return "USHORT";
-	case TokenType::USHORT_VALUE: return "USHORT_VALUE";
-	case TokenType::VAR: return "VAR";
-	case TokenType::VOID: return "VOID";
-	case TokenType::WCHAR: return "WCHAR";
-	case TokenType::WHILE: return "WHILE";
-	case TokenType::WSTRING: return "WSTRING";
-	case TokenType::WSTRING_VALUE: return "WSTRING_VALUE";
-	case TokenType::XOR: return "XOR";
-	case TokenType::XORASSIGN: return "XORASSIGN";
+	case TokenType::Abstract: return "ABSTRACT";
+	case TokenType::Alias: return "ALIAS";
+	case TokenType::Align: return "ALIGN";
+	case TokenType::And: return "AND";
+	case TokenType::Andassign: return "ANDASSIGN";
+	case TokenType::Assign: return "ASSIGN";
+	case TokenType::Bang: return "BANG";
+	case TokenType::Bangequal: return "BANGEQUAL";
+	case TokenType::Bangis: return "BANGIS";
+	case TokenType::Bool: return "BOOL";
+	case TokenType::Byte: return "BYTE";
+	case TokenType::Byte_Value: return "BYTE_VALUE";
+	case TokenType::Case: return "CASE";
+	case TokenType::Char: return "CHAR";
+	case TokenType::Char_Value: return "CHAR_VALUE";
+	case TokenType::Colon: return "COLON";
+	case TokenType::Comma: return "COMMA";
+	case TokenType::Concat: return "CONCAT";
+	case TokenType::Concatassign: return "CONCATASSIGN";
+	case TokenType::Const: return "CONST";
+	case TokenType::Dchar: return "DCHAR";
+	case TokenType::Default: return "DEFAULT";
+	case TokenType::Div: return "DIV";
+	case TokenType::Divassign: return "DIVASSIGN";
+	case TokenType::Do: return "DO";
+	case TokenType::Dot: return "DOT";
+	case TokenType::Double: return "DOUBLE";
+	case TokenType::Double_Value: return "DOUBLE_VALUE";
+	case TokenType::Dstring: return "DSTRING";
+	case TokenType::Dstring_Value: return "DSTRING_VALUE";
+	case TokenType::Eoi: return "ENDOFINPUT";
+	case TokenType::Equal: return "EQUAL";
+	case TokenType::Error_Type: return "Error_Type";
+	case TokenType::Float: return "FLOAT";
+	case TokenType::Final: return "FINAL";
+	case TokenType::Float_Value: return "FLOAT_VALUE";
+	case TokenType::For: return "FOR";
+	case TokenType::Greater: return "GREATER";
+	case TokenType::Greaterequal: return "GREATEREQUAL";
+	case TokenType::Identifier: return "IDENTIFIER";
+	case TokenType::If: return "IF";
+	case TokenType::Int: return "INT";
+	case TokenType::Int_Value: return "INT_VALUE";
+	case TokenType::Is: return "IS";
+	case TokenType::Lbrack: return "LBRACK";
+	case TokenType::Lcurly: return "LCURLY";
+	case TokenType::Leftshift: return "LEFTSHIFT";
+	case TokenType::Leftshiftassign: return "LEFTSHIFTASSIGN";
+	case TokenType::Less: return "LESS";
+	case TokenType::Lessequal: return "LESSEQUAL";
+	case TokenType::Logicaland: return "LOGICALAND";
+	case TokenType::Logicalor: return "LOGICALOR";
+	case TokenType::Logicalxor: return "LOGICALXOR";
+	case TokenType::Long: return "LONG";
+	case TokenType::Longlong: return "LONGLONG";
+	case TokenType::Longlong_Value: return "LONGLONG_VALUE";
+	case TokenType::Long_Value: return "LONG_VALUE";
+	case TokenType::Lparen: return "LPAREN";
+	case TokenType::Minus: return "MINUS";
+	case TokenType::Minusassign: return "MINUSASSIGN";
+	case TokenType::Minusminus: return "MINUSMINUS";
+	case TokenType::Modulo: return "MODULO";
+	case TokenType::Moduloassign: return "MODULOASSIGN";
+	case TokenType::Or: return "OR";
+	case TokenType::Orassign: return "ORASSIGN";
+	case TokenType::Plus: return "PLUS";
+	case TokenType::Plusassign: return "PLUSASSIGN";
+	case TokenType::Plusplus: return "PLUSPLUS";
+	case TokenType::Questionmark: return "QUESTIONMARK";
+	case TokenType::Rbrack: return "RBRACK";
+	case TokenType::Rcurly: return "RCURLY";
+	case TokenType::Ref: return "REF";
+	case TokenType::Real: return "REAL";
+	case TokenType::Return: return "RETURN";
+	case TokenType::Real_Value: return "REAL_VALUE";
+	case TokenType::Rightshift: return "RIGHTSHIFT";
+	case TokenType::Rightshiftassign: return "RIGHTSHIFTASSIGN";
+	case TokenType::Rparen: return "RPAREN";
+	case TokenType::Semicolon: return "SEMICOLON";
+	case TokenType::Short: return "SHORT";
+	case TokenType::Scope: return "SCOPE";
+	case TokenType::Typeof: return "TYPEOF";
+	case TokenType::Short_Value: return "SHORT_VALUE";
+	case TokenType::Star: return "STAR";
+	case TokenType::Starassign: return "STARASSIGN";
+	case TokenType::String: return "STRING";
+	case TokenType::String_Value: return "STRING_VALUE";
+	case TokenType::Switch: return "SWITCH";
+	case TokenType::Ubyte: return "UBYTE";
+	case TokenType::Ubyte_Value: return "UBYTE_VALUE";
+	case TokenType::Uint: return "UINT";
+	case TokenType::Uint_Value: return "UINT_VALUE";
+	case TokenType::Ulong: return "ULONG";
+	case TokenType::Ulonglong: return "ULONGLONG";
+	case TokenType::Ulonglong_Value: return "ULONGLONG_VALUE";
+	case TokenType::Ulong_Value: return "ULONG_VALUE";
+	case TokenType::Unknown: return "UNKNOWN";
+	case TokenType::Urightshift: return "URIGHTSHIFT";
+	case TokenType::Urightshiftassign: return "RIGHTSHIFTASSIGN";
+	case TokenType::Ushort: return "USHORT";
+	case TokenType::Ushort_Value: return "USHORT_VALUE";
+	case TokenType::Var: return "VAR";
+	case TokenType::Void: return "VOID";
+	case TokenType::Wchar: return "WCHAR";
+	case TokenType::While: return "WHILE";
+	case TokenType::Wstring: return "WSTRING";
+	case TokenType::Wstring_Value: return "WSTRING_VALUE";
+	case TokenType::Xor: return "XOR";
+	case TokenType::Xorassign: return "XORASSIGN";
 	}
 	return "UNKNOWN";
 }
 
 std::ostream& operator<<(std::ostream& o, const Token& t) {
-	o<<'('<<t.line<<":"<<t.column<<' '<<tokenTypeToString(t.type);
-	if(t.type == TokenType::IDENTIFIER) {
+	o<<"Token("<<t.line<<":"<<t.column<<' '<<tokenTypeToString(t.type);
+	if(t.type == TokenType::Identifier) {
 		o<<" value("<<t.value.stringValue<<')';
 	}
 	o<<')';

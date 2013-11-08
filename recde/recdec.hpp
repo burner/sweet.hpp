@@ -6,6 +6,18 @@
 #include <rulestore.hpp>
 #include <output.hpp>
 
+struct RulePartCC {
+	bool operator()(const RulePart& a, const RulePart& b) {
+		if(a.name == b.name) {
+			if(a.storeName == b.storeName) {
+				return a.endName < b.endName;
+			}
+			return a.storeName < b.storeName;
+		}
+		return a.name < b.name;
+	}
+};
+
 struct ErrorStuff {
 	const std::string rule;
 	const std::string part;
@@ -16,6 +28,7 @@ struct ErrorStuff {
 
 class RecurDec {
 	typedef Trie<RulePart,bool> GrammarPrefix;
+	typedef Trie<RulePart,bool,RulePartCC> GrammarPrefixEnum;
 	std::unordered_set<std::string> allreadyDone;
 	std::vector<std::string> nameStack;
 	std::string current;
@@ -33,9 +46,15 @@ class RecurDec {
 	Output& out;
 
 	std::vector<std::vector<RulePart>> store;
-	void walkTrieConstructor(std::vector<std::string>);
+	std::vector<std::vector<RulePart>> store2;
+
+	//void walkTrieConstructor(std::vector<std::string>);
 	void walkTrieConstructor(const GrammarPrefix::TrieEntry*,
 		std::vector<RulePart>);
+
+	void walkTrieConstructor2(const GrammarPrefixEnum::TrieEntry*,
+		std::vector<RulePart>);
+
 	void genAst(const std::vector<std::vector<RulePart>>&);
 	void genAstClassDeclStart();
 	void genAstClassDeclEnd(const std::set<RulePart>&);

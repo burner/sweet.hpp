@@ -60,9 +60,12 @@ void RecurDec::computeFirstSet() {
 
 std::vector<RulePart> getNameVector(const Expr& e) {
 	std::vector<RulePart> ret;
+	LOG();
 	for(auto& it : e.rule) {
+		std::cout<<it<<" ";
 		ret.push_back(it);
 	}
+	std::cout<<std::endl;
 	return ret;
 }
 
@@ -75,6 +78,7 @@ void RecurDec::genRules() {
 	format(out.prsH, "#pragma once\n\n");
 	format(out.prsH, "#include <ast.hpp>\n");
 	format(out.prsH, "#include <token.hpp>\n");
+	format(out.prsH, "#include <lexer.hpp>\n");
 	format(out.prsS, "#include <lexer.hpp>\n");
 	format(out.prsH, "\nclass Parser {\n");
 	format(out.prsH, "public:\n");
@@ -85,6 +89,7 @@ void RecurDec::genRules() {
 	format(out.prsS, "#include <ast.hpp>\n");
 	format(out.prsS, "#include <error.hpp>\n");
 	format(out.prsS, "\nParser::Parser(Lexer& l) : lexer(l) {\n");
+	format(out.prsS, "\tthis->nextToken();\n");
 	format(out.prsS, "}\n\n");
 	format(out.prsS, "void Parser::nextToken() {\n");
 	format(out.prsS, "\tthis->curToken = this->lexer.nextToken();\n");
@@ -259,22 +264,22 @@ void RecurDec::walkTrie(const GrammarPrefix::TrieEntry* path, const std::string&
 		} else {
 			format(out.prsS, "%s\tnextToken();\n", prefix);
 		}
+		walkTrie(&(it.second), it.first.name, depth+1);
 		if(it.second.isValue) {
 			format(out.prsS, "\t%sreturn std::make_shared<%s>(", prefix, 
 				current
 			);
-			size_t idx = 0;
+			//size_t idx = 0;
 			for(auto& name : nameStack) {
-				format(out.prsS, "%s, ", name);
-				/*if(idx+1 < nameStack.size()) {
+				format(out.prsS, "%s", name);
+				//if(idx+1 < nameStack.size()) {
 					format(out.prsS, ", ");
-				}*/
-				++idx;
+				//}
+				//++idx;
 			}
-			format(out.prsS, "%sEnum::%s", current, it.first.endName);
-			format(out.prsS, ");\n");
+			format(out.prsS, "\n%s\t\t%sEnum::%s\n", prefix, current, it.first.endName);
+			format(out.prsS, "\t%s);\n", prefix);
 		}
-		walkTrie(&(it.second), it.first.name, depth+1);
 		if(pushed) {
 			nameStack.pop_back();
 		}
@@ -286,20 +291,22 @@ void RecurDec::walkTrie(const GrammarPrefix::TrieEntry* path, const std::string&
 		possible.push_back(it.first.name);
 	}
 		
-	format(out.prsS, " else {\n");
-	format(out.prsS, "%s\tthrow ParseException(curToken, %u", prefix,
-			newErrorStuff(current, part, depth, possible)
-	);
-	/*size_t cnt = 0;
-	for(auto& it : path->map) {
-		format(out.prsS, "%s\t\tTokenType::%s%s", prefix, it.first.name, 
-			cnt+1 == path->map.size() ? "\n" : ",\n"
+	if(!path->isValue) {
+		format(out.prsS, " else {\n");
+		format(out.prsS, "%s\tthrow ParseException(curToken, %u", prefix,
+				newErrorStuff(current, part, depth, possible)
 		);
-		++cnt;
-	}*/
-	format(out.prsS, ");\n");
-	//format(out.prsS, "%s\t);\n", prefix);
-	format(out.prsS, "%s}", prefix);
+		/*size_t cnt = 0;
+		for(auto& it : path->map) {
+			format(out.prsS, "%s\t\tTokenType::%s%s", prefix, it.first.name, 
+				cnt+1 == path->map.size() ? "\n" : ",\n"
+			);
+			++cnt;
+		}*/
+		format(out.prsS, ");\n");
+		//format(out.prsS, "%s\t);\n", prefix);
+		format(out.prsS, "%s}", prefix);
+	}	
 	format(out.prsS, "\n");
 }
 
@@ -338,18 +345,25 @@ void RecurDec::genRules(const std::string& start) {
 	format(out.prsS, "}\n\n");
 
 	GrammarPrefix trie;
+	GrammarPrefixEnum trieEnum;
 	auto range = rs.rules.equal_range(start);
 	for(; range.first != range.second; ++range.first) {
 		auto vec = getNameVector(range.first->second);
 		trie.insert(vec.begin(), vec.end(), true);
+		trieEnum.insert(vec.begin(), vec.end(), true);
 	}
 
 	format(out.prsS, srcStringParse, start, start);
 	walkTrie(&trie.getRoot(), start, 1);
+	LOG("The trie");
+	std::cout<<trie<<std::endl;
+	std::cout<<trieEnum<<std::endl;
 	format(out.prsS, "}\n");
 
 	this->store.clear();
+	this->store2.clear();
 	walkTrieConstructor(&trie.getRoot(), std::vector<RulePart>());
+	walkTrieConstructor2(&trieEnum.getRoot(), std::vector<RulePart>());
 	for(auto& it : this->store) {
 		LOG();
 		for(auto& jt : it) {
@@ -359,7 +373,21 @@ void RecurDec::genRules(const std::string& start) {
 	}
 	this->genAst(this->store);
 
-	//std::cout<<trie<<std::endl;
+}
+
+void RecurDec::walkTrieConstructor2(const GrammarPrefixEnum::TrieEntry* path, 
+		std::vector<RulePart> cur) {
+	if(path->isValue) {
+		this->store2.push_back(cur);
+	}
+
+	for(auto& it : path->map) {
+		std::vector<RulePart> n(cur.begin(), cur.end());
+		if(!it.first.storeName.empty()) {
+			n.push_back(it.first);
+		}
+		walkTrieConstructor2(&(it.second), n);
+	}
 }
 
 void RecurDec::walkTrieConstructor(const GrammarPrefix::TrieEntry* path, 
@@ -384,7 +412,7 @@ void RecurDec::genAstClassDeclStart() {
 
 void RecurDec::genAstOutputMethods(const std::map<std::string,std::vector<RulePart>>& rules) {
 	format(out.astS, "void %s::toOutStream(std::ostream& ss, uint32_t depth) const {\n", current);
-	format(out.astS, "\tconst std::string indent('\\t', depth);\n");
+	format(out.astS, "\tconst std::string indent(depth, '\\t');\n");
 	format(out.astS, "\tss<<indent<<\"%s\"<<\" id(\"<<", current);
 	out.astS<<"this->getId()"<<"<<\") rule(\"<<this->rule<<\")\"<<std::endl;\n";
 	bool first = true;
@@ -393,6 +421,7 @@ void RecurDec::genAstOutputMethods(const std::map<std::string,std::vector<RulePa
 			current, it.first
 		);
 		first = false;
+		LOG("%s", it.second);
 		for(auto& jt : it.second) {
 			if(!jt.storeName.empty()) {
 				if(rs.token.find(jt.name) != rs.token.end()) {
@@ -408,9 +437,13 @@ void RecurDec::genAstOutputMethods(const std::map<std::string,std::vector<RulePa
 }
 
 void RecurDec::genAstClassDeclEnd(const std::set<RulePart>& allValues) {
+	std::set<std::string> allreadyProcessed;
 	for(auto& it : allValues) {
 		std::string name = it.storeName;
 		name[0] = toupper(name[0]);
+		if(allreadyProcessed.count(name)) {
+			continue;
+		}
 		if(rs.token.find(it.name) != rs.token.end()) {
 			format(out.astH, "\n\tToken& get%s();\n", name);
 			format(out.astH, "\tconst Token& get%s() const;\n", name);
@@ -428,16 +461,26 @@ void RecurDec::genAstClassDeclEnd(const std::set<RulePart>& allValues) {
 			format(out.astS, "%sConstPtr %s::get%s() const {\n", it.name, current, name);
 			format(out.astS, "\treturn this->%s;\n}\n", it.storeName);
 		}
+		allreadyProcessed.insert(name);
 	}
 	format(out.astH, "\n\t%sEnum getRule() const;\n\n", current);
 	format(out.astH, "\tvoid toOutStream(std::ostream&,uint32_t=0) const override;\n"); 
 	format(out.astH, "\tvoid toDotStream(std::ostream&) const override;\n\n"); 
 	format(out.astH, "private:\n");
+	std::map<std::string,std::string> names;
 	for(auto& it : allValues) {
-		if(rs.token.find(it.name) != rs.token.end()) {
-			format(out.astH, "\tToken %s;\n", it.storeName);
+		names.insert(std::make_pair(it.storeName,it.name));
+	}
+
+	for(auto& it : names) {
+		//if(rs.token.find(it.name) != rs.token.end()) {
+		LOG(" it = %s", it.first);
+		if(rs.token.find(it.second) != rs.token.end()) {
+			//format(out.astH, "\tToken %s;\n", it.storeName);
+			format(out.astH, "\tToken %s;\n", it.first);
 		} else {
-			format(out.astH, "\t%sPtr %s;\n", it.name, it.storeName);
+			//format(out.astH, "\t%sPtr %s;\n", it.name, it.storeName);
+			format(out.astH, "\t%sPtr %s;\n", it.second, it.first);
 		}
 	}
 	format(out.astH, "\t%sEnum rule;\n", current);
@@ -456,6 +499,7 @@ void RecurDec::genAst(const std::vector<std::vector<RulePart>>& r) {
 	format(out.astS, "\n// %s\n\n", current);
 	std::set<RulePart> allToStore;
 	std::map<std::string,std::vector<RulePart>> enumNames;
+	std::map<std::string,std::vector<RulePart>> enumNames2;
 	std::set<std::string> moreEnumNames;
 	auto range = rs.rules.equal_range(current);
 	for(; range.first != range.second; range.first++) {
@@ -464,17 +508,16 @@ void RecurDec::genAst(const std::vector<std::vector<RulePart>>& r) {
 		}
 	}
 	std::vector<std::vector<RulePart>> minimized;
+	size_t cnt = 0;
 	for(auto& it : r) {
+		++cnt;
 		bool equal = false;
 		LOG("%s\n", it);
 		for(auto& jt : minimized) {
 			if(it.size() != jt.size()) {
 				equal = false;
 				break;
-			} else if (it.empty()) {
-				equal = false;
-				break;
-			}
+			} 
 			for(size_t i = 0; i < it.size(); ++i) {
 				if(rs.token.find(it[i].name) != rs.token.end() && 
 						rs.token.find(jt[i].name) != rs.token.end()) {
@@ -489,15 +532,58 @@ void RecurDec::genAst(const std::vector<std::vector<RulePart>>& r) {
 		}
 		end:
 		LOG("equal = %b |", equal);
-		for(auto& jt : it) {
-			enumNames.insert(std::make_pair(jt.endName, it));
-			LOG("%s ", jt);
+		if(it.empty()) {
+			continue;
 		}
+		//for(auto& jt : it) {
+			LOG("%s | %s %u", it[0].endName, it, it.size());
+			enumNames.insert(std::make_pair(it[0].endName, it));
+			//enumNames2.insert(std::make_pair(it[0].endName, cnt-1));
+		//}
 		std::cout<<std::endl;
 		if(!equal) {
-			LOG("INSERT");
+			LOG("INSERT %s", it);
 			minimized.push_back(it);
 		}
+	}
+	std::vector<std::vector<RulePart>> minimized2;
+	cnt = 0;
+	for(auto& it : this->store2) {
+		++cnt;
+		bool equal = false;
+		LOG("%s\n", it);
+		for(auto& jt : minimized2) {
+			if(it.size() != jt.size()) {
+				equal = false;
+				break;
+			} 
+			for(size_t i = 0; i < it.size(); ++i) {
+				if(rs.token.find(it[i].name) != rs.token.end() && 
+						rs.token.find(jt[i].name) != rs.token.end()) {
+					equal = true;
+					continue;
+				}
+				if(it[i].name != jt[i].name) {
+					equal = false;
+					goto end2;
+				}
+			}
+		}
+		end2:
+		LOG("equal = %b |", equal);
+		if(it.empty()) {
+			continue;
+		}
+		//for(auto& jt : it) {
+		LOG("%s | %s %u", it[0].endName, it, it.size());
+		//enumNames.insert(std::make_pair(it[0].endName, it));
+		enumNames2.insert(std::make_pair(it[0].endName, it));
+		//}
+		/*std::cout<<std::endl;
+		if(!equal) {
+			LOG("INSERT %s", it);
+			minimized.push_back(it);
+		}*/
 	}
 	for(auto& it : minimized) {
 		if(it.empty()) {
@@ -527,10 +613,18 @@ void RecurDec::genAst(const std::vector<std::vector<RulePart>>& r) {
 		format(out.astS, "rule(enumType)\n{\n}\n");
 	}
 
+	format(out.astS, "%s::%s(", current, current);
+	format(out.astS, "const %sEnum enumType)\n\t: ", current);
+	format(out.astS, "rule(enumType)\n{\n}\n");
+
 	format(out.astH, "enum class %sEnum {\n", current);
-	const size_t enumNamesS = moreEnumNames.size();
-	size_t idx = 0;
+	std::set<std::string> setNames;
 	for(auto& it : moreEnumNames) {
+		setNames.insert(it);
+	}
+	const size_t enumNamesS = setNames.size();
+	size_t idx = 0;
+	for(auto& it : setNames) {
 		format(out.astH, "\t%s%s", it, idx+1 == enumNamesS ? "\n" : ",\n");
 		++idx;
 	}
@@ -539,7 +633,7 @@ void RecurDec::genAst(const std::vector<std::vector<RulePart>>& r) {
 	format(out.astH, "std::ostream& operator<<(std::ostream&, const %sEnum);\n\n", current);
 	format(out.astS, "\nstd::ostream& operator<<(std::ostream& ss, const %sEnum en) {\n", current);
 	bool first = true;
-	for(auto& it : moreEnumNames) {
+	for(auto& it : setNames) {
 		format(out.astS, "%s(en == %sEnum::%s) {\n\t\tss<<\"%s\";\n\t}", 
 			first ? "\tif" : " else if", current, it, it
 		);
@@ -569,7 +663,7 @@ void RecurDec::genAst(const std::vector<std::vector<RulePart>>& r) {
 	format(out.astS, "\tss<<\"\\t<td align=\\\"right\\\">\"<<this->rule<<\"</td>\";\n");
 	format(out.astS, "\tss<<\"</tr>\";\n");
 	first = true;
-	for(auto& it : enumNames) {
+	for(auto& it : enumNames2) {
 		bool containsToken = false;
 		for(auto& jt : it.second) {
 			if(rs.token.count(jt.name)) {
@@ -602,21 +696,23 @@ void RecurDec::genAst(const std::vector<std::vector<RulePart>>& r) {
 	format(out.astS, "\tss<<\"</table>\";\n");
 	format(out.astS, "\tss<<\"\\\"]\";\n");
 	first = true;
-	for(auto& it : enumNames) {
+	for(auto& it : enumNames2) {
+		LOG("%s", it.first);
 		bool containsRules = false;
 		for(auto& jt : it.second) {
 			if(rs.rules.count(jt.name)) {
 				containsRules = true;
-				goto br3;
+				goto br4;
 			}
 		}
-		br3:
+		br4:
 		if(!containsRules) {
 			break;
 		}
 		format(out.astS, "%s(this->rule == %sEnum::%s) {\n", first ? "\tif" : " else if", 
 			current, it.first
 		);
+		LOG("%s %u", it.second, it.second.size());
 		for(auto& jt : it.second) {
 			if(rs.rules.count(jt.name)) {
 				format(out.astS, "\t\tss<<this->%s;\n",
@@ -630,7 +726,7 @@ void RecurDec::genAst(const std::vector<std::vector<RulePart>>& r) {
 	format(out.astS, "\n\n");
 	
 	first = true;
-	for(auto& it : enumNames) {
+	for(auto& it : enumNames2) {
 		bool containsRules = false;
 		for(auto& jt : it.second) {
 			if(rs.rules.count(jt.name)) {
@@ -676,7 +772,9 @@ void RecurDec::genAst(const std::vector<std::vector<RulePart>>& r) {
 		}
 		format(out.astH, "const %sEnum);\n", current);
 	}
-	this->genAstOutputMethods(enumNames);
+	format(out.astH, "\t%s(", this->current);
+	format(out.astH, "const %sEnum);\n", current);
+	this->genAstOutputMethods(enumNames2);
 	this->genAstClassDeclEnd(allToStore);
 }
 

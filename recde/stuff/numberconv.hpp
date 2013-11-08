@@ -2,7 +2,7 @@
 #include <sstream>
 #include <stdlib.h>
 
-const bool isDigit(const char in);
+bool isDigit(const char in);
 
 char stringToChar(const std::string& str, int base = 10);
 unsigned char stringToUChar(const std::string& str, int base = 10);

@@ -16,7 +16,7 @@
 			]
 		},
 		{ "Name" : "Expression", "Expression" : [
-			{ "Rule" : "PostfixExpression(expr)" , "Id" : "post" }
+			{ "Rule" : "PostfixExpression(expr)" , "Id" : "Post" }
 			]
 		},
 		{ "Name" : "PrimaryExpression", "Expression" : [
@@ -25,8 +25,8 @@
 			]
 		},
 		{ "Name" : "PostfixExpression", "Expression" : [
-			{ "Rule" : "PrimaryExpression(primaryExpr)", "Id" : "Identifier" },
-			{ "Rule" : "PrimaryExpression(primaryExpr) ; PostfixNextExpression(follow)", "Id" : "IdentifierPostfixNext" },
+			{ "Rule" : "PrimaryExpression(primaryExpr)", "Id" : "Ident" },
+			{ "Rule" : "PrimaryExpression(primaryExpr) ; PostfixNextExpression(follow)", "Id" : "IdentPostfixNext" },
 			]
 		},
 		{ "Name" : "PostfixNextExpression", "Expression" : [
