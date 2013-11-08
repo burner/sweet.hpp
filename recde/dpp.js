@@ -6,12 +6,17 @@
 		{ "Name" : "Float", "Regex" : "float", "ConvertFunction" : "void" }
 		{ "Name" : "Lparen", "Regex" : "(", "ConvertFunction" : "void" }
 		{ "Name" : "Rparen", "Regex" : ")", "ConvertFunction" : "void" }
+		{ "Name" : "Lbrack", "Regex" : "[", "ConvertFunction" : "void" }
+		{ "Name" : "Rbrack", "Regex" : "]", "ConvertFunction" : "void" }
 		{ "Name" : "Dot", "Regex" : ".", "ConvertFunction" : "void" }
 	],
 	"Rules" : [
-		{ "Name" : "VarDecl", "Expression" : [
-			{ "Rule" : "Var ; Identifier(identifier) ; Colon ; Type(type)" , "Id" : "ComplexVarDecl" },
-			{ "Rule" : "Var ; Type(type)" , "Id" : "JustType" }
+		{ "Name" : "Start", "Expression" : [
+			{ "Rule" : "Expression(start)", "Id" : "Start" }
+			]
+		},
+		{ "Name" : "Expression", "Expression" : [
+			{ "Rule" : "PostfixExpression(expr)" , "Id" : "post" }
 			]
 		},
 		{ "Name" : "PrimaryExpression", "Expression" : [
@@ -20,25 +25,18 @@
 			]
 		},
 		{ "Name" : "PostfixExpression", "Expression" : [
-			{ "Rule" : "PrimaryExpression(primaryExpr)", "Id" : "PrimaryExpressionIdentifier" },
-			{ "Rule" : "Lparen ; Expression(expr) ; Rparen", "Id" : "PrimaryExpressionExpression" },
-			{ "Rule" : "PrimaryExpression(primaryExpr) ; Dot ; PostfixExpression(next)", 
-				"Id" : "Dot" },
+			{ "Rule" : "PrimaryExpression(primaryExpr)", "Id" : "Identifier" },
+			{ "Rule" : "PrimaryExpression(primaryExpr) ; PostfixNextExpression(follow)", "Id" : "IdentifierPostfixNext" },
 			]
 		},
-postfix
-	: primary
-	| primary postnext
-
-postnext
-	: . postnext
-	| . primary 
-	| . primary postfix
-	| ( ) 
-	| ( ) postnext
-	| ++
-	| [ expr ] 
-	| [ expr ] postnext
-
+		{ "Name" : "PostfixNextExpression", "Expression" : [
+			{ "Rule" : "Dot ; PostfixNextExpression(followPost)", "Id" : "DotPostfixNext" },
+			{ "Rule" : "Dot ; PrimaryExpression(followPrimary)", "Id" : "DotPrimary" },
+			{ "Rule" : "Dot ; PrimaryExpression(followPrimary) ; PostfixNextExpression(followPost)", "Id" : "DotPrimaryPostfixNext" },
+			{ "Rule" : "Lparen ; Rparen", "Id" : "Call" },
+			{ "Rule" : "Lbrack ; Expression(expr) ; Rbrack", "Id" : "ArrayExpr" },
+			{ "Rule" : "Lbrack ; Expression(expr) ; Rbrack ; PostfixNextExpression(followPost)", "Id" : "ArrayExprPostfixNext" }
+			]
+		}
 	]
 }

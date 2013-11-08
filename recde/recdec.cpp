@@ -1,6 +1,7 @@
 #include <recdec.hpp>
 #include <unit.hpp>
 #include <format.hpp>
+#include <logger.hpp>
 
 ErrorStuff::ErrorStuff(const std::string& r, const std::string& p, const size_t d,
 		const std::vector<std::string>& po) : rule(r), part(p), depth(d), possible(po)
@@ -102,6 +103,8 @@ void RecurDec::genRules() {
 		if(done.find(it.first) != done.end()) {
 			continue;
 		}
+
+		LOG("\n\n%s\n\n", it.first);
 		current = it.first;
 		genRules(it.first);
 		done.insert(it.first);
@@ -348,6 +351,7 @@ void RecurDec::genRules(const std::string& start) {
 	this->store.clear();
 	walkTrieConstructor(&trie.getRoot(), std::vector<RulePart>());
 	for(auto& it : this->store) {
+		LOG();
 		for(auto& jt : it) {
 			format(std::cout, "%s ", jt);
 		}
@@ -440,16 +444,34 @@ void RecurDec::genAstClassDeclEnd(const std::set<RulePart>& allValues) {
 	format(out.astH, "};\n");
 }
 
+std::ostream& operator<<(std::ostream& ss, const std::vector<RulePart>& r) {
+	for(auto& it : r) {
+		ss<<it<<" ";
+	}
+	return ss;
+}
+
 void RecurDec::genAst(const std::vector<std::vector<RulePart>>& r) {
 	format(out.astH, "\n\n// %s\n\n", current);
 	format(out.astS, "\n// %s\n\n", current);
 	std::set<RulePart> allToStore;
 	std::map<std::string,std::vector<RulePart>> enumNames;
+	std::set<std::string> moreEnumNames;
+	auto range = rs.rules.equal_range(current);
+	for(; range.first != range.second; range.first++) {
+		for(auto jt : range.first->second.rule) {
+			moreEnumNames.insert(jt.endName);
+		}
+	}
 	std::vector<std::vector<RulePart>> minimized;
 	for(auto& it : r) {
 		bool equal = false;
+		LOG("%s\n", it);
 		for(auto& jt : minimized) {
 			if(it.size() != jt.size()) {
+				equal = false;
+				break;
+			} else if (it.empty()) {
 				equal = false;
 				break;
 			}
@@ -466,13 +488,14 @@ void RecurDec::genAst(const std::vector<std::vector<RulePart>>& r) {
 			}
 		}
 		end:
-		format(std::cout, "equal = %b |", equal);
+		LOG("equal = %b |", equal);
 		for(auto& jt : it) {
 			enumNames.insert(std::make_pair(jt.endName, it));
-			format(std::cout, "%s ", jt);
+			LOG("%s ", jt);
 		}
 		std::cout<<std::endl;
 		if(!equal) {
+			LOG("INSERT");
 			minimized.push_back(it);
 		}
 	}
@@ -505,10 +528,10 @@ void RecurDec::genAst(const std::vector<std::vector<RulePart>>& r) {
 	}
 
 	format(out.astH, "enum class %sEnum {\n", current);
-	const size_t enumNamesS = enumNames.size();
+	const size_t enumNamesS = moreEnumNames.size();
 	size_t idx = 0;
-	for(auto& it : enumNames) {
-		format(out.astH, "\t%s%s", it.first, idx+1 == enumNamesS ? "\n" : ",\n");
+	for(auto& it : moreEnumNames) {
+		format(out.astH, "\t%s%s", it, idx+1 == enumNamesS ? "\n" : ",\n");
 		++idx;
 	}
 	format(out.astH, "};\n\n");
@@ -516,9 +539,9 @@ void RecurDec::genAst(const std::vector<std::vector<RulePart>>& r) {
 	format(out.astH, "std::ostream& operator<<(std::ostream&, const %sEnum);\n\n", current);
 	format(out.astS, "\nstd::ostream& operator<<(std::ostream& ss, const %sEnum en) {\n", current);
 	bool first = true;
-	for(auto& it : enumNames) {
+	for(auto& it : moreEnumNames) {
 		format(out.astS, "%s(en == %sEnum::%s) {\n\t\tss<<\"%s\";\n\t}", 
-			first ? "\tif" : " else if", current, it.first, it.first
+			first ? "\tif" : " else if", current, it, it
 		);
 		first = false;
 	}

@@ -5,6 +5,7 @@
 
 #include <options.hpp>
 #include <format.hpp>
+#include <logger.hpp>
 
 #include <rulestore.hpp>
 #include <ruleparser.hpp>
@@ -32,10 +33,10 @@ int main(int argc, char** argv) {
 	//std::cout<<store.first<<std::endl;
 
 	for(auto& it : store.token) {
-		format(std::cout, "%s\n", it.second);
+		LOG("%s\n", it.second);
 	}
 	for(auto& it : store.rules) {
-		format(std::cout, "%s : %s\n", it.first, it.second);
+		LOG("%s : %s\n", it.first, it.second);
 	}
 	std::cout<<std::endl;
 	rd.gen();
