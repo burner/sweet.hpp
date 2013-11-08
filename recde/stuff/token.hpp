@@ -46,6 +46,7 @@ enum class TokenType {
 	Byte, // done				"byte"
 	Byte_Value,//				"0b[01]+b|0x[0-9af]+b|0o[0-8]b"
 	Case,		//				"case"
+	Cast,		//				"cast"
 	Char,		//				"char"
 	Char_Value,	//				"'[ansi]'"
 	Colon, // done				":"

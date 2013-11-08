@@ -423,6 +423,13 @@ Token Lexer::nextToken() {
 							return Token(TokenType::Case, tokenLine, 
 								tokenColumn);
 						}
+					} else if(curInput == 't') {
+						if(isTokenStop(getNextChar())) {
+							readNext = false;
+							return Token(TokenType::Cast, tokenLine, 
+								tokenColumn
+							);
+						}
 					}
 				}
 			} else if(curInput == 'o') {

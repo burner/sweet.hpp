@@ -49,7 +49,8 @@ void RecurDec::computeFirstSet() {
 					auto o = rs.first.find(it.second.rule.front().name);
 					if(o != rs.first.end()) {
 						for(auto& jt : o->second) {
-							changed |= s->second.insert(jt).second;
+							auto o2 = s->second.insert(jt);
+							changed |= o2.second;
 						}
 					}
 				}
@@ -406,7 +407,7 @@ void RecurDec::genAstClassDeclStart() {
 
 void RecurDec::genAstOutputMethods(const std::map<std::string,std::vector<RulePart>>& rules) {
 	format(out.astS, "void %s::toOutStream(std::ostream& ss, uint32_t depth) const {\n", current);
-	format(out.astS, "\tconst std::string indent(depth, '\\t');\n");
+	format(out.astS, "\tconst std::string indent(depth, ' ');\n");
 	format(out.astS, "\tss<<indent<<\"%s\"<<\" id(\"<<", current);
 	out.astS<<"this->getId()"<<"<<\") rule(\"<<this->rule<<\")\"<<std::endl;\n";
 	bool first = true;

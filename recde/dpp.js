@@ -10,7 +10,11 @@
 		{ "Name" : "Rbrack", "Regex" : "]", "ConvertFunction" : "void" },
 		{ "Name" : "Dot", "Regex" : ".", "ConvertFunction" : "void" },
 		{ "Name" : "Plusplus", "Regex" : "++", "ConvertFunction" : "void" },
-		{ "Name" : "Minusminux", "Regex" : "--", "ConvertFunction" : "void" }
+		{ "Name" : "Minusminux", "Regex" : "--", "ConvertFunction" : "void" },
+		{ "Name" : "Cast", "Regex" : "cast" "ConvertFunction" : "void" },
+		{ "Name" : "Star", "Regex" : "*" "ConvertFunction" : "void" },
+		{ "Name" : "Div", "Regex" : "/" "ConvertFunction" : "void" },
+		{ "Name" : "Modulo", "Regex" : "%" "ConvertFunction" : "void" }
 	],
 	"Rules" : [
 		{ "Name" : "Start", "Expression" : [
@@ -18,7 +22,19 @@
 			]
 		},
 		{ "Name" : "Expression", "Expression" : [
-			{ "Rule" : "UnaryExpression(expr)" , "Id" : "Unary" }
+			{ "Rule" : "MulExpression(expr)" , "Id" : "Unary" }
+			]
+		},
+		{ "Name" : "MulExpression", "Expression" : [
+			{ "Rule" : "CastExpression(cast)" , "Id" : "Cast" },
+			{ "Rule" : "CastExpression(cast) ; Star ; MulExpression(follow)" , "Id" : "Multi" },
+			{ "Rule" : "CastExpression(cast) ; Div ; MulExpression(follow)" , "Id" : "Div" },
+			{ "Rule" : "CastExpression(cast) ; Modulo ; MulExpression(follow)" , "Id" : "Modulo" },
+			]
+		},
+		{ "Name" : "CastExpression", "Expression" : [
+			{ "Rule" : " UnaryExpression(unaryFollow)" , "Id" : "Unary" },
+			{ "Rule" : " Cast ; Lparen ;  Identifier(type) ; Rparen ; CastExpression(follow)" , "Id" : "Cast" },
 			]
 		},
 		{ "Name" : "UnaryExpression", "Expression" : [

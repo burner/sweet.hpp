@@ -141,7 +141,7 @@ Token::Token(const TokenType t, unsigned l, unsigned c, const long double v) :
 }
 
 void Token::toOutStream(std::ostream& ss, uint32_t in) const {
-	std::string prefix(in, '\t');
+	std::string prefix(in, ' ');
 	ss<<prefix<<(*this)<<std::endl;
 }
 
@@ -196,6 +196,7 @@ std::string tokenTypeToString(const TokenType tt) {
 	case TokenType::Byte: return "BYTE";
 	case TokenType::Byte_Value: return "BYTE_VALUE";
 	case TokenType::Case: return "CASE";
+	case TokenType::Cast: return "CAST";
 	case TokenType::Char: return "CHAR";
 	case TokenType::Char_Value: return "CHAR_VALUE";
 	case TokenType::Colon: return "COLON";
