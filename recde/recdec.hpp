@@ -27,8 +27,8 @@ struct ErrorStuff {
 };
 
 class RecurDec {
-	typedef Trie<RulePart,bool> GrammarPrefix;
-	typedef Trie<RulePart,bool,RulePartCC> GrammarPrefixEnum;
+	typedef Trie<RulePart,std::string> GrammarPrefix;
+	typedef Trie<RulePart,std::string,RulePartCC> GrammarPrefixEnum;
 	std::unordered_set<std::string> allreadyDone;
 	std::vector<std::string> nameStack;
 	std::string current;

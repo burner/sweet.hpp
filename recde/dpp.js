@@ -26,16 +26,21 @@
 		},
 		{ "Name" : "PostfixExpression", "Expression" : [
 			{ "Rule" : "PrimaryExpression(primaryExpr)", "Id" : "Ident" },
-			{ "Rule" : "PrimaryExpression(primaryExpr) ; PostfixNextExpression(follow)", "Id" : "IdentPostfixNext" },
+			{ "Rule" : "PrimaryExpression(primaryExpr) ; PostfixNextExpression(follow)", 
+				"Id" : "IdentPostfixNext" },
 			]
 		},
 		{ "Name" : "PostfixNextExpression", "Expression" : [
 			{ "Rule" : "Dot ; PostfixNextExpression(followPost)", "Id" : "DotPostfixNext" },
 			{ "Rule" : "Dot ; PrimaryExpression(followPrimary)", "Id" : "DotPrimary" },
-			{ "Rule" : "Dot ; PrimaryExpression(followPrimary) ; PostfixNextExpression(followPost)", "Id" : "DotPrimaryPostfixNext" },
+			{ "Rule" : "Dot ; PrimaryExpression(followPrimary) ; PostfixNextExpression(followPost)", 
+				"Id" : "DotPrimaryPostfixNext" 
+			},
 			{ "Rule" : "Lparen ; Rparen", "Id" : "Call" },
+			{ "Rule" : "Lparen ; Rparen ; PostfixNextExpression(followPost)", "Id" : "CallPostFixNext" },
 			{ "Rule" : "Lbrack ; Expression(expr) ; Rbrack", "Id" : "ArrayExpr" },
-			{ "Rule" : "Lbrack ; Expression(expr) ; Rbrack ; PostfixNextExpression(followPost)", "Id" : "ArrayExprPostfixNext" }
+			{ "Rule" : "Lbrack ; Expression(expr) ; Rbrack ; PostfixNextExpression(followPost)", 
+				"Id" : "ArrayExprPostfixNext" }
 			]
 		}
 	]

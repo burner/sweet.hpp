@@ -187,6 +187,7 @@ void RecurDec::writeErrorStuff() {
 	format(out.errH, "\tconst size_t id;\n");
 	format(out.errH, "\tconst Token token;\n\n");
 	format(out.errH, "\tParseException(const Token&, const size_t);\n");
+	format(out.errH, "\tconst char* what() const throw();\n");
 	format(out.errH, "};\n\n");
 
 	format(out.errH, "struct ErrorType {\n");
@@ -215,10 +216,15 @@ void RecurDec::writeErrorStuff() {
 	}
 	format(out.errH, "};\n");
 
+	format(out.errS, "#include <string>\n");
+	format(out.errS, "#include <sstream>\n\n");
 	format(out.errS, "#include <%s>\n\n", out.errHfn);
 	format(out.errS, "ParseException::ParseException(const Token& t, const size_t i) : "
 		"id(i), token(t) {}\n\n"
 	);
+	format(out.errS, "const char* ParseException::what() const throw() {\n");
+	format(out.errS, "\tstd::stringstream ss;\n\tss<<this->token<<\" \"<<this->id;\n");
+	format(out.errS, "\treturn ss.str().c_str();\n}\n\n");
 	format(out.errS, "ErrorType::ErrorType(const size_t i,const std::string& r, const std::string& p, "
 		"const size_t d, \n\tstd::initializer_list<std::string> f) : \n"
 	);
@@ -269,15 +275,10 @@ void RecurDec::walkTrie(const GrammarPrefix::TrieEntry* path, const std::string&
 			format(out.prsS, "\t%sreturn std::make_shared<%s>(", prefix, 
 				current
 			);
-			//size_t idx = 0;
 			for(auto& name : nameStack) {
-				format(out.prsS, "%s", name);
-				//if(idx+1 < nameStack.size()) {
-					format(out.prsS, ", ");
-				//}
-				//++idx;
+				format(out.prsS, "%s, ", name);
 			}
-			format(out.prsS, "\n%s\t\t%sEnum::%s\n", prefix, current, it.first.endName);
+			format(out.prsS, "\n%s\t\t%sEnum::%s\n", prefix, current, it.second.value);
 			format(out.prsS, "\t%s);\n", prefix);
 		}
 		if(pushed) {
@@ -296,15 +297,7 @@ void RecurDec::walkTrie(const GrammarPrefix::TrieEntry* path, const std::string&
 		format(out.prsS, "%s\tthrow ParseException(curToken, %u", prefix,
 				newErrorStuff(current, part, depth, possible)
 		);
-		/*size_t cnt = 0;
-		for(auto& it : path->map) {
-			format(out.prsS, "%s\t\tTokenType::%s%s", prefix, it.first.name, 
-				cnt+1 == path->map.size() ? "\n" : ",\n"
-			);
-			++cnt;
-		}*/
 		format(out.prsS, ");\n");
-		//format(out.prsS, "%s\t);\n", prefix);
 		format(out.prsS, "%s}", prefix);
 	}	
 	format(out.prsS, "\n");
@@ -348,9 +341,10 @@ void RecurDec::genRules(const std::string& start) {
 	GrammarPrefixEnum trieEnum;
 	auto range = rs.rules.equal_range(start);
 	for(; range.first != range.second; ++range.first) {
+		std::string endName = range.first->second.rule[0].endName;
 		auto vec = getNameVector(range.first->second);
-		trie.insert(vec.begin(), vec.end(), true);
-		trieEnum.insert(vec.begin(), vec.end(), true);
+		trie.insert(vec.begin(), vec.end(), endName);
+		trieEnum.insert(vec.begin(), vec.end(), endName);
 	}
 
 	format(out.prsS, srcStringParse, start, start);
@@ -585,11 +579,37 @@ void RecurDec::genAst(const std::vector<std::vector<RulePart>>& r) {
 			minimized.push_back(it);
 		}*/
 	}
+	std::vector<std::vector<std::string>> dupCon;
 	for(auto& it : minimized) {
 		if(it.empty()) {
 			continue;
 		}
 		allToStore.insert(it.begin(), it.end());
+		std::vector<std::string> myCon;
+		for(auto& jt : it) {
+			if(rs.token.find(jt.name) != rs.token.end()) {
+				myCon.push_back(format("const Token&"));
+			} else if(rs.rules.find(jt.name) != rs.rules.end()) {
+				myCon.push_back(format("%sPtr", jt.name));
+			}
+		}
+		bool allreadyThere = false;
+		for(auto& jDup : dupCon) {
+			if(jDup.size() != myCon.size()) {
+				break;
+			}
+			for(size_t i = 0; i < myCon.size(); ++i) {
+				if(jDup[i] != myCon[i]) {
+					goto cont;
+				}
+			}
+			allreadyThere = true;
+			cont: continue;
+		}
+		if(allreadyThere) {
+			continue;
+		}
+		dupCon.push_back(myCon);
 		format(out.astS, "%s::%s(", this->current, this->current);
 		/*const size_t itSize = it.size();
 		size_t idx = 0;*/
@@ -755,10 +775,36 @@ void RecurDec::genAst(const std::vector<std::vector<RulePart>>& r) {
 	format(out.astS, "}\n\n");
 
 	this->genAstClassDeclStart();
+	dupCon.clear();
 	for(auto& it : minimized) {
 		if(it.empty()) {
 			continue;
 		}
+		std::vector<std::string> myCon;
+		for(auto& jt : it) {
+			if(rs.token.find(jt.name) != rs.token.end()) {
+				myCon.push_back(format("const Token&"));
+			} else if(rs.rules.find(jt.name) != rs.rules.end()) {
+				myCon.push_back(format("%sPtr", jt.name));
+			}
+		}
+		bool allreadyThere = false;
+		for(auto& jDup : dupCon) {
+			if(jDup.size() != myCon.size()) {
+				break;
+			}
+			for(size_t i = 0; i < myCon.size(); ++i) {
+				if(jDup[i] != myCon[i]) {
+					goto cont2;
+				}
+			}
+			allreadyThere = true;
+			cont2: continue;
+		}
+		if(allreadyThere) {
+			continue;
+		}
+		dupCon.push_back(myCon);
 		format(out.astH, "\t%s(", this->current);
 		for(auto& jt : it) {
 			if(rs.token.find(jt.name) != rs.token.end()) {
