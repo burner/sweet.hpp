@@ -23,6 +23,10 @@
 		{ "Name" : "And", "Regex" : "&", "ConvertFunction" : "void" }
 		{ "Name" : "Leftshift", "Regex" : "<<", "ConvertFunction" : "void" }
 		{ "Name" : "Rightshift", "Regex" : ">>", "ConvertFunction" : "void" }
+		{ "Name" : "Less", "Regex" : "<", "ConvertFunction" : "void" }
+		{ "Name" : "Lessequal", "Regex" : "<=", "ConvertFunction" : "void" }
+		{ "Name" : "Greater", "Regex" : ">", "ConvertFunction" : "void" }
+		{ "Name" : "Greaterequal", "Regex" : ">=", "ConvertFunction" : "void" }
 	],
 	"Rules" : [
 		{ "Name" : "Start", "Expression" : [
@@ -30,7 +34,15 @@
 			]
 		},
 		{ "Name" : "Expression", "Expression" : [
-			{ "Rule" : "ShiftExpression(expr)" , "Id" : "Next" }
+			{ "Rule" : "RelExpression(expr)" , "Id" : "Next" }
+			]
+		},
+		{ "Name" : "RelExpression", "Expression" : [
+			{ "Rule" : "ShiftExpression(shift)" , "Id" : "Shift" },
+			{ "Rule" : "ShiftExpression(shift) ; Less ; RelExpression(follow)" , "Id" : "Less" },
+			{ "Rule" : "ShiftExpression(shift) ; Lessequal ; RelExpression(follow)" , "Id" : "Lessequal" },
+			{ "Rule" : "ShiftExpression(shift) ; Greater ; RelExpression(follow)" , "Id" : "Greater" },
+			{ "Rule" : "ShiftExpression(shift) ; Greaterequal ; RelExpression(follow)" , "Id" : "Greaterequal" },
 			]
 		},
 		{ "Name" : "ShiftExpression", "Expression" : [

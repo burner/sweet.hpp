@@ -12,6 +12,16 @@ UNITTEST(unary1) {
 	std::cout<<std::endl;
 }
 
+UNITTEST(rel1) {
+	auto ss = std::make_shared<std::stringstream>
+		("hello <= (foobar)");
+	Lexer l(ss);
+	Parser p(l);
+	auto ast = p.parseStart();
+	ast->toOutStream(std::cout);
+	std::cout<<std::endl;
+}
+
 int main() {
 	Unit::runTests();
 	return 0;
