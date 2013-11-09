@@ -11,10 +11,18 @@
 		{ "Name" : "Dot", "Regex" : ".", "ConvertFunction" : "void" },
 		{ "Name" : "Plusplus", "Regex" : "++", "ConvertFunction" : "void" },
 		{ "Name" : "Minusminux", "Regex" : "--", "ConvertFunction" : "void" },
-		{ "Name" : "Cast", "Regex" : "cast" "ConvertFunction" : "void" },
-		{ "Name" : "Star", "Regex" : "*" "ConvertFunction" : "void" },
-		{ "Name" : "Div", "Regex" : "/" "ConvertFunction" : "void" },
-		{ "Name" : "Modulo", "Regex" : "%" "ConvertFunction" : "void" }
+		{ "Name" : "Cast", "Regex" : "cast", "ConvertFunction" : "void" },
+		{ "Name" : "Star", "Regex" : "*", "ConvertFunction" : "void" },
+		{ "Name" : "Div", "Regex" : "/", "ConvertFunction" : "void" },
+		{ "Name" : "Modulo", "Regex" : "%", "ConvertFunction" : "void" }
+		{ "Name" : "Minus", "Regex" : "-", "ConvertFunction" : "void" }
+		{ "Name" : "Plus", "Regex" : "+", "ConvertFunction" : "void" }
+		{ "Name" : "Concat", "Regex" : "~", "ConvertFunction" : "void" }
+		{ "Name" : "Star", "Regex" : "*", "ConvertFunction" : "void" }
+		{ "Name" : "Bang", "Regex" : "~", "ConvertFunction" : "void" }
+		{ "Name" : "And", "Regex" : "&", "ConvertFunction" : "void" }
+		{ "Name" : "Leftshift", "Regex" : "<<", "ConvertFunction" : "void" }
+		{ "Name" : "Rightshift", "Regex" : ">>", "ConvertFunction" : "void" }
 	],
 	"Rules" : [
 		{ "Name" : "Start", "Expression" : [
@@ -22,7 +30,19 @@
 			]
 		},
 		{ "Name" : "Expression", "Expression" : [
-			{ "Rule" : "MulExpression(expr)" , "Id" : "Unary" }
+			{ "Rule" : "ShiftExpression(expr)" , "Id" : "Next" }
+			]
+		},
+		{ "Name" : "ShiftExpression", "Expression" : [
+			{ "Rule" : "AddExpression(add)" , "Id" : "Add" },
+			{ "Rule" : "AddExpression(add) ; Leftshift ; ShiftExpression(follow)" , "Id" : "LeftShift" },
+			{ "Rule" : "AddExpression(add) ; Rightshift ; ShiftExpression(follow)" , "Id" : "RightShift" },
+			]
+		},
+		{ "Name" : "AddExpression", "Expression" : [
+			{ "Rule" : "MulExpression(mul)" , "Id" : "Mul" },
+			{ "Rule" : "MulExpression(mul) ; Plus ; AddExpression(follow)" , "Id" : "Plus" },
+			{ "Rule" : "MulExpression(mul) ; Minus ; AddExpression(follow)" , "Id" : "Minus" },
 			]
 		},
 		{ "Name" : "MulExpression", "Expression" : [
@@ -40,6 +60,12 @@
 		{ "Name" : "UnaryExpression", "Expression" : [
 			{ "Rule" : "PostfixExpression(expr)" , "Id" : "Post" },
 			{ "Rule" : "Plusplus ; UnaryExpression(follow)" , "Id" : "IncUnary" },
+			{ "Rule" : "Plus ; UnaryExpression(follow)" , "Id" : "PlusUnary" },
+			{ "Rule" : "Minus ; UnaryExpression(follow)" , "Id" : "MinusUnary" },
+			{ "Rule" : "Bang ; UnaryExpression(follow)" , "Id" : "BangUnary" },
+			{ "Rule" : "Concat ; UnaryExpression(follow)" , "Id" : "ConcatUnary" },
+			{ "Rule" : "And ; UnaryExpression(follow)" , "Id" : "AndUnary" },
+			{ "Rule" : "Star ; UnaryExpression(follow)" , "Id" : "StarUnary" },
 			{ "Rule" : "Minusminus ; UnaryExpression(follow)" , "Id" : "DecUnary" }
 			]
 		},

@@ -187,6 +187,7 @@ std::string tokenTypeToString(const TokenType tt) {
 	case TokenType::Alias: return "ALIAS";
 	case TokenType::Align: return "ALIGN";
 	case TokenType::And: return "AND";
+	case TokenType::AndAnd: return "ANDAND";
 	case TokenType::Andassign: return "ANDASSIGN";
 	case TokenType::Assign: return "ASSIGN";
 	case TokenType::Bang: return "BANG";

@@ -489,6 +489,13 @@ std::ostream& operator<<(std::ostream& ss, const std::vector<RulePart>& r) {
 	return ss;
 }
 
+std::ostream& operator<<(std::ostream& ss, const std::vector<std::string>& r) {
+	for(auto& it : r) {
+		ss<<it<<" ";
+	}
+	return ss;
+}
+
 void RecurDec::genAst(const std::vector<std::vector<RulePart>>& r) {
 	format(out.astH, "\n\n// %s\n\n", current);
 	format(out.astS, "\n// %s\n\n", current);
@@ -597,7 +604,7 @@ void RecurDec::genAst(const std::vector<std::vector<RulePart>>& r) {
 		bool allreadyThere = false;
 		for(auto& jDup : dupCon) {
 			if(jDup.size() != myCon.size()) {
-				break;
+				continue;
 			}
 			for(size_t i = 0; i < myCon.size(); ++i) {
 				if(jDup[i] != myCon[i]) {
@@ -789,10 +796,12 @@ void RecurDec::genAst(const std::vector<std::vector<RulePart>>& r) {
 				myCon.push_back(format("%sPtr", jt.name));
 			}
 		}
+		LOG("myCon = %s", myCon);
 		bool allreadyThere = false;
 		for(auto& jDup : dupCon) {
+			LOG("jDup = %s", jDup);
 			if(jDup.size() != myCon.size()) {
-				break;
+				continue;
 			}
 			for(size_t i = 0; i < myCon.size(); ++i) {
 				if(jDup[i] != myCon[i]) {
@@ -805,6 +814,7 @@ void RecurDec::genAst(const std::vector<std::vector<RulePart>>& r) {
 		if(allreadyThere) {
 			continue;
 		}
+		LOG("new");
 		dupCon.push_back(myCon);
 		format(out.astH, "\t%s(", this->current);
 		for(auto& jt : it) {
