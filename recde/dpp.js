@@ -2,6 +2,7 @@
 	"Token" : [
 		{ "Name" : "Var", "Regex" : "var", "ConvertFunction" : "void" },
 		{ "Name" : "Int", "Regex" : "int", "ConvertFunction" : "void" },
+		{ "Name" : "Int_Value", "Regex" : "[0-9]+", "ConvertFunction" : "void" },
 		{ "Name" : "Identifier", "Regex" : "", "ConvertFunction" : "void" },
 		{ "Name" : "Float", "Regex" : "float", "ConvertFunction" : "void" },
 		{ "Name" : "Lparen", "Regex" : "(", "ConvertFunction" : "void" },
@@ -27,6 +28,19 @@
 		{ "Name" : "Lessequal", "Regex" : "<=", "ConvertFunction" : "void" }
 		{ "Name" : "Greater", "Regex" : ">", "ConvertFunction" : "void" }
 		{ "Name" : "Greaterequal", "Regex" : ">=", "ConvertFunction" : "void" }
+		{ "Name" : "Equal", "Regex" : "==", "ConvertFunction" : "void" }
+		{ "Name" : "Notequal", "Regex" : "!=", "ConvertFunction" : "void" }
+		{ "Name" : "Is", "Regex" : "is", "ConvertFunction" : "void" }
+		{ "Name" : "Bangis", "Regex" : "!is", "ConvertFunction" : "void" }
+		{ "Name" : "And", "Regex" : "&", "ConvertFunction" : "void" }
+		{ "Name" : "Logicaland", "Regex" : "&&", "ConvertFunction" : "void" }
+		{ "Name" : "Or", "Regex" : "|", "ConvertFunction" : "void" }
+		{ "Name" : "Logicalor", "Regex" : "||", "ConvertFunction" : "void" }
+		{ "Name" : "Xor", "Regex" : "^", "ConvertFunction" : "void" }
+		{ "Name" : "Questionmark", "Regex" : "?", "ConvertFunction" : "void" }
+		{ "Name" : "Colon", "Regex" : ":", "ConvertFunction" : "void" }
+		{ "Name" : "Assign", "Regex" : "=", "ConvertFunction" : "void" }
+		{ "Name" : "Var", "Regex" : "var", "ConvertFunction" : "void" }
 	],
 	"Rules" : [
 		{ "Name" : "Start", "Expression" : [
@@ -34,7 +48,73 @@
 			]
 		},
 		{ "Name" : "Expression", "Expression" : [
-			{ "Rule" : "RelExpression(expr)" , "Id" : "Next" }
+			{ "Rule" : "AssignmentExpression(expr)" , "Id" : "Next" }
+			]
+		},
+		{ "Name" : "Type", "Expression" : [
+			{ "Rule" : "BasicType(type)" , "Id" : "BasicType" },
+			{ "Rule" : "BasicType(type) ; TypeFollow(follow)" , "Id" : "BasicTypeFollow" },
+			]
+		},
+		{ "Name" : "BasicType", "Expression" : [
+			{ "Rule" : "Int" , "Id" : "Int" }
+			{ "Rule" : "Float" , "Id" : "Float" }
+			]
+		},
+		{ "Name" : "TypeFollow", "Expression" : [
+			{ "Rule" : "Lbrack ; Rbrack" , "Id" : "DynamicArray" },
+			{ "Rule" : "Lbrack ; Rbrack ; TypeFollow(follow)" , "Id" : "DynamicArrayFollow" }
+			]
+		},
+		{ "Name" : "VarDecl", "Expression" : [
+			{ "Rule" : "Var ; Identifier(identifier) ; Lparen ; OrOrExpression(init) ; Rparen" , "Id" : "VarExpr" },
+			{ "Rule" : "Var ; Identifier(identifier) ; Colon ; Type(type)" , "Id" : "VarType" }
+			]
+		},
+		{ "Name" : "AssignmentExpression", "Expression" : [
+			{ "Rule" : "ConditionalExpression(drain)" , "Id" : "Cond" },
+			{ "Rule" : "ConditionalExpression(drain) ; Assign ; AssignmentExpression(source)" , "Id" : "Assign" },
+			]
+		},
+		{ "Name" : "ConditionalExpression", "Expression" : [
+			{ "Rule" : "OrOrExpression(orOrExpr)" , "Id" : "OrOr" },
+			{ "Rule" : 
+				"OrOrExpression(orOrExpr) ; Questionmark ; Expression(trueBranch) ; Colon ; ConditionalExpression(otherBranch) " , "Id" : "Ternary" },
+			]
+		},
+		{ "Name" : "OrOrExpression", "Expression" : [
+			{ "Rule" : "AndAndExpression(andAndExpr)" , "Id" : "AndAnd" },
+			{ "Rule" : "AndAndExpression(andAndExpr) ; Logicalor ; OrOrExpression(follow)" ,
+				   	"Id" : "LogicalOr" 
+			}
+			]
+		},
+		{ "Name" : "AndAndExpression", "Expression" : [
+			{ "Rule" : "OrExpression(orExpr)" , "Id" : "Or" },
+			{ "Rule" : "OrExpression(orExpr) ; Logicaland ; AndAndExpression(follow)" , "Id" : "LogicalAnd" }
+			]
+		},
+		{ "Name" : "OrExpression", "Expression" : [
+			{ "Rule" : "XorExpression(xorExpr)" , "Id" : "Xor" },
+			{ "Rule" : "XorExpression(xorExpr) ; Xor ; OrExpression(follow)" , "Id" : "Or" }
+			]
+		},
+		{ "Name" : "XorExpression", "Expression" : [
+			{ "Rule" : "AndExpression(andExpr)" , "Id" : "And" },
+			{ "Rule" : "AndExpression(andExpr) ; Xor ; XorExpression(follow)" , "Id" : "Xor" }
+			]
+		},
+		{ "Name" : "AndExpression", "Expression" : [
+			{ "Rule" : "EqualityExpression(equal)" , "Id" : "Equality" },
+			{ "Rule" : "EqualityExpression(equal) ; And ; AndExpression(follow)" , "Id" : "Equal" }
+			]
+		},
+		{ "Name" : "EqualityExpression", "Expression" : [
+			{ "Rule" : "RelExpression(rel)" , "Id" : "Rel" },
+			{ "Rule" : "RelExpression(rel) ; Equal ; EqualityExpression(follow)" , "Id" : "Equal" },
+			{ "Rule" : "RelExpression(rel) ; Bangequal ; EqualityExpression(follow)" , "Id" : "NotEqual" },
+			{ "Rule" : "RelExpression(rel) ; Is ; EqualityExpression(follow)" , "Id" : "Is" },
+			{ "Rule" : "RelExpression(rel) ; Bangis ; EqualityExpression(follow)" , "Id" : "NotIs" },
 			]
 		},
 		{ "Name" : "RelExpression", "Expression" : [
@@ -101,7 +181,8 @@
 			]
 		},
 		{ "Name" : "PrimaryExpression", "Expression" : [
-			{ "Rule" : "Identifier(identifier)", "Id" : "PrimaryExpressionIdentifier" },
+			{ "Rule" : "Identifier(value)", "Id" : "PrimaryExpressionIdentifier" },
+			{ "Rule" : "Int_Value(value) ", "Id" : "Value" },
 			{ "Rule" : "Lparen ; Expression(expr) ; Rparen", "Id" : "PrimaryExpressionExpression" }
 			]
 		}

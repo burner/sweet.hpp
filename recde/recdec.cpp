@@ -427,7 +427,9 @@ void RecurDec::genAstOutputMethods(const std::map<std::string,std::vector<RulePa
 			}
 		}
 	}
-	format(out.astS, "\t}\n");
+	if(!rules.empty()) {
+		format(out.astS, "\t}\n");
+	}
 	format(out.astS, "}\n");
 }
 
@@ -464,6 +466,7 @@ void RecurDec::genAstClassDeclEnd(const std::set<RulePart>& allValues) {
 	format(out.astH, "private:\n");
 	std::map<std::string,std::string> names;
 	for(auto& it : allValues) {
+		LOG("allValues | %s %s", it.storeName, it.name);
 		names.insert(std::make_pair(it.storeName,it.name));
 	}
 
@@ -473,9 +476,11 @@ void RecurDec::genAstClassDeclEnd(const std::set<RulePart>& allValues) {
 		if(rs.token.find(it.second) != rs.token.end()) {
 			//format(out.astH, "\tToken %s;\n", it.storeName);
 			format(out.astH, "\tToken %s;\n", it.first);
-		} else {
+		} else if(rs.rules.count(it.second)) {
 			//format(out.astH, "\t%sPtr %s;\n", it.name, it.storeName);
 			format(out.astH, "\t%sPtr %s;\n", it.second, it.first);
+		} else {
+			ASSERT_T_MSG(false, "nor token neither rule");
 		}
 	}
 	format(out.astH, "\t%sEnum rule;\n", current);
@@ -506,6 +511,9 @@ void RecurDec::genAst(const std::vector<std::vector<RulePart>>& r) {
 	auto range = rs.rules.equal_range(current);
 	for(; range.first != range.second; range.first++) {
 		for(auto jt : range.first->second.rule) {
+			if(!jt.storeName.empty()) {
+				allToStore.insert(jt);
+			}
 			moreEnumNames.insert(jt.endName);
 		}
 	}
@@ -592,7 +600,7 @@ void RecurDec::genAst(const std::vector<std::vector<RulePart>>& r) {
 		if(it.empty()) {
 			continue;
 		}
-		allToStore.insert(it.begin(), it.end());
+		//allToStore.insert(it.begin(), it.end());
 		std::vector<std::string> myCon;
 		for(auto& jt : it) {
 			if(rs.token.find(jt.name) != rs.token.end()) {
@@ -627,18 +635,21 @@ void RecurDec::genAst(const std::vector<std::vector<RulePart>>& r) {
 			} else if(rs.rules.find(jt.name) != rs.rules.end()) {
 				format(out.astS, "%sPtr %s_arg%s", jt.name, jt.storeName, ", ");
 			} else {
-				ASSERT_T_MSG(false, "Not reachable");
+				//ASSERT_T_MSG(false, "Not reachable");
 			}
 			//++idx;
 		}
 		format(out.astS, "const %sEnum enumType)\n\t: ", current);
 
 		std::vector<RulePart> sorted(it.begin(), it.end());
-		std::sort(sorted.begin(), sorted.end());
+		std::sort(sorted.begin(), sorted.end(), [](const RulePart& a, const RulePart& b) {
+			return a.storeName < b.storeName;
+		});
+		LOG("sorted NAMES | %s\n", sorted);
 		for(auto& jt : sorted) {
 			format(out.astS, "%s(%s_arg), ", jt.storeName, jt.storeName);
 		}
-		format(out.astS, "rule(enumType)\n{\n}\n");
+		format(out.astS, "rule(enumType)\n{\n}\n\n");
 	}
 
 	format(out.astS, "%s::%s(", current, current);
