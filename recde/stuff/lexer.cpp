@@ -488,6 +488,19 @@ Token Lexer::nextToken() {
 					if(isTokenStop(getNextChar())) {
 						readNext = false;
 						return Token(TokenType::For, tokenLine, tokenColumn);
+					} else if(curInput == 'e') {
+						if(getNextChar() == 'a') {
+							if(getNextChar() == 'c') {
+								if(getNextChar() == 'h') {
+									if(isTokenStop(getNextChar())) {
+										readNext = false;
+										return Token(TokenType::Foreach, 
+											tokenLine, tokenColumn
+										);
+									}
+								}
+							}
+						}
 					}
 				}
 			} else if(curInput == 'i') { // final

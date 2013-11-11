@@ -62,6 +62,52 @@ UNITTEST(argList1) {
 	std::cout<<std::endl;
 }
 
+UNITTEST(blockStmt1) {
+	auto ss = std::make_shared<std::stringstream>
+		("{}");
+	Lexer l(ss);
+	Parser p(l);
+	auto ast = p.parseStatement();
+	ast->toOutStream(std::cout);
+	std::cout<<std::endl;
+}
+UNITTEST(blockStmt2) {
+	auto ss = std::make_shared<std::stringstream>
+		("{{}}");
+	Lexer l(ss);
+	Parser p(l);
+	auto ast = p.parseStatement();
+	ast->toOutStream(std::cout);
+	std::cout<<std::endl;
+}
+UNITTEST(blockStmt3) {
+	auto ss = std::make_shared<std::stringstream>
+		("{{}{}}");
+	Lexer l(ss);
+	Parser p(l);
+	auto ast = p.parseStatement();
+	ast->toOutStream(std::cout);
+	std::cout<<std::endl;
+}
+UNITTEST(blockStmt4) {
+	auto ss = std::make_shared<std::stringstream>
+		("{foobar();}");
+	Lexer l(ss);
+	Parser p(l);
+	auto ast = p.parseStatement();
+	ast->toOutStream(std::cout);
+	std::cout<<std::endl;
+}
+UNITTEST(iterStmt1) {
+	auto ss = std::make_shared<std::stringstream>
+		("{ while(bar()) { }}");
+	Lexer l(ss);
+	Parser p(l);
+	auto ast = p.parseStatement();
+	ast->toOutStream(std::cout);
+	std::cout<<std::endl;
+}
+
 int main() {
 	Unit::runTests();
 	return 0;

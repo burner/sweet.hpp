@@ -834,7 +834,7 @@ void RecurDec::genAst(const std::vector<std::vector<RulePart>>& r) {
 			} else if(rs.rules.find(jt.name) != rs.rules.end()) {
 				format(out.astH, "%sPtr%s", jt.name, ", ");
 			} else {
-				ASSERT_T_MSG(false, "Not reachable");
+				ASSERT_T_MSG(false, format("Not reachable '%s'",jt.name));
 			}
 			//++idx;
 		}

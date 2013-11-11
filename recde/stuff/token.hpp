@@ -71,6 +71,7 @@ enum class TokenType {
 	Final,	//					"final"
 	Float_Value, //				"[0-9]+.[0-9]+"
 	For,	//					"for"
+	Foreach,	//				"foreach"
 	Greater, // done			">"
 	Greaterequal, // done 		">="
 	Identifier,	//				"[a-zA-Z_]+"

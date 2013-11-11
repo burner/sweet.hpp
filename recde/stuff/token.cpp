@@ -222,6 +222,7 @@ std::string tokenTypeToString(const TokenType tt) {
 	case TokenType::Final: return "FINAL";
 	case TokenType::Float_Value: return "FLOAT_VALUE";
 	case TokenType::For: return "FOR";
+	case TokenType::Foreach: return "FOREACH";
 	case TokenType::Greater: return "GREATER";
 	case TokenType::Greaterequal: return "GREATEREQUAL";
 	case TokenType::Identifier: return "IDENTIFIER";

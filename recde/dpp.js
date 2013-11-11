@@ -9,6 +9,7 @@
 		{ "Name" : "Ubyte", "Regex" : "ubyte", "ConvertFunction" : "void" },
 		{ "Name" : "Long", "Regex" : "long", "ConvertFunction" : "void" },
 		{ "Name" : "Ulong", "Regex" : "ulong", "ConvertFunction" : "void" },
+		{ "Name" : "Const", "Regex" : "const", "ConvertFunction" : "void" },
 		{ "Name" : "Int_Value", "Regex" : "[0-9]+", "ConvertFunction" : "void" },
 		{ "Name" : "Identifier", "Regex" : "", "ConvertFunction" : "void" },
 		{ "Name" : "Float", "Regex" : "float", "ConvertFunction" : "void" },
@@ -16,6 +17,8 @@
 		{ "Name" : "Rparen", "Regex" : ")", "ConvertFunction" : "void" },
 		{ "Name" : "Lbrack", "Regex" : "[", "ConvertFunction" : "void" },
 		{ "Name" : "Rbrack", "Regex" : "]", "ConvertFunction" : "void" },
+		{ "Name" : "Lcurly", "Regex" : "{", "ConvertFunction" : "void" },
+		{ "Name" : "Rcurly", "Regex" : "}", "ConvertFunction" : "void" },
 		{ "Name" : "Dot", "Regex" : ".", "ConvertFunction" : "void" },
 		{ "Name" : "Plusplus", "Regex" : "++", "ConvertFunction" : "void" },
 		{ "Name" : "Minusminux", "Regex" : "--", "ConvertFunction" : "void" },
@@ -49,10 +52,42 @@
 		{ "Name" : "Comma", "Regex" : ",", "ConvertFunction" : "void" }
 		{ "Name" : "Assign", "Regex" : "=", "ConvertFunction" : "void" }
 		{ "Name" : "Var", "Regex" : "var", "ConvertFunction" : "void" }
+		{ "Name" : "While", "Regex" : "while", "ConvertFunction" : "void" }
+		{ "Name" : "For", "Regex" : "for", "ConvertFunction" : "void" }
+		{ "Name" : "Foreach", "Regex" : "foreach", "ConvertFunction" : "void" }
+		{ "Name" : "Do", "Regex" : "do", "ConvertFunction" : "void" }
+		{ "Name" : "Semicolon", "Regex" : ";", "ConvertFunction" : "void" }
 	],
 	"Rules" : [
 		{ "Name" : "Start", "Expression" : [
 			{ "Rule" : "Expression(start)", "Id" : "Start" }
+			]
+		},
+		{ "Name" : "StatementList", "Expression" : [
+			{ "Rule" : "Statement(stmt)" , "Id" : "Block" }
+			{ "Rule" : "Statement(stmt) ; StatementList(follow)" , "Id" : "BlockStatementList" }
+			]
+		},
+		{ "Name" : "Statement", "Expression" : [
+			{ "Rule" : "BlockStatement(block)" , "Id" : "Block" }
+			{ "Rule" : "ExpressionStatement(expr)" , "Id" : "Expr" }
+			{ "Rule" : "IterationStatement(iter)" , "Id" : "Iteration" }
+			]
+		},
+		{ "Name" : "BlockStatement", "Expression" : [
+			{ "Rule" : "Lcurly ; Rcurly" , "Id" : "Empty" }
+			{ "Rule" : "Lcurly ; StatementList(stmtList) ; Rcurly" , "Id" : "StmtList" }
+			]
+		},
+		{ "Name" : "IterationStatement", "Expression" : [
+			{ "Rule" : "While ; Lparen ; Expression(expr) ; Rparen ; BlockStatement(stmt)" , "Id" : "While" }
+			{ "Rule" : "Do ; BlockStatement(stmt) ; While ; Lparen ; Expression(expr) ; Rparen ; Semicolon", 
+				"Id" : "While" }
+			]
+		},
+		{ "Name" : "ExpressionStatement", "Expression" : [
+			{ "Rule" : "Expression(expr) ; Semicolon" , "Id" : "Expr" }
+			{ "Rule" : "Semicolon" , "Id" : "NoExpr" }
 			]
 		},
 		{ "Name" : "Expression", "Expression" : [
@@ -65,7 +100,14 @@
 			]
 		},
 		{ "Name" : "BasicType", "Expression" : [
+			{ "Rule" : "Byte" , "Id" : "Byte" },
+			{ "Rule" : "Short" , "Id" : "Short" },
 			{ "Rule" : "Int" , "Id" : "Int" },
+			{ "Rule" : "Long" , "Id" : "Long" },
+			{ "Rule" : "Ubyte" , "Id" : "Ubyte" },
+			{ "Rule" : "Uint" , "Id" : "Uint" },
+			{ "Rule" : "Ushort" , "Id" : "Ushort" },
+			{ "Rule" : "Ulong" , "Id" : "Ulong" },
 			{ "Rule" : "Float" , "Id" : "Float" }
 			]
 		},
@@ -84,12 +126,17 @@
 			]
 		},
 		{ "Name" : "VarDecl", "Expression" : [
-			{ "Rule" : "VarDeclPrefix(prefix) ; VarDeclDirectInit(direct)", "Id" : "VarDeclDirect"}
-			{ "Rule" : "VarDeclPrefix(prefix) ; VarDeclDeferedInit(defered)", "Id" : "VarDeclDefered"}
+			{ "Rule" : "VarDeclPrefix(varPrefix) ; VarDeclDirectInit(direct)", "Id" : "VarDeclDirect"}
+			{ "Rule" : "VarDeclPrefix(varPrefix) ; VarDeclDeferedInit(defered)", "Id" : "VarDeclDefered"}
+			{ "Rule" : "ConstDeclPrefix(constPrefix) ; VarDeclDirectInit(direct)", "Id" : "ConstDeclDirect"}
 			]
 		},
 		{ "Name" : "VarDeclPrefix", "Expression" : [
 			{ "Rule" : "Var ; Identifier(identifier) " , "Id" : "VarName" },
+			]
+		},
+		{ "Name" : "ConstDeclPrefix", "Expression" : [
+			{ "Rule" : "Const ; Identifier(identifier) " , "Id" : "ConstName" },
 			]
 		},
 		{ "Name" : "VarDeclDirectInit", "Expression" : [
