@@ -1,11 +1,26 @@
 // LGPL 3 or higher Robert Burner Schadek rburners@gmail.com
-#ifndef SWEET_LOGGER
-#define SWEET_LOGGER
+#pragma once
 
 #include <iostream>
-#include "format.hpp"
+#include <unordered_set>
 
-#ifndef RELEASE
+#include "format.hpp"
+namespace SweetLogger {
+
+#ifndef SWEET_LOGGER_RELEASE
+static std::unordered_set<size_t>& getAvaiLogger() {
+	static std::unordered_set<size_t> logger;
+	return logger;
+}
+
+bool enableLogger(const size_t id) {
+	return getAvaiLogger().insert(id).second;
+}
+
+bool disableLogger(const size_t id) {
+	return static_cast<bool>(getAvaiLogger().erase(id));
+}
+
 static std::string shortenString(const std::string& str) {
 	size_t idx = str.rfind('/');
 	if(idx == std::string::npos) {
@@ -32,18 +47,6 @@ struct Log {
 		std::cerr<<std::endl;
 	}
 
-	/*template<typename... Args>
-	void operator()(bool p, const std::string& form) {
-		if(p) {
-			if(warn) {
-				std::cerr<<"WARN ";
-			}
-			format(std::cerr, "%s:%d ", fn, line);
-			format(std::cerr, form);
-			std::cerr<<std::endl;
-		}
-	}*/
-
 	template<typename... Args>
 	void operator()(const std::string& form, Args... args) {
 		if(warn) {
@@ -54,9 +57,9 @@ struct Log {
 		std::cerr<<std::endl;
 	}
 
-	/*template<typename... Args>
-	void operator()(bool p, const std::string& form, Args... args) {
-		if(p) {
+	template<typename... Args>
+	void operator()(const size_t ll, const std::string& form, Args... args) {
+		if(getAvaiLogger().count(ll)) {
 			if(warn) {
 				std::cerr<<"WARN ";
 			}
@@ -64,23 +67,30 @@ struct Log {
 			format(std::cerr, form, args...);
 			std::cerr<<std::endl;
 		}
-	}*/
+	}
 };
-#define LOG Log(__FILE__,__LINE__)
-#define WARN Log(__FILE__,__LINE__,true)
+#define LOG SweetLogger::Log(__FILE__,__LINE__)
+#define WARN SweetLogger::Log(__FILE__,__LINE__,true)
+
 #else
 struct Log {
-	explicit Log(const char*, int l, bool w = false) { }
+	explicit Log(const char*, int, bool = false) { }
 	void operator()() {
 	}
 	template<typename... Args>
-	void operator()(std::string form, Args... args) {
+	void operator()(std::string, Args...) {
 	}
-	/*template<typename... Args>
-	void operator()(bool b, std::string form, Args... args) {
-	}*/
+	template<typename... Args>
+	void operator()(size_t b, std::string, Args... ) {
+	}
 };
-#define LOG Log(__FILE__, __LINE__)
-#define WARN Log(__FILE__, __LINE__,true) 
+bool enableLogger(const size_t) {
+	return false;
+}
+bool disableLogger(const size_t) {
+	return false;
+}
+#define LOG SweetLogger::Log(__FILE__, __LINE__)
+#define WARN SweetLogger::Log(__FILE__, __LINE__,true) 
 #endif
-#endif
+}
