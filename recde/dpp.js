@@ -2,6 +2,13 @@
 	"Token" : [
 		{ "Name" : "Var", "Regex" : "var", "ConvertFunction" : "void" },
 		{ "Name" : "Int", "Regex" : "int", "ConvertFunction" : "void" },
+		{ "Name" : "Uint", "Regex" : "uint", "ConvertFunction" : "void" },
+		{ "Name" : "Short", "Regex" : "short", "ConvertFunction" : "void" },
+		{ "Name" : "Ushort", "Regex" : "ushort", "ConvertFunction" : "void" },
+		{ "Name" : "Byte", "Regex" : "byte", "ConvertFunction" : "void" },
+		{ "Name" : "Ubyte", "Regex" : "ubyte", "ConvertFunction" : "void" },
+		{ "Name" : "Long", "Regex" : "long", "ConvertFunction" : "void" },
+		{ "Name" : "Ulong", "Regex" : "ulong", "ConvertFunction" : "void" },
 		{ "Name" : "Int_Value", "Regex" : "[0-9]+", "ConvertFunction" : "void" },
 		{ "Name" : "Identifier", "Regex" : "", "ConvertFunction" : "void" },
 		{ "Name" : "Float", "Regex" : "float", "ConvertFunction" : "void" },
@@ -39,6 +46,7 @@
 		{ "Name" : "Xor", "Regex" : "^", "ConvertFunction" : "void" }
 		{ "Name" : "Questionmark", "Regex" : "?", "ConvertFunction" : "void" }
 		{ "Name" : "Colon", "Regex" : ":", "ConvertFunction" : "void" }
+		{ "Name" : "Comma", "Regex" : ",", "ConvertFunction" : "void" }
 		{ "Name" : "Assign", "Regex" : "=", "ConvertFunction" : "void" }
 		{ "Name" : "Var", "Regex" : "var", "ConvertFunction" : "void" }
 	],
@@ -57,7 +65,7 @@
 			]
 		},
 		{ "Name" : "BasicType", "Expression" : [
-			{ "Rule" : "Int" , "Id" : "Int" }
+			{ "Rule" : "Int" , "Id" : "Int" },
 			{ "Rule" : "Float" , "Id" : "Float" }
 			]
 		},
@@ -66,9 +74,30 @@
 			{ "Rule" : "Lbrack ; Rbrack ; TypeFollow(follow)" , "Id" : "DynamicArrayFollow" }
 			]
 		},
+		{ "Name" : "ArgumentList", "Expression" : [
+			{ "Rule" : "Argument(arg)", "Id" : "Single"}
+			{ "Rule" : "Argument(arg) ; Comma ; ArgumentList(follow)", "Id" : "Multiple"}
+			]
+		},
+		{ "Name" : "Argument", "Expression" : [
+			{ "Rule" : "VarDeclPrefix(name) ; VarDeclDeferedInit(type)", "Id" : "NameType"}
+			]
+		},
 		{ "Name" : "VarDecl", "Expression" : [
-			{ "Rule" : "Var ; Identifier(identifier) ; Lparen ; OrOrExpression(init) ; Rparen" , "Id" : "VarExpr" },
-			{ "Rule" : "Var ; Identifier(identifier) ; Colon ; Type(type)" , "Id" : "VarType" }
+			{ "Rule" : "VarDeclPrefix(prefix) ; VarDeclDirectInit(direct)", "Id" : "VarDeclDirect"}
+			{ "Rule" : "VarDeclPrefix(prefix) ; VarDeclDeferedInit(defered)", "Id" : "VarDeclDefered"}
+			]
+		},
+		{ "Name" : "VarDeclPrefix", "Expression" : [
+			{ "Rule" : "Var ; Identifier(identifier) " , "Id" : "VarName" },
+			]
+		},
+		{ "Name" : "VarDeclDirectInit", "Expression" : [
+			{ "Rule" : "Lparen ; OrOrExpression(init) ; Rparen" , "Id" : "Direct" },
+			]
+		},
+		{ "Name" : "VarDeclDeferedInit", "Expression" : [
+			{ "Rule" : "Colon ; Type(type)" , "Id" : "Defered" }
 			]
 		},
 		{ "Name" : "AssignmentExpression", "Expression" : [

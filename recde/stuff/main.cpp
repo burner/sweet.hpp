@@ -52,6 +52,16 @@ UNITTEST(varDecl2) {
 	std::cout<<std::endl;
 }
 
+UNITTEST(argList1) {
+	auto ss = std::make_shared<std::stringstream>
+		("var bar : int, var foo : float");
+	Lexer l(ss);
+	Parser p(l);
+	auto ast = p.parseArgumentList();
+	ast->toOutStream(std::cout);
+	std::cout<<std::endl;
+}
+
 int main() {
 	Unit::runTests();
 	return 0;

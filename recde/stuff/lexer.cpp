@@ -502,6 +502,18 @@ Token Lexer::nextToken() {
 						}
 					}
 				}
+			} else if(curInput == 'l') { // final
+				if(getNextChar() == 'o') {
+					if(getNextChar() == 'a') {
+						if(getNextChar() == 't') {
+							if(isTokenStop(getNextChar())) {
+								readNext = false;
+								return Token(TokenType::Float, tokenLine, 
+									tokenColumn);
+							}
+						}
+					}
+				}
 			}
 			goto identifier;
 		case 'i':

@@ -7,17 +7,17 @@
 #include "format.hpp"
 namespace SweetLogger {
 
-#ifndef SWEET_LOGGER_RELEASE
+#ifndef SWEET_NO_LOGGER
 static std::unordered_set<size_t>& getAvaiLogger() {
 	static std::unordered_set<size_t> logger;
 	return logger;
 }
 
-bool enableLogger(const size_t id) {
+inline bool enableLogger(const size_t id) {
 	return getAvaiLogger().insert(id).second;
 }
 
-bool disableLogger(const size_t id) {
+inline bool disableLogger(const size_t id) {
 	return static_cast<bool>(getAvaiLogger().erase(id));
 }
 
@@ -84,10 +84,10 @@ struct Log {
 	void operator()(size_t b, std::string, Args... ) {
 	}
 };
-bool enableLogger(const size_t) {
+inline bool enableLogger(const size_t) {
 	return false;
 }
-bool disableLogger(const size_t) {
+inline bool disableLogger(const size_t) {
 	return false;
 }
 #define LOG SweetLogger::Log(__FILE__, __LINE__)
