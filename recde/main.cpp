@@ -20,6 +20,11 @@ int main(int argc, char** argv) {
 	std::string outPrsS("parser.cpp");
 	std::string outErrH("error.hpp");
 	std::string outErrS("error.cpp");
+	std::string outVH("vistor.hpp");
+	std::string outovH("outvistor.hpp");
+	std::string outovS("outvistor.hpp");
+	std::string outdvH("dotvistor.hpp");
+	std::string outdvS("dotvistor.hpp");
 	std::string outPrefix;
 	Options opts(argc, argv);
 	opts.get("-i", "--inputFile", "The grammar file to parse", inputFile);
@@ -29,6 +34,11 @@ int main(int argc, char** argv) {
 	opts.get("-ps", "--parseroutputsource", "Output file for parser source", outAstS);
 	opts.get("-eh", "--erroroutputheader", "Output file for error header", outAstH);
 	opts.get("-es", "--erroroutputsource", "Output file for error source", outAstS);
+	opts.get("-vh", "--visitoroutputheader", "Output file for tree visitor header", outVH);
+	opts.get("-oh", "--outvisitoroutputheader", "Output file for std::out visitor header", outovH);
+	opts.get("-os", "--outvisitoroutputsource", "Output file for std::out visitor source", outovS);
+	opts.get("-dh", "--dotvisitoroutputheader", "Output file for Dot file visitor header", outdvH);
+	opts.get("-ds", "--dotvisitoroutputsource", "Output file for Dot file visitor source", outdvS);
 	opts.get("-op", "--outputprefix", "All output files will be prefixed with this string", outPrefix);
 	opts.finalize();
 
@@ -39,6 +49,11 @@ int main(int argc, char** argv) {
 		outPrsS = outPrefix + outPrsS;
 		outErrH = outPrefix + outErrH;
 		outErrS = outPrefix + outErrS;
+		outVH = outPrefix + outVH;
+		outovH = outPrefix + outovH;
+		outovS = outPrefix + outovS;
+		outdvH = outPrefix + outdvH;
+		outdvS = outPrefix + outdvS;
 	}
 
 	if(inputFile.empty()) {
@@ -54,7 +69,12 @@ int main(int argc, char** argv) {
 	std::ofstream prsS(outPrsS);
 	std::ofstream errH(outErrH);
 	std::ofstream errS(outErrS);
-	Output out(prsS,prsH,astS,astH,errS,errH, "error.hpp");
+	std::ofstream visH(outVH);
+	std::ofstream ovisH(outovH);
+	std::ofstream ovisS(outovS);
+	std::ofstream dvisH(outdvH);
+	std::ofstream dvisS(outdvS);
+	Output out(prsS,prsH,astS,astH,errS,errH,visH,ovisH,ovisS,dvisH,dvisS);
 	RecurDec rd(store, out);
 	rd.computeFirstSet();
 	//std::cout<<store.first<<std::endl;

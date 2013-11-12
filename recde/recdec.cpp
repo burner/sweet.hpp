@@ -123,6 +123,12 @@ void RecurDec::genRules() {
 }
 
 void RecurDec::genAstForwardDecl() {
+	format(out.visH, "// DO not MODIFY this FILE it IS generated\n\n");
+	format(out.visH, "#pragma once\n\n");
+	format(out.visH, "#include <ast.hpp>\n\n");
+	format(out.visH, "class Visitor {\n");
+	format(out.visH, "public:\n");
+
 	format(out.astH, "// DO not MODIFY this FILE it IS generated\n\n");
 	format(out.astH, "#pragma once\n\n");
 	format(out.astH, "#include <cstdint>\n\n");
@@ -155,7 +161,11 @@ void RecurDec::genAstForwardDecl() {
 		format(out.astH, "class %s;\n", it.first);
 		format(out.astH, "typedef std::shared_ptr<%s> %sPtr;\n", it.first, it.first);
 		format(out.astH, "typedef std::shared_ptr<const %s> %sConstPtr;\n", it.first, it.first);
+
+		format(out.visH, "\tvirtual bool visit%s(%s*) = 0;\n\n", it.first, it.first);
 	}
+	format(out.visH, "};\n");
+
 	format(out.astH,  "\n\n// Decl");
 	format(out.astH, "\n");
 
