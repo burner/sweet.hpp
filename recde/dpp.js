@@ -56,11 +56,24 @@
 		{ "Name" : "For", "Regex" : "for", "ConvertFunction" : "void" }
 		{ "Name" : "Foreach", "Regex" : "foreach", "ConvertFunction" : "void" }
 		{ "Name" : "Do", "Regex" : "do", "ConvertFunction" : "void" }
+		{ "Name" : "Def", "Regex" : "def", "ConvertFunction" : "void" }
 		{ "Name" : "Semicolon", "Regex" : ";", "ConvertFunction" : "void" }
 	],
 	"Rules" : [
 		{ "Name" : "Start", "Expression" : [
 			{ "Rule" : "Expression(start)", "Id" : "Start" }
+			]
+		},
+		{ "Name" : "FunctionDecl", "Expression" : [
+			{ "Rule" : "FunctionPrototypeDecl(decl) ; BlockStatement(statements)", 
+				"Id" : "FunctionWithBlockStmt" }
+			]
+		},
+		{ "Name" : "FunctionPrototypeDecl", "Expression" : [
+			{ "Rule" : "Def ; Type(returnType) ; Identifier(identifier) ; Lparen ; ArgumentList(argList) ; Rparen",
+				"Id" : "WithArgList" }
+			{ "Rule" : "Def ; Type(returnType) ; Identifier(identifier) ; Lparen ; Rparen", 
+				"Id" : "WithoutArgList" }
 			]
 		},
 		{ "Name" : "StatementList", "Expression" : [
@@ -122,7 +135,8 @@
 			]
 		},
 		{ "Name" : "Argument", "Expression" : [
-			{ "Rule" : "VarDeclPrefix(name) ; VarDeclDeferedInit(type)", "Id" : "NameType"}
+			{ "Rule" : "VarDeclPrefix(varName) ; VarDeclDeferedInit(type)", "Id" : "VarNameType"}
+			{ "Rule" : "ConstDeclPrefix(constName) ; VarDeclDeferedInit(type)", "Id" : "ConstNameType"}
 			]
 		},
 		{ "Name" : "VarDecl", "Expression" : [

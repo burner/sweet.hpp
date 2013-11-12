@@ -55,6 +55,7 @@ enum class TokenType {
 	Comma, // done				","
 	Concat, // done				"~"
 	Concatassign, // done		"~="
+	Def,		//				"def"
 	Default,	//				"default"
 	Div, // done				"/"
 	Divassign, // done			"/="

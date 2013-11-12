@@ -107,6 +107,24 @@ UNITTEST(iterStmt1) {
 	ast->toOutStream(std::cout);
 	std::cout<<std::endl;
 }
+UNITTEST(function1) {
+	auto ss = std::make_shared<std::stringstream>
+		("int foo() {}");
+	Lexer l(ss);
+	Parser p(l);
+	auto ast = p.parseFunctionDecl();
+	ast->toOutStream(std::cout);
+	std::cout<<std::endl;
+}
+UNITTEST(function2) {
+	auto ss = std::make_shared<std::stringstream>
+		("def int foo(var argc : int, const argv : int[]) {}");
+	Lexer l(ss);
+	Parser p(l);
+	auto ast = p.parseFunctionDecl();
+	ast->toOutStream(std::cout);
+	std::cout<<std::endl;
+}
 
 int main() {
 	Unit::runTests();

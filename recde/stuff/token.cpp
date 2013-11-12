@@ -207,6 +207,7 @@ std::string tokenTypeToString(const TokenType tt) {
 	case TokenType::Const: return "CONST";
 	case TokenType::Dchar: return "DCHAR";
 	case TokenType::Default: return "DEFAULT";
+	case TokenType::Def: return "DEF";
 	case TokenType::Div: return "DIV";
 	case TokenType::Divassign: return "DIVASSIGN";
 	case TokenType::Do: return "DO";

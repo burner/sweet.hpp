@@ -464,9 +464,13 @@ Token Lexer::nextToken() {
 						}
 					}
 				}
-			} else if(curInput == 'e') { // default
+			} else if(curInput == 'e') { // def
 				if(getNextChar() == 'f') {
-					if(getNextChar() == 'a') {
+					if(isTokenStop(getNextChar())) {
+						readNext = false;
+						return Token(TokenType::Def, 
+							tokenLine, tokenColumn);
+					} else if(curInput == 'a') { // default
 						if(getNextChar() == 'u') {
 							if(getNextChar() == 'l') {
 								if(getNextChar() == 't') {
