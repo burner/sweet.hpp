@@ -129,6 +129,18 @@ void RecurDec::genAstForwardDecl() {
 	format(out.visH, "class Visitor {\n");
 	format(out.visH, "public:\n");
 
+	format(out.outH, "// DO not MODIFY this FILE it IS generated\n\n");
+	format(out.outH, "#pragma once\n\n");
+	format(out.outH, "#include <visitor.hpp>\n\n");
+	format(out.outH, "class StdOutVisitor : public Visitor {\n");
+	format(out.outH, "public:\n");
+
+	format(out.dotH, "// DO not MODIFY this FILE it IS generated\n\n");
+	format(out.dotH, "#pragma once\n\n");
+	format(out.dotH, "#include <visitor.hpp>\n\n");
+	format(out.dotH, "class DotVisitor : public Visitor {\n");
+	format(out.dotH, "public:\n");
+
 	format(out.astH, "// DO not MODIFY this FILE it IS generated\n\n");
 	format(out.astH, "#pragma once\n\n");
 	format(out.astH, "#include <cstdint>\n\n");
@@ -144,9 +156,9 @@ void RecurDec::genAstForwardDecl() {
 	format(out.astH, "\tAstNode* getParent();\n"); 
 	format(out.astH, "\tconst AstNode* getParent() const;\n"); 
 	format(out.astH, "\tvoid setParent(AstNode*);\n"); 
-	format(out.astH, "\tstd::ostream& operator<<(std::ostream&) const;\n"); 
-	format(out.astH, "\tvirtual void toOutStream(std::ostream&,uint32_t=0) const = 0;\n"); 
-	format(out.astH, "\tvirtual void toDotStream(std::ostream&) const = 0;\n"); 
+	//format(out.astH, "\tstd::ostream& operator<<(std::ostream&) const;\n"); 
+	//format(out.astH, "\tvirtual void toOutStream(std::ostream&,uint32_t=0) const = 0;\n"); 
+	//format(out.astH, "\tvirtual void toDotStream(std::ostream&) const = 0;\n"); 
 	format(out.astH, "\nprivate:\n"); 
 	format(out.astH, "\tuint64_t id;\n");
 	format(out.astH, "\tAstNode* parent;\n");
@@ -163,8 +175,21 @@ void RecurDec::genAstForwardDecl() {
 		format(out.astH, "typedef std::shared_ptr<const %s> %sConstPtr;\n", it.first, it.first);
 
 		format(out.visH, "\tvirtual bool visit%s(%s*) = 0;\n", it.first, it.first);
+		format(out.visH, "\tvirtual bool visit%s(const %s*) = 0;\n\n", it.first, it.first);
+		format(out.visH, "\tvirtual bool leave%s(%s*) = 0;\n", it.first, it.first);
+		format(out.visH, "\tvirtual bool leave%s(const %s*) = 0;\n\n", it.first, it.first);
+		format(out.outH, "\tbool visit%s(%s*) override;\n", it.first, it.first);
+		format(out.outH, "\tbool visit%s(const %s*) override;\n\n", it.first, it.first);
+		format(out.dotH, "\tbool visit%s(%s*) override;\n", it.first, it.first);
+		format(out.dotH, "\tbool visit%s(const %s*) override;\n\n", it.first, it.first);
+		format(out.outH, "\tbool leave%s(%s*) override;\n", it.first, it.first);
+		format(out.outH, "\tbool leave%s(const %s*) override;\n\n", it.first, it.first);
+		format(out.dotH, "\tbool leave%s(%s*) override;\n", it.first, it.first);
+		format(out.dotH, "\tbool leave%s(const %s*) override;\n\n", it.first, it.first);
 	}
 	format(out.visH, "};\n");
+	format(out.outH, "};\n");
+	format(out.dotH, "};\n");
 
 	format(out.astH,  "\n\n// Decl");
 	format(out.astH, "\n");
@@ -177,9 +202,9 @@ void RecurDec::genAstForwardDecl() {
 	format(out.astS, "const AstNode* AstNode::getParent() const {\n\treturn this->parent;\n}\n\n");
 	format(out.astS, "AstNode* AstNode::getParent() {\n\treturn this->parent;\n}\n\n");
 	format(out.astS, "void AstNode::setParent(AstNode* p) {\n\tthis->parent = p;\n}\n\n");
-	format(out.astS, "std::ostream& AstNode::operator<<(std::ostream& ss) const "
-		"{\n\ttoOutStream(ss);\n\treturn ss;\n}\n\n"
-	);
+	//format(out.astS, "std::ostream& AstNode::operator<<(std::ostream& ss) const "
+	//	"{\n\ttoOutStream(ss);\n\treturn ss;\n}\n\n"
+	//);
 }
 
 size_t RecurDec::newErrorStuff(const std::string& rule, const std::string& part, const size_t depth,
@@ -415,11 +440,17 @@ void RecurDec::genAstClassDeclStart() {
 	format(out.astH, "public:\n");
 }
 
-void RecurDec::genAstOutputMethods(const std::map<std::string,std::vector<RulePart>>& rules) {
-	format(out.astS, "void %s::toOutStream(std::ostream& ss, uint32_t depth) const {\n", current);
+/*
 	format(out.astS, "\tconst std::string indent(depth, ' ');\n");
 	format(out.astS, "\tss<<indent<<\"%s\"<<\" id(\"<<", current);
 	out.astS<<"this->getId()"<<"<<\") rule(\"<<this->rule<<\")\"<<std::endl;\n";
+					//format(out.astS, "\t\tthis->%s.toOutStream(ss, depth+1);\n", jt.storeName);
+*/
+
+void RecurDec::genVisitor(const std::map<std::string,std::vector<RulePart>>& rules) {
+	//format(out.astS, "void %s::toOutStream(std::ostream& ss, uint32_t depth) const {\n", current);
+	format(out.astS, "void %s::acceptVisitor(Visitor& visitor) {\n", current);
+	format(out.astS, "\tvisitor.visit%s(this);\n", current);
 	bool first = true;
 	for(auto& it : rules) {
 		format(out.astS, "\t%s(this->rule == %sEnum::%s) {\n", first ? "if" : "} else if",
@@ -429,17 +460,16 @@ void RecurDec::genAstOutputMethods(const std::map<std::string,std::vector<RulePa
 		LOG("%s", it.second);
 		for(auto& jt : it.second) {
 			if(!jt.storeName.empty()) {
-				if(rs.token.find(jt.name) != rs.token.end()) {
-					format(out.astS, "\t\tthis->%s.toOutStream(ss, depth+1);\n", jt.storeName);
-				} else {
-					format(out.astS, "\t\tthis->%s->toOutStream(ss, depth+1);\n", jt.storeName);
-				}
+				if(rs.rules.find(jt.name) != rs.rules.end()) {
+					format(out.astS, "\t\tthis->%s->acceptVisitor(visitor);\n", jt.storeName);
+				} 
 			}
 		}
 	}
 	if(!rules.empty()) {
 		format(out.astS, "\t}\n");
 	}
+	format(out.astS, "\tvisitor.leave%s(this);\n", current);
 	format(out.astS, "}\n");
 }
 
@@ -471,8 +501,8 @@ void RecurDec::genAstClassDeclEnd(const std::set<RulePart>& allValues) {
 		allreadyProcessed.insert(name);
 	}
 	format(out.astH, "\n\t%sEnum getRule() const;\n\n", current);
-	format(out.astH, "\tvoid toOutStream(std::ostream&,uint32_t=0) const override;\n"); 
-	format(out.astH, "\tvoid toDotStream(std::ostream&) const override;\n\n"); 
+	//format(out.astH, "\tvoid toOutStream(std::ostream&,uint32_t=0) const override;\n"); 
+	//format(out.astH, "\tvoid toDotStream(std::ostream&) const override;\n\n"); 
 	format(out.astH, "private:\n");
 	std::map<std::string,std::string> names;
 	for(auto& it : allValues) {
@@ -694,7 +724,7 @@ void RecurDec::genAst(const std::vector<std::vector<RulePart>>& r) {
 	format(out.astS, "\treturn ss;\n");
 	format(out.astS, "}\n\n");
 
-	format(out.astS, "void %s::toDotStream(std::ostream& ss) const {\n", current); 
+	/*format(out.astS, "void %s::toDotStream(std::ostream& ss) const {\n", current); 
 	format(out.astS, "\tss<<\"node\"<<this->getId()<<\" [label=\\\"\";\n");
 	format(out.astS, "\tss<<\"<table border=\\\"0\\\" cellborder=\\\"0\\\" cellpadding=\\\"3\\\" \";\n");
 	format(out.astS, "\tss<<\"bgcolor=\\\"white\\\">\";\n");
@@ -801,7 +831,7 @@ void RecurDec::genAst(const std::vector<std::vector<RulePart>>& r) {
 		first = false;
 	}
 	
-	format(out.astS, "}\n\n");
+	format(out.astS, "}\n\n");*/
 
 	this->genAstClassDeclStart();
 	dupCon.clear();
@@ -852,7 +882,8 @@ void RecurDec::genAst(const std::vector<std::vector<RulePart>>& r) {
 	}
 	format(out.astH, "\t%s(", this->current);
 	format(out.astH, "const %sEnum);\n", current);
-	this->genAstOutputMethods(enumNames2);
+	//this->genAstOutputMethods(enumNames2);
+	this->genVisitor(enumNames2);
 	this->genAstClassDeclEnd(allToStore);
 }
 
