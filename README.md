@@ -96,7 +96,7 @@ benchmark.hpp
 
 Benchmark structs that limits typing work, a Bench struct that stops time and
 a macro that stops time in a Compound Statement in a thread save manner.
-```
+```C++
 #include <benchmark.hpp>
 
 void fun() {
