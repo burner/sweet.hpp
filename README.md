@@ -1,6 +1,21 @@
 SWEET_HPP
 =========
 
+Usage
+-----
+To use the header, just make the sweet.hpp folder an include for your compiler.
+
+Example
+------
+Usually there is a folder called HEADERNAMEtest that holds an example. 
+
+Contributions
+--------
+Always welcome!
+
+Header
+--------
+
 Sweet cpp header that help in daily life
 
 unit.hpp
@@ -79,7 +94,24 @@ For a more in depth example take a look into the dbctest folder.
 benchmark.hpp
 ---------
 
-benchmark struct that limits typing work
+Benchmark structs that limits typing work, a Bench struct that stops time and
+a macro that stops time in a Compound Statement in a thread save manner.
+```
+#include <benchmark.hpp>
+
+void fun() {
+	BENCH(fun);
+	...
+}
+
+int main() {
+	Bench t; // Simple time stopping struct
+
+	Benchmark::printResults(); // print results of BENCH marcos
+
+	std::cout<<t.milli();
+}
+```
 
 sjson.hpp
 ---------
@@ -118,15 +150,7 @@ widget and has protected data member pointing to all the widgets in the glade
 file. On top of that a cast operator is implemented that casts the class to
 the type of the top widget. 
 
+trie.hpp
+---------
 
-Example
-------
-Usually there is a folder called HEADERNAMEtest that holds an example. 
-
-Usage
------
-To use the header, just make the sweet.hpp folder an include for your compiler.
-
-Contributions
---------
-Always welcome!
+A trie implementation that is ""not yet"" stl quality but does work.
