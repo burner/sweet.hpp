@@ -162,7 +162,7 @@ void RecurDec::genAstForwardDecl() {
 		format(out.astH, "typedef std::shared_ptr<%s> %sPtr;\n", it.first, it.first);
 		format(out.astH, "typedef std::shared_ptr<const %s> %sConstPtr;\n", it.first, it.first);
 
-		format(out.visH, "\tvirtual bool visit%s(%s*) = 0;\n\n", it.first, it.first);
+		format(out.visH, "\tvirtual bool visit%s(%s*) = 0;\n", it.first, it.first);
 	}
 	format(out.visH, "};\n");
 
