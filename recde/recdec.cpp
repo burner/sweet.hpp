@@ -452,7 +452,22 @@ void RecurDec::genVisitor(const std::map<std::string,std::vector<RulePart>>& rul
 	format(out.astS, "void %s::acceptVisitor(Visitor& visitor) {\n", current);
 	format(out.astS, "\tvisitor.visit%s(this);\n", current);
 	bool first = true;
+	size_t globalCnt = 0;
 	for(auto& it : rules) {
+		size_t cnt = 0;
+		for(auto& jt : it.second) {
+			if(!jt.storeName.empty()) {
+				if(rs.rules.find(jt.name) != rs.rules.end()) {
+					++cnt;
+				}
+			}
+		}
+		LOG("cnt %u", cnt);
+		if(!cnt) {
+			continue;
+		}
+		globalCnt += cnt;
+
 		format(out.astS, "\t%s(this->rule == %sEnum::%s) {\n", first ? "if" : "} else if",
 			current, it.first
 		);
@@ -466,7 +481,8 @@ void RecurDec::genVisitor(const std::map<std::string,std::vector<RulePart>>& rul
 			}
 		}
 	}
-	if(!rules.empty()) {
+	//if(!rules.empty()) {
+	if(globalCnt) {
 		format(out.astS, "\t}\n");
 	}
 	format(out.astS, "\tvisitor.leave%s(this);\n", current);
