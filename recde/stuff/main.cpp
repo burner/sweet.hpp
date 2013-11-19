@@ -1,6 +1,7 @@
 #include <parser.hpp>
 #include <logger.hpp>
 #include <unit.hpp>
+#include <outvisitor.hpp>
 
 UNITTEST(unary1) {
 	auto ss = std::make_shared<std::stringstream>
@@ -8,7 +9,8 @@ UNITTEST(unary1) {
 	Lexer l(ss);
 	Parser p(l);
 	auto ast = p.parseMulExpression();
-	ast->toOutStream(std::cout);
+	StdOutVisitor v(std::cout);
+	ast->acceptVisitor(v);
 	std::cout<<std::endl;
 }
 
@@ -18,8 +20,8 @@ UNITTEST(rel1) {
 	Lexer l(ss);
 	Parser p(l);
 	auto ast = p.parseOrOrExpression();
-	ast->toOutStream(std::cout);
-	std::cout<<std::endl;
+	StdOutVisitor v(std::cout);
+	ast->acceptVisitor(v);
 }
 
 UNITTEST(assign1) {
@@ -28,8 +30,8 @@ UNITTEST(assign1) {
 	Lexer l(ss);
 	Parser p(l);
 	auto ast = p.parseAssignmentExpression();
-	ast->toOutStream(std::cout);
-	std::cout<<std::endl;
+	StdOutVisitor v(std::cout);
+	ast->acceptVisitor(v);
 }
 
 UNITTEST(varDecl1) {
@@ -38,8 +40,8 @@ UNITTEST(varDecl1) {
 	Lexer l(ss);
 	Parser p(l);
 	auto ast = p.parseVarDecl();
-	ast->toOutStream(std::cout);
-	std::cout<<std::endl;
+	StdOutVisitor v(std::cout);
+	ast->acceptVisitor(v);
 }
 
 UNITTEST(varDecl2) {
@@ -48,8 +50,8 @@ UNITTEST(varDecl2) {
 	Lexer l(ss);
 	Parser p(l);
 	auto ast = p.parseVarDecl();
-	ast->toOutStream(std::cout);
-	std::cout<<std::endl;
+	StdOutVisitor v(std::cout);
+	ast->acceptVisitor(v);
 }
 
 UNITTEST(argList1) {
@@ -58,8 +60,8 @@ UNITTEST(argList1) {
 	Lexer l(ss);
 	Parser p(l);
 	auto ast = p.parseArgumentList();
-	ast->toOutStream(std::cout);
-	std::cout<<std::endl;
+	StdOutVisitor v(std::cout);
+	ast->acceptVisitor(v);
 }
 
 UNITTEST(blockStmt1) {
@@ -68,8 +70,8 @@ UNITTEST(blockStmt1) {
 	Lexer l(ss);
 	Parser p(l);
 	auto ast = p.parseStatement();
-	ast->toOutStream(std::cout);
-	std::cout<<std::endl;
+	StdOutVisitor v(std::cout);
+	ast->acceptVisitor(v);
 }
 UNITTEST(blockStmt2) {
 	auto ss = std::make_shared<std::stringstream>
@@ -77,8 +79,8 @@ UNITTEST(blockStmt2) {
 	Lexer l(ss);
 	Parser p(l);
 	auto ast = p.parseStatement();
-	ast->toOutStream(std::cout);
-	std::cout<<std::endl;
+	StdOutVisitor v(std::cout);
+	ast->acceptVisitor(v);
 }
 UNITTEST(blockStmt3) {
 	auto ss = std::make_shared<std::stringstream>
@@ -86,8 +88,8 @@ UNITTEST(blockStmt3) {
 	Lexer l(ss);
 	Parser p(l);
 	auto ast = p.parseStatement();
-	ast->toOutStream(std::cout);
-	std::cout<<std::endl;
+	StdOutVisitor v(std::cout);
+	ast->acceptVisitor(v);
 }
 UNITTEST(blockStmt4) {
 	auto ss = std::make_shared<std::stringstream>
@@ -95,8 +97,8 @@ UNITTEST(blockStmt4) {
 	Lexer l(ss);
 	Parser p(l);
 	auto ast = p.parseStatement();
-	ast->toOutStream(std::cout);
-	std::cout<<std::endl;
+	StdOutVisitor v(std::cout);
+	ast->acceptVisitor(v);
 }
 UNITTEST(iterStmt1) {
 	auto ss = std::make_shared<std::stringstream>
@@ -104,8 +106,8 @@ UNITTEST(iterStmt1) {
 	Lexer l(ss);
 	Parser p(l);
 	auto ast = p.parseStatement();
-	ast->toOutStream(std::cout);
-	std::cout<<std::endl;
+	StdOutVisitor v(std::cout);
+	ast->acceptVisitor(v);
 }
 UNITTEST(function1) {
 	auto ss = std::make_shared<std::stringstream>
@@ -113,8 +115,8 @@ UNITTEST(function1) {
 	Lexer l(ss);
 	Parser p(l);
 	auto ast = p.parseFunctionDecl();
-	ast->toOutStream(std::cout);
-	std::cout<<std::endl;
+	StdOutVisitor v(std::cout);
+	ast->acceptVisitor(v);
 }
 UNITTEST(function2) {
 	auto ss = std::make_shared<std::stringstream>
@@ -122,8 +124,8 @@ UNITTEST(function2) {
 	Lexer l(ss);
 	Parser p(l);
 	auto ast = p.parseFunctionDecl();
-	ast->toOutStream(std::cout);
-	std::cout<<std::endl;
+	StdOutVisitor v(std::cout);
+	ast->acceptVisitor(v);
 }
 
 int main() {

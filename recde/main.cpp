@@ -21,10 +21,10 @@ int main(int argc, char** argv) {
 	std::string outErrH("error.hpp");
 	std::string outErrS("error.cpp");
 	std::string outVH("visitor.hpp");
-	std::string outovH("outvistor.hpp");
-	std::string outovS("outvistor.cpp");
-	std::string outdvH("dotvistor.hpp");
-	std::string outdvS("dotvistor.cpp");
+	std::string outovH("outvisitor.hpp");
+	std::string outovS("outvisitor.cpp");
+	std::string outdvH("dotvisitor.hpp");
+	std::string outdvS("dotvisitor.cpp");
 	std::string outPrefix;
 	Options opts(argc, argv);
 	opts.get("-i", "--inputFile", "The grammar file to parse", inputFile);

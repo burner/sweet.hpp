@@ -126,7 +126,18 @@ void RecurDec::genRules() {
 void RecurDec::genAstForwardDecl() {
 	format(out.visH, "// DO not MODIFY this FILE it IS generated\n\n");
 	format(out.visH, "#pragma once\n\n");
-	format(out.visH, "#include <ast.hpp>\n\n");
+	//format(out.visH, "#include <ast.hpp>\n\n");
+	
+	std::set<std::string> done;
+	for(auto& it : rs.rules) {
+		if(done.find(it.first) != done.end()) {
+			continue;
+		}
+		done.insert(it.first);
+		format(out.visH, "class %s;\n", it.first);
+	}
+	format(out.visH, "\n");
+
 	format(out.visH, "class Visitor {\n");
 	format(out.visH, "public:\n");
 
@@ -136,6 +147,9 @@ void RecurDec::genAstForwardDecl() {
 	format(out.outH, "class StdOutVisitor : public Visitor {\n");
 	format(out.outH, "public:\n");
 	format(out.outH, "\tStdOutVisitor(std::ostream&);\n");
+	format(out.outS, "#include <ast.hpp>\n");
+	format(out.outS, "#include <outvisitor.hpp>\n");
+
 	format(out.outS, "StdOutVisitor::StdOutVisitor(std::ostream& s) : "
 		"ss(s), indent(0u) {\n}\n\n");
 	format(out.outS, "void StdOutVisitor::incrementIndent() { ++indent; }\n");
@@ -196,7 +210,7 @@ void RecurDec::genAstForwardDecl() {
 	format(out.astH, "\tAstNode* parent;\n");
 	format(out.astH, "};\n\n"); 
 	format(out.astH,  "\n// Forward Decl\n\n");
-	std::set<std::string> done;
+	done.clear();
 	for(auto& it : rs.rules) {
 		if(done.find(it.first) != done.end()) {
 			continue;
@@ -312,7 +326,7 @@ void RecurDec::writeErrorStuff() {
 
 	format(out.errS, "#include <string>\n");
 	format(out.errS, "#include <sstream>\n\n");
-	format(out.errS, "#include <%s>\n\n", out.errHfn);
+	format(out.errS, "#include <error.hpp>\n\n");
 	format(out.errS, "ParseException::ParseException(const Token& t, const size_t i) : "
 		"id(i), token(t) {}\n\n"
 	);
@@ -902,6 +916,7 @@ void RecurDec::genAst(const std::vector<std::vector<RulePart>>& r) {
 	}
 	format(out.dotS, "\n\tss<<\"</table>\";\n");
 	format(out.dotS, "\tss<<\"\\\"]\";\n");
+	format(out.dotS, "return true;\n");
 	format(out.dotS, "}\n\n");
 
 	format(out.outS, "\n\tincrementIndent();\n");
@@ -970,7 +985,7 @@ void RecurDec::genAst(const std::vector<std::vector<RulePart>>& r) {
 		format(out.dotS, "\t}");
 		first = false;
 	}
-	format(out.dotS, "%s}\n\n", first ? "" : "\n");
+	format(out.dotS, "%s\treturn true;\n}\n\n", first ? "" : "\n");
 	format(out.dotS, "\n");
 	
 	//format(out.astS, "}\n\n");
