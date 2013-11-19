@@ -37,8 +37,8 @@ set(dpp_SOURCES
 	numberconv.cpp
 	parser.cpp  
 	token.cpp
-	#dotvistor.cpp
-	#outvistor.cpp
+	dotvistor.cpp
+	outvistor.cpp
 )
 
 

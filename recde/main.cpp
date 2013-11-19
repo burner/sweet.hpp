@@ -20,7 +20,7 @@ int main(int argc, char** argv) {
 	std::string outPrsS("parser.cpp");
 	std::string outErrH("error.hpp");
 	std::string outErrS("error.cpp");
-	std::string outVH("vistor.hpp");
+	std::string outVH("visitor.hpp");
 	std::string outovH("outvistor.hpp");
 	std::string outovS("outvistor.cpp");
 	std::string outdvH("dotvistor.hpp");

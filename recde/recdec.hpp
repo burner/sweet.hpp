@@ -23,7 +23,8 @@ struct ErrorStuff {
 	const std::string part;
 	const size_t depth;
 	const std::vector<std::string> possible;
-	ErrorStuff(const std::string&, const std::string&, const size_t, const std::vector<std::string>&);
+	ErrorStuff(const std::string&, const std::string&, const size_t, 
+		const std::vector<std::string>&);
 };
 
 class RecurDec {
@@ -39,7 +40,8 @@ class RecurDec {
 
 	void genRules(const std::string&);
 	void writeErrorStuff();
-	void walkTrie(const GrammarPrefix::TrieEntry*, const std::string&, const size_t);
+	void walkTrie(const GrammarPrefix::TrieEntry*, const std::string&, 
+		const size_t);
 	void genRules();
 	void genAstForwardDecl();
 

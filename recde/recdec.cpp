@@ -25,11 +25,7 @@ void RecurDec::computeFirstSet() {
 				{
 					std::set<std::string> n;
 					n.insert(it.second.rule.front().name);
-					auto ret = rs.first.insert(std::make_pair(
-						name,
-						n
-					));
-	
+					auto ret = rs.first.insert(std::make_pair(name, n));
 					changed |= ret.second;
 				} else {
 					auto o = rs.first.find(it.second.rule.front().name);
@@ -139,6 +135,17 @@ void RecurDec::genAstForwardDecl() {
 	format(out.outH, "#include <visitor.hpp>\n\n");
 	format(out.outH, "class StdOutVisitor : public Visitor {\n");
 	format(out.outH, "public:\n");
+	format(out.outH, "\tStdOutVisitor(std::ostream&);\n");
+	format(out.outS, "StdOutVisitor::StdOutVisitor(std::ostream& s) : "
+		"ss(s), indent(0u) {\n}\n\n");
+	format(out.outS, "void StdOutVisitor::incrementIndent() { ++indent; }\n");
+	format(out.outS, "void StdOutVisitor::decrementIndent() { --indent; }\n");
+	format(out.outS, "\nvoid StdOutVisitor::makeIndent() {\n");
+	format(out.outS, "\tfor(size_t i = 0; i < this->indent; ++i) {\n");
+	format(out.outS, "\t\tss<<' ';\n");
+	format(out.outS, "\t}\n");
+	format(out.outS, "}\n\n");
+
 
 	format(out.dotH, "// DO not MODIFY this FILE it IS generated\n\n");
 	format(out.dotH, "#pragma once\n\n");
@@ -175,6 +182,7 @@ void RecurDec::genAstForwardDecl() {
 	format(out.astH, "#include <ostream>\n");
 	format(out.astH, "#include <string>\n");
 	format(out.astH, "#include <token.hpp>\n\n");
+	format(out.astH, "#include <visitor.hpp>\n\n");
 	format(out.astH, "uint64_t getNextAstId();\n\n");
 	format(out.astH, "class AstNode {\n"); 
 	format(out.astH, "public:\n"); 
@@ -232,6 +240,12 @@ void RecurDec::genAstForwardDecl() {
 		);
 	}
 	format(out.visH, "};\n");
+	format(out.outH, "private:\n");
+	format(out.outH, "\tstd::ostream& ss;\n");
+	format(out.outH, "\tsize_t indent;\n\n");
+	format(out.outH, "\tvoid makeIndent();\n");
+	format(out.outH, "\tvoid incrementIndent();\n");
+	format(out.outH, "\tvoid decrementIndent();\n");
 	format(out.outH, "};\n");
 	format(out.dotH, "};\n");
 
@@ -344,8 +358,8 @@ void RecurDec::walkTrie(const GrammarPrefix::TrieEntry* path, const std::string&
 				!it.first.storeName.empty()) {
 			nameStack.push_back(it.first.storeName);
 			pushed = true;
-			format(out.prsS, "%s\t%sPtr %s(parse%s());\n", prefix, it.first.name, 
-				it.first.storeName, it.first.name
+			format(out.prsS, "%s\t%sPtr %s(parse%s());\n", prefix, 
+				it.first.name, it.first.storeName, it.first.name
 			);
 		} else {
 			format(out.prsS, "%s\tnextToken();\n", prefix);
@@ -358,7 +372,8 @@ void RecurDec::walkTrie(const GrammarPrefix::TrieEntry* path, const std::string&
 			for(auto& name : nameStack) {
 				format(out.prsS, "%s, ", name);
 			}
-			format(out.prsS, "\n%s\t\t%sEnum::%s\n", prefix, current, it.second.value);
+			format(out.prsS, "\n%s\t\t%sEnum::%s\n", prefix, current, 
+				it.second.value);
 			format(out.prsS, "\t%s);\n", prefix);
 		}
 		if(pushed) {
@@ -387,7 +402,8 @@ void RecurDec::genRules(const std::string& start) {
 	allreadyDone.insert(start);
 
 	// header
-	const std::string headerStringTest("\tbool lookAheadTest%s(const Token&);\n");
+	const std::string headerStringTest(
+		"\tbool lookAheadTest%s(const Token&);\n");
 	const std::string headerStringParse("\t%sPtr parse%s();\n");
 
 	format(out.prsH, "\n\n\t// %s\n", current);
@@ -396,7 +412,8 @@ void RecurDec::genRules(const std::string& start) {
 
 
 	// source
-	const std::string srcStringTest("bool Parser::lookAheadTest%s(const Token& token) {\n");
+	const std::string srcStringTest(
+		"bool Parser::lookAheadTest%s(const Token& token) {\n");
 	const std::string srcStringParse("%sPtr Parser::parse%s() {\n");
 
 	format(out.prsS, "\n\n// %s\n\n", current);
@@ -407,7 +424,8 @@ void RecurDec::genRules(const std::string& start) {
 	const size_t lookAheadSetSize = lookAheadSet->second.size();
 	size_t i = 0;
 	for(auto& it : lookAheadSet->second) {
-		format(out.prsS, "%stoken.type == TokenType::%s", (i != 0 ? "\t\t" : " "), it);
+		format(out.prsS, "%stoken.type == TokenType::%s", 
+			(i != 0 ? "\t\t" : " "), it);
 		if(i+1 == lookAheadSetSize) {
 			format(out.prsS, ";\n");
 		} else {
@@ -491,10 +509,12 @@ void RecurDec::genAstClassDeclStart() {
 					//format(out.astS, "\t\tthis->%s.toOutStream(ss, depth+1);\n", jt.storeName);
 */
 
-void RecurDec::genVisitor(const std::map<std::string,std::vector<RulePart>>& rules) {
-	//format(out.astS, "void %s::toOutStream(std::ostream& ss, uint32_t depth) const {\n", current);
+void RecurDec::genVisitor(
+		const std::map<std::string,std::vector<RulePart>>& rules) 
+{
 	format(out.astS, "void %s::acceptVisitor(Visitor& visitor) {\n", current);
-	format(out.astS, "\tvisitor.visit%s(this);\n", current);
+	format(out.astS, "\t%s* tmp = this;\n", current);
+	format(out.astS, "\tvisitor.visit%s(tmp);\n", current);
 	bool first = true;
 	size_t globalCnt = 0;
 	for(auto& it : rules) {
@@ -531,7 +551,7 @@ void RecurDec::genVisitor(const std::map<std::string,std::vector<RulePart>>& rul
 	if(globalCnt) {
 		format(out.astS, "\t}\n");
 	}
-	format(out.astS, "\tvisitor.leave%s(this);\n", current);
+	format(out.astS, "\tvisitor.leave%s(tmp);\n", current);
 	format(out.astS, "}\n");
 }
 
@@ -565,6 +585,7 @@ void RecurDec::genAstClassDeclEnd(const std::set<RulePart>& allValues) {
 		allreadyProcessed.insert(name);
 	}
 	format(out.astH, "\n\t%sEnum getRule() const;\n\n", current);
+	format(out.astH, "\n\tvoid acceptVisitor(Visitor&);\n\n");
 	//format(out.astH, "\tvoid toOutStream(std::ostream&,uint32_t=0) const override;\n"); 
 	//format(out.astH, "\tvoid toDotStream(std::ostream&) const override;\n\n"); 
 	format(out.astH, "private:\n");
@@ -603,6 +624,14 @@ std::ostream& operator<<(std::ostream& ss, const std::vector<std::string>& r) {
 		ss<<it<<" ";
 	}
 	return ss;
+}
+
+static std::string cap(const std::string& in) {
+	std::string r(in);
+	if(!r.empty()) {
+		r[0] = toupper(r[0]);
+	}
+	return r;
 }
 
 void RecurDec::genAst(const std::vector<std::vector<RulePart>>& r) {
@@ -811,8 +840,8 @@ void RecurDec::genAst(const std::vector<std::vector<RulePart>>& r) {
 	format(out.dotS, "\tthis->writeHeader(node);\n");
 	format(out.dotS, "\tss<<\"<tr>\";\n");
 	format(out.dotS, "\tss<<\"\\t<td align=\\\"left\\\">Rule</td>\";\n");
-	format(out.dotS, "\tss<<\"\\t<td align=\\\"right\\\">\"<<node->rule<<\""
-		"</td>\";\n");
+	format(out.dotS, "\tss<<\"\\t<td align=\\\"right\\\">\"<<\"%s\"<<\""
+		"</td>\";\n", current);
 	format(out.dotS, "\tss<<\"</tr>\";\n");
 
 	format(out.outS, "bool visit%s(%s* node) {\n", current, current);
@@ -826,15 +855,12 @@ void RecurDec::genAst(const std::vector<std::vector<RulePart>>& r) {
 	format(out.outS, "}\n\n");
 	
 	format(out.outS, "bool visit%s(const %s* node) {\n", current, current);
-	format(out.outS, "\tthis->writeHeader(node);\n");
-	format(out.outS, "\tss<<\"<tr>\";\n");
-	format(out.outS, "\tss<<\"\\t<td align=\\\"left\\\">Rule</td>\";\n");
-	format(out.outS, "\tss<<\"\\t<td align=\\\"right\\\">\"<<node->rule<<\""
-		"</td>\";\n");
-	format(out.outS, "\tss<<\"</tr>\";\n");
+	format(out.outS, "\tmakeIndent();\n");
+	format(out.outS, "\tss<<\"%s(\"<<node->getId()<<\")\"<<std::endl;\n",
+		current
+	);
 	
-
-	/*first = true;
+	first = true;
 	for(auto& it : enumNames2) {
 		bool containsToken = false;
 		for(auto& jt : it.second) {
@@ -847,27 +873,45 @@ void RecurDec::genAst(const std::vector<std::vector<RulePart>>& r) {
 		if(!containsToken) {
 			break;
 		}
-		format(out.astS, "%s(this->rule == %sEnum::%s) {\n", first ? "\tif" : " else if", 
-			current, it.first
+		format(out.outS, "%s(node->getRule() == %sEnum::%s) {\n", 
+			first ? "\tif" : " else if", current, it.first
+		);
+		format(out.dotS, "%s(node->getRule() == %sEnum::%s) {\n", 
+			first ? "\tif" : " else if", current, it.first
 		);
 		for(auto& jt : it.second) {
 			if(rs.token.count(jt.name)) {
-				format(out.astS, "\t\tss<<\"<tr>\";\n");
-				format(out.astS, "\t\tss<<\"\\t<td align=\\\"left\\\">Token(%s)</td>\";\n", jt.storeName);
-				format(out.astS, "\t\tss<<\"\\t<td align=\\\"right\\\">\"<<this->%s<<\"</td>\";\n",
-					jt.storeName
+				format(out.dotS, "\t\tss<<\"<tr>\";\n");
+				format(out.dotS, "\t\tss<<\"\\t<td align=\\\"left\\\">"
+					"Token(%s)</td>\";\n", jt.storeName);
+				format(out.dotS, "\t\tss<<\"\\t<td align=\\\"right\\\">\"<<"
+					"node->get%s()<<\"</td>\";\n", cap(jt.storeName)
 				);
-				format(out.astS, "\t\tss<<\"</tr>\";\n");
+				format(out.dotS, "\t\tss<<\"</tr>\";\n");
+
+				format(out.outS, "\t\tmakeIndent();\n");
+				format(out.outS, "\t\tss<<node->get%s()<<std::endl;\n",
+					cap(jt.storeName)
+				);
 			}
 		}
-		format(out.astS, "\t}");
+		format(out.dotS, "\t}");
+		format(out.outS, "\t}");
 		first = false;
 
 	}
-	format(out.astS, "\n");
-	format(out.astS, "\tss<<\"</table>\";\n");
-	format(out.astS, "\tss<<\"\\\"]\";\n");
-	first = true;
+	format(out.dotS, "\n\tss<<\"</table>\";\n");
+	format(out.dotS, "\tss<<\"\\\"]\";\n");
+	format(out.dotS, "}\n\n");
+
+	format(out.outS, "\n\tincrementIndent();\n");
+	format(out.outS, "\treturn true;\n");
+	format(out.outS, "}\n\n");
+
+	format(out.outS, "bool leave%s(const %s*) {\n"
+		"\tdecrementIndent();\n"
+		"\treturn true;\n}\n\n", current, current);
+	/*first = true;
 	for(auto& it : enumNames2) {
 		LOG("%s", it.first);
 		bool containsRules = false;
@@ -896,7 +940,9 @@ void RecurDec::genAst(const std::vector<std::vector<RulePart>>& r) {
 		first = false;
 	}
 	format(out.astS, "\n\n");
+	*/
 	
+	format(out.dotS, "bool leave%s(const %s* node) {\n", current, current);
 	first = true;
 	for(auto& it : enumNames2) {
 		bool containsRules = false;
@@ -910,21 +956,24 @@ void RecurDec::genAst(const std::vector<std::vector<RulePart>>& r) {
 		if(!containsRules) {
 			break;
 		}
-		format(out.astS, "%s(this->rule == %sEnum::%s) {\n", first ? "\tif" : " else if", 
-			current, it.first
+		format(out.dotS, "%s(node->getRule() == %sEnum::%s) {\n", 
+			first ? "\tif" : " else if", current, it.first
 		);
 		for(auto& jt : it.second) {
 			if(rs.rules.count(jt.name)) {
-				format(out.astS, "\t\tss<<\"\\tnode\"<<this->getId()<<\" -> \"<<this->%s->getId()<<\";\";\n",
-					jt.storeName
+				format(out.dotS, "\t\tss<<\"\\tnode\"<<node->getId()<<\" -> "
+					"\"<<node->get%s()->getId()<<\";\";\n",
+					cap(jt.storeName)
 				);
 			}
 		}
-		format(out.astS, "\t}");
+		format(out.dotS, "\t}");
 		first = false;
 	}
+	format(out.dotS, "%s}\n\n", first ? "" : "\n");
+	format(out.dotS, "\n");
 	
-	format(out.astS, "}\n\n");*/
+	//format(out.astS, "}\n\n");
 
 	this->genAstClassDeclStart();
 	dupCon.clear();

@@ -50,7 +50,8 @@ int main() {
 #define PP_HAS_ARGS_IMPL2(_1, _2, _3, N, ...) N
 #define PP_HAS_ARGS_SOURCE() MULTI, MULTI, ONE, ERROR
 #define PP_HAS_ARGS_IMPL(...) PP_HAS_ARGS_IMPL2(__VA_ARGS__)
-#define PP_HAS_ARGS(...)      PP_HAS_ARGS_IMPL(__VA_ARGS__, PP_HAS_ARGS_SOURCE())
+#define PP_HAS_ARGS(...)      PP_HAS_ARGS_IMPL(__VA_ARGS__, \
+PP_HAS_ARGS_SOURCE())
 
 
 #define __UTEST_NOTEST_ONE(test_name) \
