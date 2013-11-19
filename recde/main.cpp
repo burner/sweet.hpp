@@ -22,9 +22,9 @@ int main(int argc, char** argv) {
 	std::string outErrS("error.cpp");
 	std::string outVH("vistor.hpp");
 	std::string outovH("outvistor.hpp");
-	std::string outovS("outvistor.hpp");
+	std::string outovS("outvistor.cpp");
 	std::string outdvH("dotvistor.hpp");
-	std::string outdvS("dotvistor.hpp");
+	std::string outdvS("dotvistor.cpp");
 	std::string outPrefix;
 	Options opts(argc, argv);
 	opts.get("-i", "--inputFile", "The grammar file to parse", inputFile);

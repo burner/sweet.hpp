@@ -228,7 +228,8 @@ public:
 	}
 
 	template<typename T>
-	typename std::enable_if<std::is_integral<T>::value,T>::type conv(ValuePtr t) {
+	typename std::enable_if<std::is_integral<T>::value,T>::type conv(ValuePtr t)
+	{
 		if(t->getType() != value::type_number_int) { 
 			throw std::logic_error("Value not of type int"); 
 		}
@@ -237,7 +238,8 @@ public:
 
 	template<typename T>
 	typename std::enable_if<std::is_floating_point<T>::value,T>::type 
-			conv(ValuePtr t) {
+			conv(ValuePtr t) 
+	{
 		if(t->getType() != value::type_number_float) { 
 			throw std::logic_error("Value not of type float"); 
 		}
@@ -254,8 +256,9 @@ public:
 	}
 
 	template<typename T>
-	typename std::enable_if<std::is_same<T,std::string>::value,std::string>::type 
-			conv(ValuePtr t) {
+	typename std::enable_if<std::is_same<T,std::string>::value,
+			std::string>::type 
+		conv(ValuePtr t) {
 		return t->getString();
 	}
 

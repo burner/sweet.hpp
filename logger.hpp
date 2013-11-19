@@ -8,7 +8,7 @@
 namespace SweetLogger {
 
 #ifndef SWEET_NO_LOGGER
-static std::unordered_set<size_t>& getAvaiLogger() {
+inline std::unordered_set<size_t>& getAvaiLogger() {
 	static std::unordered_set<size_t> logger;
 	return logger;
 }
@@ -21,7 +21,7 @@ inline bool disableLogger(const size_t id) {
 	return static_cast<bool>(getAvaiLogger().erase(id));
 }
 
-static std::string shortenString(const std::string& str) {
+inline std::string shortenString(const std::string& str) {
 	size_t idx = str.rfind('/');
 	if(idx == std::string::npos) {
 		return str;
@@ -45,6 +45,13 @@ struct Log {
 	void operator()() {
 		format(std::cerr, "%s:%d ", fn, line);
 		std::cerr<<std::endl;
+	}
+
+	void operator()(const size_t ll) {
+		if(getAvaiLogger().count(ll)) {
+			format(std::cerr, "%s:%d ", fn, line);
+			std::cerr<<std::endl;
+		}
 	}
 
 	template<typename... Args>

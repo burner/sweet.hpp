@@ -1,4 +1,6 @@
-/* unit.hpp - a small but elegant unit test framework for C++ based on QUnit and Testdog
+/* unit.hpp - a small but elegant unit test framework for C++ based on QUnit 
+and Testdog
+
 Author: Robert "burner" Schadek rburners@gmail.com License: LGPL 3 or higher
 
 Example:
@@ -33,8 +35,7 @@ int main() {
 }
 */
 
-#ifndef SWEET_UNIT_HPP
-#define SWEET_UNIT_HPP
+#pragma once
 #include <sstream>
 #include <string>
 #include <vector>
@@ -115,10 +116,13 @@ void test_name##_test_class::run_impl()
 
 #define IF_BREAK(e)			if(!e) return;
 
-#define UNIT_COMPARE(compare,result,e1,e2,msg) IF_BREAK(evaluate(compare,result, \
-e1, e2, #e1, #e2,__FILE__, __LINE__,msg))
-#define UNIT_COMPARED(compare,result,e1,e2,msg) Unit::Unittest::evaluates(compare,  \
-result, e1, e2, #e1, #e2,__FILE__, __LINE__, &std::cout, "", true, msg)
+#define UNIT_COMPARE(compare,result,e1,e2,msg) IF_BREAK\
+(Unit::Unittest::evaluate(compare,result, e1, e2, #e1, #e2,__FILE__, __LINE__\
+,msg))
+
+#define UNIT_COMPARED(compare,result,e1,e2,msg) \
+Unit::Unittest::evaluates(compare, result, e1, e2, #e1, #e2,__FILE__, __LINE__,\
+&std::cout, "", true, msg)
 
 namespace Unit {
 	using namespace std;
@@ -195,8 +199,9 @@ namespace Unit {
 				s1<<std::fixed<<std::setprecision(9)<<boolalpha<<(e1);
   
 				const string cmp(result ? "==" : "!=");
-				*out<<"compare {"<<str1<<"} "<< cmp<<" {"<<str2<<"} "<<"got {\""<<
-					s1.str()<<"\"} "<<cmp<<" {\""<<s2.str()<< "\"}";
+				*out<<"compare {"<<str1<<"} "<< cmp<<" {"<<str2<<"} "
+					<<"got {\""<<s1.str()<<"\"} "<<cmp<<" {\""<<s2.str()
+					<< "\"}";
 			} else {
 				*out<<"evalute {"<<str1<<"} == "<<s2.str();
 			}
@@ -210,9 +215,11 @@ namespace Unit {
 #endif
 		}
 
-		template<typename E1, typename E2> bool evaluate(bool compare, 
-				bool result, const E1& e1, const E2& e2, const char* str1, 
-				const char* str2, const char* file, int line, const string& msg) {
+		template<typename E1, typename E2> 
+		bool evaluate(bool compare, bool result, const E1& e1, const E2& e2, 
+			const char* str1, const char* str2, const char* file, int line, 
+			const string& msg) 
+		{
 			bool rlst = Unittest::evaluates<E1,E2>(compare, result, e1, e2,
 					str1, str2, file, line, out_, name_, false, msg);
 			if(!rlst) {
@@ -249,7 +256,9 @@ namespace Unit {
 		ostream* out_;
 	};
 
-	inline unsigned runTests(std::string benmarkrslt = "UnittestBenchmarkResult.ben") {
+	inline unsigned runTests(std::string benmarkrslt = 
+			"UnittestBenchmarkResult.ben") 
+	{
 		char timeStr[100];
 		std::time_t now_time = std::time(NULL);
 		std::strftime(timeStr, 100, "%Y:%m:%d-%H:%M:%S",
@@ -294,4 +303,3 @@ namespace Unit {
 		return rs;
 	}
 }
-#endif

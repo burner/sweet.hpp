@@ -3,8 +3,9 @@
 #include <format.hpp>
 #include <logger.hpp>
 
-ErrorStuff::ErrorStuff(const std::string& r, const std::string& p, const size_t d,
-		const std::vector<std::string>& po) : rule(r), part(p), depth(d), possible(po)
+ErrorStuff::ErrorStuff(const std::string& r, const std::string& p, 
+	const size_t d, const std::vector<std::string>& po) : rule(r), part(p), 
+	depth(d), possible(po)
 {
 } 
 
@@ -19,7 +20,9 @@ void RecurDec::computeFirstSet() {
 			std::string name = it.first;
 			auto s = rs.first.find(name);
 			if(s == rs.first.end()) {
-				if(rs.rules.find(it.second.rule.front().name) == rs.rules.end()) {
+				if(rs.rules.find(it.second.rule.front().name) == 
+						rs.rules.end()) 
+				{
 					std::set<std::string> n;
 					n.insert(it.second.rule.front().name);
 					auto ret = rs.first.insert(std::make_pair(
@@ -43,7 +46,9 @@ void RecurDec::computeFirstSet() {
 					changed |= ret.second;
 				}
 			} else {
-				if(rs.rules.find(it.second.rule.front().name) == rs.rules.end()) {
+				if(rs.rules.find(it.second.rule.front().name) == 
+					rs.rules.end()) 
+				{
 					s->second.insert(it.second.rule.front().name);
 				} else {
 					auto o = rs.first.find(it.second.rule.front().name);
@@ -140,6 +145,13 @@ void RecurDec::genAstForwardDecl() {
 	format(out.dotH, "#include <visitor.hpp>\n\n");
 	format(out.dotH, "class DotVisitor : public Visitor {\n");
 	format(out.dotH, "public:\n");
+	format(out.dotH, "\tvoid writeHeader(std::shared_ptr<const AstNode>);\n");
+
+	format(out.dotS, "// DO not MODIFY this FILE it IS generated\n\n");
+	format(out.dotS, "#include <dotvisitor.hpp>\n\n");
+	format(out.dotS, "void DotVisitor::writeHeader(std::shared_ptr"
+		"<const AstNode> node) {\n");
+
 
 	format(out.astH, "// DO not MODIFY this FILE it IS generated\n\n");
 	format(out.astH, "#pragma once\n\n");
@@ -156,9 +168,6 @@ void RecurDec::genAstForwardDecl() {
 	format(out.astH, "\tAstNode* getParent();\n"); 
 	format(out.astH, "\tconst AstNode* getParent() const;\n"); 
 	format(out.astH, "\tvoid setParent(AstNode*);\n"); 
-	//format(out.astH, "\tstd::ostream& operator<<(std::ostream&) const;\n"); 
-	//format(out.astH, "\tvirtual void toOutStream(std::ostream&,uint32_t=0) const = 0;\n"); 
-	//format(out.astH, "\tvirtual void toDotStream(std::ostream&) const = 0;\n"); 
 	format(out.astH, "\nprivate:\n"); 
 	format(out.astH, "\tuint64_t id;\n");
 	format(out.astH, "\tAstNode* parent;\n");
@@ -171,21 +180,41 @@ void RecurDec::genAstForwardDecl() {
 		}
 		done.insert(it.first);
 		format(out.astH, "class %s;\n", it.first);
-		format(out.astH, "typedef std::shared_ptr<%s> %sPtr;\n", it.first, it.first);
-		format(out.astH, "typedef std::shared_ptr<const %s> %sConstPtr;\n", it.first, it.first);
+		format(out.astH, "typedef std::shared_ptr<%s> %sPtr;\n", it.first, 
+			it.first
+		);
+		format(out.astH, "typedef std::shared_ptr<const %s> %sConstPtr;\n", 
+			it.first, it.first
+		);
 
-		format(out.visH, "\tvirtual bool visit%s(%s*) = 0;\n", it.first, it.first);
-		format(out.visH, "\tvirtual bool visit%s(const %s*) = 0;\n\n", it.first, it.first);
-		format(out.visH, "\tvirtual bool leave%s(%s*) = 0;\n", it.first, it.first);
-		format(out.visH, "\tvirtual bool leave%s(const %s*) = 0;\n\n", it.first, it.first);
+		format(out.visH, "\tvirtual bool visit%s(%s*) = 0;\n", it.first, 
+			it.first
+		);
+		format(out.visH, "\tvirtual bool visit%s(const %s*) = 0;\n\n", it.first,
+			it.first
+		);
+		format(out.visH, "\tvirtual bool leave%s(%s*) = 0;\n", it.first, 
+			it.first
+		);
+		format(out.visH, "\tvirtual bool leave%s(const %s*) = 0;\n\n", 
+			it.first, it.first
+		);
 		format(out.outH, "\tbool visit%s(%s*) override;\n", it.first, it.first);
-		format(out.outH, "\tbool visit%s(const %s*) override;\n\n", it.first, it.first);
+		format(out.outH, "\tbool visit%s(const %s*) override;\n\n", it.first, 
+			it.first
+		);
 		format(out.dotH, "\tbool visit%s(%s*) override;\n", it.first, it.first);
-		format(out.dotH, "\tbool visit%s(const %s*) override;\n\n", it.first, it.first);
+		format(out.dotH, "\tbool visit%s(const %s*) override;\n\n", it.first, 
+			it.first
+		);
 		format(out.outH, "\tbool leave%s(%s*) override;\n", it.first, it.first);
-		format(out.outH, "\tbool leave%s(const %s*) override;\n\n", it.first, it.first);
+		format(out.outH, "\tbool leave%s(const %s*) override;\n\n", it.first, 
+			it.first
+		);
 		format(out.dotH, "\tbool leave%s(%s*) override;\n", it.first, it.first);
-		format(out.dotH, "\tbool leave%s(const %s*) override;\n\n", it.first, it.first);
+		format(out.dotH, "\tbool leave%s(const %s*) override;\n\n", it.first, 
+			it.first
+		);
 	}
 	format(out.visH, "};\n");
 	format(out.outH, "};\n");
@@ -468,15 +497,17 @@ void RecurDec::genVisitor(const std::map<std::string,std::vector<RulePart>>& rul
 		}
 		globalCnt += cnt;
 
-		format(out.astS, "\t%s(this->rule == %sEnum::%s) {\n", first ? "if" : "} else if",
-			current, it.first
+		format(out.astS, "\t%s(this->rule == %sEnum::%s) {\n", 
+			first ? "if" : "} else if", current, it.first
 		);
 		first = false;
 		LOG("%s", it.second);
 		for(auto& jt : it.second) {
 			if(!jt.storeName.empty()) {
 				if(rs.rules.find(jt.name) != rs.rules.end()) {
-					format(out.astS, "\t\tthis->%s->acceptVisitor(visitor);\n", jt.storeName);
+					format(out.astS, "\t\tthis->%s->acceptVisitor(visitor);\n",
+						jt.storeName
+					);
 				} 
 			}
 		}
@@ -503,7 +534,8 @@ void RecurDec::genAstClassDeclEnd(const std::set<RulePart>& allValues) {
 
 			format(out.astS, "\nToken& %s::get%s() {\n", current, name);
 			format(out.astS, "\treturn this->%s;\n}\n\n", it.storeName);
-			format(out.astS, "const Token& %s::get%s() const {\n", current, name);
+			format(out.astS, "const Token& %s::get%s() const {\n", current, 
+				name);
 			format(out.astS, "\treturn this->%s;\n}\n\n", it.storeName);
 		} else {
 			format(out.astH, "\n\t%sPtr get%s();\n", it.name, name);
@@ -511,7 +543,8 @@ void RecurDec::genAstClassDeclEnd(const std::set<RulePart>& allValues) {
 
 			format(out.astS, "\n%sPtr %s::get%s() {\n", it.name, current, name);
 			format(out.astS, "\treturn this->%s;\n}\n\n", it.storeName);
-			format(out.astS, "%sConstPtr %s::get%s() const {\n", it.name, current, name);
+			format(out.astS, "%sConstPtr %s::get%s() const {\n", it.name, 
+				current, name);
 			format(out.astS, "\treturn this->%s;\n}\n", it.storeName);
 		}
 		allreadyProcessed.insert(name);
@@ -698,9 +731,11 @@ void RecurDec::genAst(const std::vector<std::vector<RulePart>>& r) {
 		format(out.astS, "const %sEnum enumType)\n\t: ", current);
 
 		std::vector<RulePart> sorted(it.begin(), it.end());
-		std::sort(sorted.begin(), sorted.end(), [](const RulePart& a, const RulePart& b) {
-			return a.storeName < b.storeName;
-		});
+		std::sort(sorted.begin(), sorted.end(), 
+			[](const RulePart& a, const RulePart& b) {
+				return a.storeName < b.storeName; 
+			}
+		);
 		LOG("sorted NAMES | %s\n", sorted);
 		for(auto& jt : sorted) {
 			format(out.astS, "%s(%s_arg), ", jt.storeName, jt.storeName);
@@ -725,8 +760,12 @@ void RecurDec::genAst(const std::vector<std::vector<RulePart>>& r) {
 	}
 	format(out.astH, "};\n\n");
 
-	format(out.astH, "std::ostream& operator<<(std::ostream&, const %sEnum);\n\n", current);
-	format(out.astS, "\nstd::ostream& operator<<(std::ostream& ss, const %sEnum en) {\n", current);
+	format(out.astH, 
+		"std::ostream& operator<<(std::ostream&, const %sEnum);\n\n", current);
+	format(out.astS, 
+		"\nstd::ostream& operator<<(std::ostream& ss, const %sEnum en) {\n", 
+		current
+	);
 	bool first = true;
 	for(auto& it : setNames) {
 		format(out.astS, "%s(en == %sEnum::%s) {\n\t\tss<<\"%s\";\n\t}", 
@@ -734,8 +773,10 @@ void RecurDec::genAst(const std::vector<std::vector<RulePart>>& r) {
 		);
 		first = false;
 	}
-	format(out.astS, " else {\n\t\tthrow std::logic_error(std::string(\"No %sEnum for value \'\")"
-		"\n\t\t\t+ std::to_string(static_cast<int>(en)) + \"'\"\n\t\t);\n\t}\n", current
+	format(out.astS, 
+		" else {\n\t\tthrow std::logic_error(std::string(\"No %sEnum for"
+		" value \'\")\n\t\t\t + std::to_string(static_cast<int>(en)) + "
+		"\"'\"\n\t\t);\n\t}\n", current
 	);
 	format(out.astS, "\treturn ss;\n");
 	format(out.astS, "}\n\n");
