@@ -63,13 +63,16 @@ void test_name##_test_class::nevercall()
 #define __UTEST_NOTEST_MULTI(test_name,...) \
 class test_name##_test_class : public Unit::Unittest { void nevercall(); \
 public: \
-test_name##_test_class() : Unit::Unittest(#test_name,__FILE__,__LINE__,__VA_ARGS__) {} \
-} test_name##_test_class_impl; \
+test_name##_test_class() : Unit::Unittest(#test_name,__FILE__,__LINE__,\
+__VA_ARGS__) {}  } test_name##_test_class_impl; \
 void test_name##_test_class::nevercall()
 
-#define __UTEST_NOTEST_DISAMBIGUATE2(has_args, ...) __UTEST_NOTEST_ ## has_args (__VA_ARGS__)
-#define __UTEST_NOTEST_DISAMBIGUATE(has_args, ...) __UTEST_NOTEST_DISAMBIGUATE2(has_args, __VA_ARGS__)
-#define __UTEST_NOTEST(...) __UTEST_NOTEST_DISAMBIGUATE(PP_HAS_ARGS(__VA_ARGS__), __VA_ARGS__)
+#define __UTEST_NOTEST_DISAMBIGUATE2(has_args, ...) __UTEST_NOTEST_ \
+## has_args (__VA_ARGS__)
+#define __UTEST_NOTEST_DISAMBIGUATE(has_args, ...) \
+__UTEST_NOTEST_DISAMBIGUATE2(has_args, __VA_ARGS__)
+#define __UTEST_NOTEST(...) __UTEST_NOTEST_DISAMBIGUATE(PP_HAS_ARGS(\
+__VA_ARGS__), __VA_ARGS__)
 
 
 #define __UTEST_ONE(test_name) \
@@ -82,12 +85,13 @@ void test_name##_test_class::run_impl()
 #define __UTEST_MULTI(test_name,...) \
 class test_name##_test_class : public Unit::Unittest { void run_impl(); \
 public: \
-test_name##_test_class() : Unit::Unittest(#test_name,__FILE__,__LINE__,__VA_ARGS__) {} \
-} test_name##_test_class_impl; \
+test_name##_test_class() : Unit::Unittest(#test_name,__FILE__,__LINE__,\
+__VA_ARGS__) {} } test_name##_test_class_impl; \
 void test_name##_test_class::run_impl()
 
 #define __UTEST_DISAMBIGUATE2(has_args, ...) __UTEST_ ## has_args (__VA_ARGS__)
-#define __UTEST_DISAMBIGUATE(has_args, ...) __UTEST_DISAMBIGUATE2(has_args, __VA_ARGS__)
+#define __UTEST_DISAMBIGUATE(has_args, ...) __UTEST_DISAMBIGUATE2(has_args, \
+__VA_ARGS__)
 #define __UTEST(...) __UTEST_DISAMBIGUATE(PP_HAS_ARGS(__VA_ARGS__), __VA_ARGS__)
 
 
@@ -97,32 +101,40 @@ void test_name##_test_class::run_impl()
 #define UNITTEST(...) __UTEST(__VA_ARGS__)
 #endif
 
-#define AS_EQ(e1,e2)				UNIT_COMPARE(true,true,e1,e2,"")
-#define AS_NEQ(e1,e2)				UNIT_COMPARE(true,false,e1,e2,"")
-#define AS_T(e)						UNIT_COMPARE(false,true,e,true,"")
-#define AS_F(e)						UNIT_COMPARE(false,true,e,false,"")
-#define AS_EQ_MSG(e1,e2,msg)		UNIT_COMPARE(true,true,e1,e2,msg)
-#define AS_NEQ_MSG(e1,e2,msg)		UNIT_COMPARE(true,false,e1,e2,msg)
-#define AS_T_MSG(e,msg)				UNIT_COMPARE(false,true,e,true,msg)
-#define AS_F_MSG(e,msg)				UNIT_COMPARE(false,true,e,false,msg)
-#define ASSERT_EQ(e1,e2)			UNIT_COMPARED(true,true,e1,e2,"")
-#define ASSERT_NEQ(e1,e2)			UNIT_COMPARED(true,false,e1,e2,"")
-#define ASSERT_T(e)					UNIT_COMPARED(false,true,e,true,"")
-#define ASSERT_F(e)					UNIT_COMPARED(false,true,e,false,"")
-#define ASSERT_EQ_MSG(e1,e2,msg)	UNIT_COMPARED(true,true,e1,e2,msg)
-#define ASSERT_NEQ_MSG(e1,e2,msg)	UNIT_COMPARED(true,false,e1,e2,msg)
-#define ASSERT_T_MSG(e,msg)			UNIT_COMPARED(false,true,e,true,msg)
-#define ASSERT_F_MSG(e,msg)			UNIT_COMPARED(false,true,e,false,msg)
+#define AS_EQ(e1,e2)				UNIT_COMPARE(true,true,e1,e2,"",[](){})
+#define AS_NEQ(e1,e2)				UNIT_COMPARE(true,false,e1,e2,"",[](){})
+#define AS_T(e)						UNIT_COMPARE(false,true,e,true,"",[](){})
+#define AS_F(e)						UNIT_COMPARE(false,true,e,false,"",[](){})
+#define AS_EQ_MSG(e1,e2,msg)		UNIT_COMPARE(true,true,e1,e2,msg,[](){})
+#define AS_NEQ_MSG(e1,e2,msg)		UNIT_COMPARE(true,false,e1,e2,msg,[](){})
+#define AS_T_MSG(e,msg)				UNIT_COMPARE(false,true,e,true,msg,[](){})
+#define AS_F_MSG(e,msg)				UNIT_COMPARE(false,true,e,false,msg,[](){})
+#define AS_EQ_C(e1,e2,c)			UNIT_COMPARE(true,true,e1,e2,"",c)
+#define AS_NEQ_C(e1,e2,c)			UNIT_COMPARE(true,false,e1,e2,"",c)
+#define AS_T_C(e,c)					UNIT_COMPARE(false,true,e,true,"",c)
+#define AS_F_C(e,c)					UNIT_COMPARE(false,true,e,false,"",c)
+#define ASSERT_EQ(e1,e2)			UNIT_COMPARED(true,true,e1,e2,"",[](){})
+#define ASSERT_NEQ(e1,e2)			UNIT_COMPARED(true,false,e1,e2,"",[](){})
+#define ASSERT_T(e)					UNIT_COMPARED(false,true,e,true,"",[](){})
+#define ASSERT_F(e)					UNIT_COMPARED(false,true,e,false,"",[](){})
+#define ASSERT_EQ_C(e1,e2,e)		UNIT_COMPARED(true,true,e1,e2,"",e)
+#define ASSERT_NEQ_C(e1,e2,e)		UNIT_COMPARED(true,false,e1,e2,"",e)
+#define ASSERT_T_C(e,ec)			UNIT_COMPARED(false,true,e,true,"",ec)
+#define ASSERT_F_C(e,ec)			UNIT_COMPARED(false,true,e,false,"",ec)
+#define ASSERT_EQ_MSG(e1,e2,msg)	UNIT_COMPARED(true,true,e1,e2,msg,[](){})
+#define ASSERT_NEQ_MSG(e1,e2,msg)	UNIT_COMPARED(true,false,e1,e2,msg,[](){})
+#define ASSERT_T_MSG(e,msg)			UNIT_COMPARED(false,true,e,true,msg,[](){})
+#define ASSERT_F_MSG(e,msg)			UNIT_COMPARED(false,true,e,false,msg,[](){})
 
 #define IF_BREAK(e)			if(!e) return;
 
-#define UNIT_COMPARE(compare,result,e1,e2,msg) IF_BREAK\
+#define UNIT_COMPARE(compare,result,e1,e2,msg,c) IF_BREAK\
 (Unit::Unittest::evaluate(compare,result, e1, e2, #e1, #e2,__FILE__, __LINE__\
-,msg))
+,msg,c))
 
-#define UNIT_COMPARED(compare,result,e1,e2,msg) \
+#define UNIT_COMPARED(compare,result,e1,e2,msg,c) \
 Unit::Unittest::evaluates(compare, result, e1, e2, #e1, #e2,__FILE__, __LINE__,\
-&std::cout, "", true, msg)
+&std::cout, "", true, msg, c)
 
 namespace Unit {
 	using namespace std;
@@ -168,20 +180,23 @@ namespace Unit {
 		Unittest(const string& name, std::string f, int l, int count = 1,
 				std::string more = "") : file(sname(f)),
 				line(l), name_(name),  info(more), numRounds(count), 
-				errors_(0), out_(&cerr) {
+				errors_(0), out_(&cerr) 
+		{
 			getTests().push_back(this);
 		}
 
-		template<typename E1, typename E2> static bool evaluates(bool compare, 
-				bool result, const E1& e1, const E2& e2, const char* str1, 
-				const char* str2, const char* file, int line,
-				ostream* out, const string& name, bool die, const string& msg) {
+		template<typename E1, typename E2, typename C> 
+		static bool evaluates(bool compare, bool result, const E1& e1, 
+				const E2& e2, const char* str1, const char* str2, 
+				const char* file, int line, ostream* out, const string& name, 
+				bool die, const string& msg, C c) 
+		{
 
 #ifndef SWEET_NO_ASSERTS
-			//if(result ? (e1 == e2) : (e1 != e2)) return true;
 			if(result ? 
 					(comp_sel<is_floating_point<E1>::value>::comp(e1, e2)) :
-					(!comp_sel<is_floating_point<E1>::value>::comp(e1, e2))) {
+					(!comp_sel<is_floating_point<E1>::value>::comp(e1, e2))) 
+			{
 				return true;
 			}
 
@@ -206,6 +221,9 @@ namespace Unit {
 				*out<<"evalute {"<<str1<<"} == "<<s2.str();
 			}
 			*out<<' '<<msg<<endl;
+
+			c();
+
 			if(die) {
 				exit(1);
 			}
@@ -215,13 +233,13 @@ namespace Unit {
 #endif
 		}
 
-		template<typename E1, typename E2> 
+		template<typename E1, typename E2, typename C> 
 		bool evaluate(bool compare, bool result, const E1& e1, const E2& e2, 
 			const char* str1, const char* str2, const char* file, int line, 
-			const string& msg) 
+			const string& msg, C c) 
 		{
-			bool rlst = Unittest::evaluates<E1,E2>(compare, result, e1, e2,
-					str1, str2, file, line, out_, name_, false, msg);
+			bool rlst = Unittest::evaluates<E1,E2,C>(compare, result, e1, e2,
+					str1, str2, file, line, out_, name_, false, msg, c);
 			if(!rlst) {
 				++errors_;
 			}
@@ -263,7 +281,6 @@ namespace Unit {
 		std::time_t now_time = std::time(NULL);
 		std::strftime(timeStr, 100, "%Y:%m:%d-%H:%M:%S",
 				std::localtime(&now_time));
-		//bool rs(true);
 		unsigned rs = 0;
 		for(vector<Unittest*>::iterator it = getTests().begin(); it !=
 				getTests().end(); ++it) {
@@ -272,20 +289,17 @@ namespace Unit {
 			try {
 				for(int i = 0; i < (*it)->numRounds; ++i) {
 					bool tmp = (*it)->run();
-					//rs &= !tmp;
 					rs += tmp;
 				}
 			} catch(std::exception& e) {
 				std::cerr<<(*it)->file<<":"<<(*it)->line<<" Unittest"<<
 					(*it)->name_<<" has thrown an "<< "uncaught exception "<<
 					" with message "<<e.what()<<std::endl;
-				//rs &= false;
 				++rs;
 			} catch(...) {
 				std::cerr<<(*it)->file<<":"<<(*it)->line<<" Unittest"<<
 					(*it)->name_<<" has thrown an "<< "uncaught exception "
 					<<std::endl;
-				//rs &= false;
 				++rs;
 			}
 			std::chrono::time_point<std::chrono::system_clock> stp(

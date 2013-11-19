@@ -20,6 +20,18 @@ UNITTEST(fancyname) {
 	LOG();
 }
 
+UNITTEST(magic) {
+	//std::ofstream unittestlog("testlog.tst");	// optional
+	// this->setOutputStream(&unittestlog); 	// optional
+	int a(1337);
+	AS_T(true);
+	AS_F(4!=4);
+	AS_T_C(false, [&](){
+		std::cout<<a<<std::endl;
+	});
+	LOG();
+}
+
 UNITTEST(foo, 66) {
 	AS_T(4==4);
 }
@@ -51,6 +63,9 @@ int main() {
 	//LOG();
 	//WARN("Hello warnign");
 	//LOG("Hello warnign %s", std::string("foobar"));
+	ASSERT_T_C(false, [&]() {
+		std::cout<<"I should die here "<<c<<std::endl;
+	});
 	LOG("Hello warning %p", std::string("foobar"));
 	//LOG("Hello warnign %p", "barfoo");
 	return 0;

@@ -145,13 +145,28 @@ void RecurDec::genAstForwardDecl() {
 	format(out.dotH, "#include <visitor.hpp>\n\n");
 	format(out.dotH, "class DotVisitor : public Visitor {\n");
 	format(out.dotH, "public:\n");
-	format(out.dotH, "\tvoid writeHeader(std::shared_ptr<const AstNode>);\n");
+	format(out.dotH, "\tvoid writeHeader(const AstNode*);\n");
 
 	format(out.dotS, "// DO not MODIFY this FILE it IS generated\n\n");
 	format(out.dotS, "#include <dotvisitor.hpp>\n\n");
-	format(out.dotS, "void DotVisitor::writeHeader(std::shared_ptr"
-		"<const AstNode> node) {\n");
-
+	format(out.dotS, "void DotVisitor::writeHeader(const AstNode* node) {\n");
+	format(out.dotS, "\tss<<\"node\"<<node->getId()<<\" [label=\\\"\";\n");
+	format(out.dotS, "\tss<<\"<table border=\\\"0\\\" cellborder=\\\"0\\\""
+		" cellpadding=\\\"3\\\" \";\n");
+	format(out.dotS, "\tss<<\"bgcolor=\\\"white\\\">\";\n");
+	format(out.dotS, "\tss<<\"<tr>\";\n");
+	format(out.dotS, "\tss<<\"\\t<td bgcolor=\\\"black\\\" align=\\\""
+		"center\\\" colspan=\\\"2\\\">\";\n");
+	format(out.dotS, "\tss<<\"\\t\\t<font color=\\\"white\\\">%s</font>\";\n", 
+		current);
+	format(out.dotS, "\tss<<\"\\t</td>\";\n");
+	format(out.dotS, "\tss<<\"</tr>\";\n");
+	format(out.dotS, "\tss<<\"<tr>\";\n");
+	format(out.dotS, "\tss<<\"\\t<td align=\\\"left\\\">Id</td>\";\n");
+	format(out.dotS, "\tss<<\"\\t<td align=\\\"right\\\">\"<<node->getId()<<\""
+		"</td>\";\n");
+	format(out.dotS, "\tss<<\"</tr>\";\n");
+	format(out.dotS, "}\n\n");
 
 	format(out.astH, "// DO not MODIFY this FILE it IS generated\n\n");
 	format(out.astH, "#pragma once\n\n");
@@ -781,24 +796,45 @@ void RecurDec::genAst(const std::vector<std::vector<RulePart>>& r) {
 	format(out.astS, "\treturn ss;\n");
 	format(out.astS, "}\n\n");
 
-	/*format(out.astS, "void %s::toDotStream(std::ostream& ss) const {\n", current); 
-	format(out.astS, "\tss<<\"node\"<<this->getId()<<\" [label=\\\"\";\n");
-	format(out.astS, "\tss<<\"<table border=\\\"0\\\" cellborder=\\\"0\\\" cellpadding=\\\"3\\\" \";\n");
-	format(out.astS, "\tss<<\"bgcolor=\\\"white\\\">\";\n");
-	format(out.astS, "\tss<<\"<tr>\";\n");
-	format(out.astS, "\tss<<\"\\t<td bgcolor=\\\"black\\\" align=\\\"center\\\" colspan=\\\"2\\\">\";\n");
-	format(out.astS, "\tss<<\"\\t\\t<font color=\\\"white\\\">%s</font>\";\n", current);
-	format(out.astS, "\tss<<\"\\t</td>\";\n");
-	format(out.astS, "\tss<<\"</tr>\";\n");
-	format(out.astS, "\tss<<\"<tr>\";\n");
-	format(out.astS, "\tss<<\"\\t<td align=\\\"left\\\">Id</td>\";\n");
-	format(out.astS, "\tss<<\"\\t<td align=\\\"right\\\">\"<<this->getId()<<\"</td>\";\n");
-	format(out.astS, "\tss<<\"</tr>\";\n");
-	format(out.astS, "\tss<<\"<tr>\";\n");
-	format(out.astS, "\tss<<\"\\t<td align=\\\"left\\\">Rule</td>\";\n");
-	format(out.astS, "\tss<<\"\\t<td align=\\\"right\\\">\"<<this->rule<<\"</td>\";\n");
-	format(out.astS, "\tss<<\"</tr>\";\n");
-	first = true;
+
+	format(out.dotS, "bool visit%s(%s* node) {\n", current, current);
+	format(out.dotS, "\treturn visit%s(static_cast<const %s*>(node));\n", 
+		current, current);
+	format(out.dotS, "}\n\n");
+
+	format(out.dotS, "bool leave%s(%s* node) {\n", current, current);
+	format(out.dotS, "\treturn leave%s(static_cast<const %s*>(node));\n", 
+		current, current);
+	format(out.dotS, "}\n\n");
+	
+	format(out.dotS, "bool visit%s(const %s* node) {\n", current, current);
+	format(out.dotS, "\tthis->writeHeader(node);\n");
+	format(out.dotS, "\tss<<\"<tr>\";\n");
+	format(out.dotS, "\tss<<\"\\t<td align=\\\"left\\\">Rule</td>\";\n");
+	format(out.dotS, "\tss<<\"\\t<td align=\\\"right\\\">\"<<node->rule<<\""
+		"</td>\";\n");
+	format(out.dotS, "\tss<<\"</tr>\";\n");
+
+	format(out.outS, "bool visit%s(%s* node) {\n", current, current);
+	format(out.outS, "\treturn visit%s(static_cast<const %s*>(node));\n", 
+		current, current);
+	format(out.outS, "}\n\n");
+
+	format(out.outS, "bool leave%s(%s* node) {\n", current, current);
+	format(out.outS, "\treturn leave%s(static_cast<const %s*>(node));\n", 
+		current, current);
+	format(out.outS, "}\n\n");
+	
+	format(out.outS, "bool visit%s(const %s* node) {\n", current, current);
+	format(out.outS, "\tthis->writeHeader(node);\n");
+	format(out.outS, "\tss<<\"<tr>\";\n");
+	format(out.outS, "\tss<<\"\\t<td align=\\\"left\\\">Rule</td>\";\n");
+	format(out.outS, "\tss<<\"\\t<td align=\\\"right\\\">\"<<node->rule<<\""
+		"</td>\";\n");
+	format(out.outS, "\tss<<\"</tr>\";\n");
+	
+
+	/*first = true;
 	for(auto& it : enumNames2) {
 		bool containsToken = false;
 		for(auto& jt : it.second) {
