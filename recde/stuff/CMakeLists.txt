@@ -22,8 +22,7 @@ set(dpp_HEADERS
 	numberconv.hpp
 	parser.hpp  
 	token.hpp
-	vistor.hpp
-#dotvisitor.hpp
+	dotvisitor.hpp
 	outvisitor.hpp
 )
 
@@ -37,7 +36,7 @@ set(dpp_SOURCES
 	numberconv.cpp
 	parser.cpp  
 	token.cpp
-#dotvisitor.cpp
+	dotvisitor.cpp
 	outvisitor.cpp
 )
 

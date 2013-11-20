@@ -143,6 +143,7 @@ void RecurDec::genAstForwardDecl() {
 
 	format(out.outH, "// DO not MODIFY this FILE it IS generated\n\n");
 	format(out.outH, "#pragma once\n\n");
+	format(out.outH, "#include <ostream>\n\n");
 	format(out.outH, "#include <visitor.hpp>\n\n");
 	format(out.outH, "class StdOutVisitor : public Visitor {\n");
 	format(out.outH, "public:\n");
@@ -163,30 +164,34 @@ void RecurDec::genAstForwardDecl() {
 
 	format(out.dotH, "// DO not MODIFY this FILE it IS generated\n\n");
 	format(out.dotH, "#pragma once\n\n");
+	format(out.dotH, "#include <ostream>\n\n");
+	format(out.outS, "#include <ast.hpp>\n");
 	format(out.dotH, "#include <visitor.hpp>\n\n");
 	format(out.dotH, "class DotVisitor : public Visitor {\n");
 	format(out.dotH, "public:\n");
+	format(out.dotH, "\tDotVisitor(std::ostream&);\n");
+	format(out.dotH, "\tvirtual ~DotVisitor();\n");
 	format(out.dotH, "\tvoid writeHeader(const AstNode*);\n");
 
 	format(out.dotS, "// DO not MODIFY this FILE it IS generated\n\n");
+	format(out.dotS, "#include <ast.hpp>\n");
 	format(out.dotS, "#include <dotvisitor.hpp>\n\n");
+
+	format(out.dotS, "DotVisitor::DotVisitor(std::ostream& s) : "
+		"ss(s) {\n\tss<<\"digraph g {\\n\"<<std::endl;\n}\n\n");
+	format(out.dotS, "DotVisitor::~DotVisitor() {\n\tss<<\"}\""
+		"<<std::endl;\n}\n\n");
 	format(out.dotS, "void DotVisitor::writeHeader(const AstNode* node) {\n");
-	format(out.dotS, "\tss<<\"node\"<<node->getId()<<\" [label=\\\"\";\n");
-	format(out.dotS, "\tss<<\"<table border=\\\"0\\\" cellborder=\\\"0\\\""
+	format(out.dotS, "\tss<<\"node\"<<node->getId()<<\" "
+		"[style = \\\"filled\\\" penwidth = 1 fillcolor = \\\"white\\\" "
+		"shape =\\\"Mrecord\\\" label=\";\n");
+	format(out.dotS, "\tss<<\"<<table border=\\\"0\\\" cellborder=\\\"0\\\""
 		" cellpadding=\\\"3\\\" \";\n");
-	format(out.dotS, "\tss<<\"bgcolor=\\\"white\\\">\";\n");
-	format(out.dotS, "\tss<<\"<tr>\";\n");
+	format(out.dotS, "\tss<<\"bgcolor=\\\"white\\\">\\n\";\n");
+	format(out.dotS, "\tss<<\"<tr>\\n\";\n");
 	format(out.dotS, "\tss<<\"\\t<td bgcolor=\\\"black\\\" align=\\\""
-		"center\\\" colspan=\\\"2\\\">\";\n");
-	format(out.dotS, "\tss<<\"\\t\\t<font color=\\\"white\\\">%s</font>\";\n", 
-		current);
-	format(out.dotS, "\tss<<\"\\t</td>\";\n");
-	format(out.dotS, "\tss<<\"</tr>\";\n");
-	format(out.dotS, "\tss<<\"<tr>\";\n");
-	format(out.dotS, "\tss<<\"\\t<td align=\\\"left\\\">Id</td>\";\n");
-	format(out.dotS, "\tss<<\"\\t<td align=\\\"right\\\">\"<<node->getId()<<\""
-		"</td>\";\n");
-	format(out.dotS, "\tss<<\"</tr>\";\n");
+		"center\\\" colspan=\\\"2\\\">\\n\";\n");
+	format(out.dotS, "\tss<<\"\\t<font color=\\\"white\\\">\";\n");
 	format(out.dotS, "}\n\n");
 
 	format(out.astH, "// DO not MODIFY this FILE it IS generated\n\n");
@@ -261,6 +266,9 @@ void RecurDec::genAstForwardDecl() {
 	format(out.outH, "\tvoid incrementIndent();\n");
 	format(out.outH, "\tvoid decrementIndent();\n");
 	format(out.outH, "};\n");
+
+	format(out.dotH, "private:\n");
+	format(out.dotH, "\tstd::ostream& ss;\n");
 	format(out.dotH, "};\n");
 
 	format(out.astH,  "\n\n// Decl");
@@ -839,40 +847,58 @@ void RecurDec::genAst(const std::vector<std::vector<RulePart>>& r) {
 	format(out.astS, "\treturn ss;\n");
 	format(out.astS, "}\n\n");
 
+	format(out.astS, "%sEnum %s::getRule() const {\n"
+		"\treturn this->rule;\n"
+		"}\n\n", current, current
+	);
 
-	format(out.dotS, "bool visit%s(%s* node) {\n", current, current);
+	format(out.dotS, "bool DotVisitor::visit%s(%s* node) {\n", current, current);
 	format(out.dotS, "\treturn visit%s(static_cast<const %s*>(node));\n", 
 		current, current);
 	format(out.dotS, "}\n\n");
 
-	format(out.dotS, "bool leave%s(%s* node) {\n", current, current);
+	format(out.dotS, "bool DotVisitor::leave%s(%s* node) {\n", current, current);
 	format(out.dotS, "\treturn leave%s(static_cast<const %s*>(node));\n", 
 		current, current);
 	format(out.dotS, "}\n\n");
 	
-	format(out.dotS, "bool visit%s(const %s* node) {\n", current, current);
+	format(out.dotS, "bool DotVisitor::visit%s(const %s* node) {\n", current, current);
 	format(out.dotS, "\tthis->writeHeader(node);\n");
+	format(out.dotS, "\tss<<\"%s\"<<", current);
+	format(out.dotS, "\"</font>\\n\";\n");
+	format(out.dotS, "\tss<<\"\\t</td>\\n\";\n");
+	format(out.dotS, "\tss<<\"</tr>\\n\";\n");
+	format(out.dotS, "\tss<<\"<tr>\\n\";\n");
+	format(out.dotS, "\tss<<\"\\t<td align=\\\"left\\\">Id</td>\\n\";\n");
+	format(out.dotS, 
+		"\tss<<\"\\t<td align=\\\"right\\\">\"<<node->getId()<<\"</td>\";\n"
+	);
+	format(out.dotS, "\tss<<\"</tr>\\n\";\n");
 	format(out.dotS, "\tss<<\"<tr>\";\n");
-	format(out.dotS, "\tss<<\"\\t<td align=\\\"left\\\">Rule</td>\";\n");
+	format(out.dotS, "\tss<<\"\\t<td align=\\\"left\\\">Rule</td>\\n\";\n");
 	format(out.dotS, "\tss<<\"\\t<td align=\\\"right\\\">\"<<\"%s\"<<\""
 		"</td>\";\n", current);
 	format(out.dotS, "\tss<<\"</tr>\";\n");
 
-	format(out.outS, "bool visit%s(%s* node) {\n", current, current);
+	format(out.outS, "bool StdOutVisitor::visit%s(%s* node) {\n", current, 
+		current);
 	format(out.outS, "\treturn visit%s(static_cast<const %s*>(node));\n", 
 		current, current);
 	format(out.outS, "}\n\n");
 
-	format(out.outS, "bool leave%s(%s* node) {\n", current, current);
+	format(out.outS, "bool StdOutVisitor::leave%s(%s* node) {\n", current, 
+		current);
 	format(out.outS, "\treturn leave%s(static_cast<const %s*>(node));\n", 
 		current, current);
 	format(out.outS, "}\n\n");
 	
-	format(out.outS, "bool visit%s(const %s* node) {\n", current, current);
+	format(out.outS, "bool StdOutVisitor::visit%s(const %s* node) {\n", 
+		current, current);
 	format(out.outS, "\tmakeIndent();\n");
-	format(out.outS, "\tss<<\"%s(\"<<node->getId()<<\")\"<<std::endl;\n",
+	format(out.outS, "\tss<<\"%s(\"<<node->getId()<<\") \";\n",
 		current
 	);
+	format(out.outS, "\tss<<\"Rule(\"<<node->getRule()<<\")\"<<std::endl;\n");
 	
 	first = true;
 	for(auto& it : enumNames2) {
@@ -885,7 +911,7 @@ void RecurDec::genAst(const std::vector<std::vector<RulePart>>& r) {
 		}
 		br:
 		if(!containsToken) {
-			break;
+			continue;
 		}
 		format(out.outS, "%s(node->getRule() == %sEnum::%s) {\n", 
 			first ? "\tif" : " else if", current, it.first
@@ -895,7 +921,8 @@ void RecurDec::genAst(const std::vector<std::vector<RulePart>>& r) {
 		);
 		for(auto& jt : it.second) {
 			if(rs.token.count(jt.name)) {
-				format(out.dotS, "\t\tss<<\"<tr>\";\n");
+				format(out.dotS, "\t\tss<<\"<tr%s>\";\n", first ?
+					" style=\\\"border-top:2px solid #f00;\\\"" : "");
 				format(out.dotS, "\t\tss<<\"\\t<td align=\\\"left\\\">"
 					"Token(%s)</td>\";\n", jt.storeName);
 				format(out.dotS, "\t\tss<<\"\\t<td align=\\\"right\\\">\"<<"
@@ -914,16 +941,16 @@ void RecurDec::genAst(const std::vector<std::vector<RulePart>>& r) {
 		first = false;
 
 	}
-	format(out.dotS, "\n\tss<<\"</table>\";\n");
-	format(out.dotS, "\tss<<\"\\\"]\";\n");
-	format(out.dotS, "return true;\n");
+	format(out.dotS, "\n\tss<<\"</table>>\";\n");
+	format(out.dotS, "\tss<<\"];\\n\\n\";\n");
+	format(out.dotS, "\treturn true;\n");
 	format(out.dotS, "}\n\n");
 
 	format(out.outS, "\n\tincrementIndent();\n");
 	format(out.outS, "\treturn true;\n");
 	format(out.outS, "}\n\n");
 
-	format(out.outS, "bool leave%s(const %s*) {\n"
+	format(out.outS, "bool StdOutVisitor::leave%s(const %s*) {\n"
 		"\tdecrementIndent();\n"
 		"\treturn true;\n}\n\n", current, current);
 	/*first = true;
@@ -956,8 +983,31 @@ void RecurDec::genAst(const std::vector<std::vector<RulePart>>& r) {
 	}
 	format(out.astS, "\n\n");
 	*/
+	size_t hasCount = 0;
+	first = true;
+	for(auto& it : enumNames2) {
+		bool containsRules = false;
+		for(auto& jt : it.second) {
+			if(rs.rules.count(jt.name)) {
+				containsRules = true;
+				goto br3;
+			}
+		}
+		br3:
+		if(!containsRules) {
+			break;
+		}
+		for(auto& jt : it.second) {
+			if(rs.rules.count(jt.name)) {
+				++hasCount;
+			}
+		}
+		first = false;
+	}
 	
-	format(out.dotS, "bool leave%s(const %s* node) {\n", current, current);
+	format(out.dotS, "bool DotVisitor::leave%s(const %s* %s) {\n", current, 
+		current, hasCount ? "node" : ""
+	);
 	first = true;
 	for(auto& it : enumNames2) {
 		bool containsRules = false;
@@ -977,7 +1027,7 @@ void RecurDec::genAst(const std::vector<std::vector<RulePart>>& r) {
 		for(auto& jt : it.second) {
 			if(rs.rules.count(jt.name)) {
 				format(out.dotS, "\t\tss<<\"\\tnode\"<<node->getId()<<\" -> "
-					"\"<<node->get%s()->getId()<<\";\";\n",
+					"node\"<<node->get%s()->getId()<<\";\\n\";\n",
 					cap(jt.storeName)
 				);
 			}

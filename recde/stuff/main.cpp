@@ -2,17 +2,7 @@
 #include <logger.hpp>
 #include <unit.hpp>
 #include <outvisitor.hpp>
-
-UNITTEST(unary1) {
-	auto ss = std::make_shared<std::stringstream>
-		("hello");
-	Lexer l(ss);
-	Parser p(l);
-	auto ast = p.parseMulExpression();
-	StdOutVisitor v(std::cout);
-	ast->acceptVisitor(v);
-	std::cout<<std::endl;
-}
+#include <dotvisitor.hpp>
 
 UNITTEST(rel1) {
 	auto ss = std::make_shared<std::stringstream>
@@ -111,7 +101,7 @@ UNITTEST(iterStmt1) {
 }
 UNITTEST(function1) {
 	auto ss = std::make_shared<std::stringstream>
-		("int foo() {}");
+		("def int foo() {}");
 	Lexer l(ss);
 	Parser p(l);
 	auto ast = p.parseFunctionDecl();
@@ -124,9 +114,28 @@ UNITTEST(function2) {
 	Lexer l(ss);
 	Parser p(l);
 	auto ast = p.parseFunctionDecl();
+	std::ofstream z("test2.dot");
+	DotVisitor d(z);
+	ast->acceptVisitor(d);
 	StdOutVisitor v(std::cout);
 	ast->acceptVisitor(v);
 }
+
+UNITTEST(unary1) {
+	auto ss = std::make_shared<std::stringstream>
+		("hello");
+	Lexer l(ss);
+	Parser p(l);
+	auto ast = p.parseMulExpression();
+	StdOutVisitor v(std::cout);
+	std::ofstream z("test.dot");
+	DotVisitor d(z);
+	ast->acceptVisitor(d);
+	std::cout<<std::endl;
+	ast->acceptVisitor(v);
+	std::cout<<std::endl;
+}
+
 
 int main() {
 	Unit::runTests();
