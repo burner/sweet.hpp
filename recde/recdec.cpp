@@ -534,6 +534,9 @@ void RecurDec::genAstClassDeclStart() {
 void RecurDec::genVisitor(
 		const std::map<std::string,std::vector<RulePart>>& rules) 
 {
+	format(out.mulH, "// DO not MODIFY this FILE it IS generated\n\n");
+	format(out.mulH, "#pragma once\n\n");
+
 	format(out.astS, "void %s::acceptVisitor(Visitor& visitor) {\n", current);
 	format(out.astS, "\t%s* tmp = this;\n", current);
 	format(out.astS, "\tvisitor.visit%s(tmp);\n", current);
@@ -788,7 +791,9 @@ void RecurDec::genAst(const std::vector<std::vector<RulePart>>& r) {
 			if(rs.token.find(jt.name) != rs.token.end()) {
 				format(out.astS, "const Token& %s_arg%s", jt.storeName, ", ");
 			} else if(rs.rules.find(jt.name) != rs.rules.end()) {
-				format(out.astS, "%sPtr %s_arg%s", jt.name, jt.storeName, ", ");
+				format(out.astS, "%sPtr %s_arg%s", jt.name, jt.storeName, 
+					", "
+				);
 			} else {
 				//ASSERT_T_MSG(false, "Not reachable");
 			}
@@ -852,17 +857,20 @@ void RecurDec::genAst(const std::vector<std::vector<RulePart>>& r) {
 		"}\n\n", current, current
 	);
 
-	format(out.dotS, "bool DotVisitor::visit%s(%s* node) {\n", current, current);
+	format(out.dotS, "bool DotVisitor::visit%s(%s* node) {\n", current, 
+		current);
 	format(out.dotS, "\treturn visit%s(static_cast<const %s*>(node));\n", 
 		current, current);
 	format(out.dotS, "}\n\n");
 
-	format(out.dotS, "bool DotVisitor::leave%s(%s* node) {\n", current, current);
+	format(out.dotS, "bool DotVisitor::leave%s(%s* node) {\n", current, 
+		current);
 	format(out.dotS, "\treturn leave%s(static_cast<const %s*>(node));\n", 
 		current, current);
 	format(out.dotS, "}\n\n");
 	
-	format(out.dotS, "bool DotVisitor::visit%s(const %s* node) {\n", current, current);
+	format(out.dotS, "bool DotVisitor::visit%s(const %s* node) {\n", current, 
+		current);
 	format(out.dotS, "\tthis->writeHeader(node);\n");
 	format(out.dotS, "\tss<<\"%s\"<<", current);
 	format(out.dotS, "\"</font>\\n\";\n");
@@ -1098,4 +1106,5 @@ void RecurDec::gen() {
 	this->genAstForwardDecl();
 	this->genRules();
 	this->writeErrorStuff();
+	this->genMultiVisitor();
 }

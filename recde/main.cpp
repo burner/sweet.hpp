@@ -25,21 +25,37 @@ int main(int argc, char** argv) {
 	std::string outovS("outvisitor.cpp");
 	std::string outdvH("dotvisitor.hpp");
 	std::string outdvS("dotvisitor.cpp");
+	std::string outMvH("multivisitor.hpp");
+	std::string outMvS("multivisitor.cpp");
 	std::string outPrefix;
 	Options opts(argc, argv);
 	opts.get("-i", "--inputFile", "The grammar file to parse", inputFile);
 	opts.get("-ah", "--astoutputheader", "Output file for ast header", outAstH);
 	opts.get("-as", "--astoutputsource", "Output file for ast source", outAstS);
-	opts.get("-ph", "--parseroutputheader", "Output file for parser header", outAstH);
-	opts.get("-ps", "--parseroutputsource", "Output file for parser source", outAstS);
-	opts.get("-eh", "--erroroutputheader", "Output file for error header", outAstH);
-	opts.get("-es", "--erroroutputsource", "Output file for error source", outAstS);
-	opts.get("-vh", "--visitoroutputheader", "Output file for tree visitor header", outVH);
-	opts.get("-oh", "--outvisitoroutputheader", "Output file for std::out visitor header", outovH);
-	opts.get("-os", "--outvisitoroutputsource", "Output file for std::out visitor source", outovS);
-	opts.get("-dh", "--dotvisitoroutputheader", "Output file for Dot file visitor header", outdvH);
-	opts.get("-ds", "--dotvisitoroutputsource", "Output file for Dot file visitor source", outdvS);
-	opts.get("-op", "--outputprefix", "All output files will be prefixed with this string", outPrefix);
+	opts.get("-ph", "--parseroutputheader", "Output file for parser header", 
+		outAstH);
+	opts.get("-ps", "--parseroutputsource", "Output file for parser source", 
+		outAstS);
+	opts.get("-eh", "--erroroutputheader", "Output file for error header", 
+		outAstH);
+	opts.get("-es", "--erroroutputsource", "Output file for error source", 
+		outAstS);
+	opts.get("-vh", "--visitoroutputheader", 
+		"Output file for tree visitor header", outVH);
+	opts.get("-oh", "--outvisitoroutputheader", 
+		"Output file for std::out visitor header", outovH);
+	opts.get("-os", "--outvisitoroutputsource", 
+		"Output file for std::out visitor source", outovS);
+	opts.get("-dh", "--dotvisitoroutputheader", 
+		"Output file for Dot file visitor header", outdvH);
+	opts.get("-ds", "--dotvisitoroutputsource", 
+		"Output file for Dot file visitor source", outdvS);
+	opts.get("-mh", "--multivisitoroutputheader", 
+		"Output file for Multi visitor header", outdvH);
+	opts.get("-ms", "--multivisitoroutputsource", 
+		"Output file for Multi visitor source", outdvS);
+	opts.get("-op", "--outputprefix", 
+		"All output files will be prefixed with this string", outPrefix);
 	opts.finalize();
 
 	if(!outPrefix.empty()) {
@@ -54,6 +70,8 @@ int main(int argc, char** argv) {
 		outovS = outPrefix + outovS;
 		outdvH = outPrefix + outdvH;
 		outdvS = outPrefix + outdvS;
+		outMvH = outPrefix + outMvH;
+		outMvS = outPrefix + outMvS;
 	}
 
 	if(inputFile.empty()) {
@@ -74,7 +92,10 @@ int main(int argc, char** argv) {
 	std::ofstream ovisS(outovS);
 	std::ofstream dvisH(outdvH);
 	std::ofstream dvisS(outdvS);
-	Output out(prsS,prsH,astS,astH,errS,errH,visH,ovisH,ovisS,dvisH,dvisS);
+	std::ofstream mvisH(outMvH);
+	std::ofstream mvisS(outMvS);
+	Output out(prsS,prsH,astS,astH,errS,errH,visH,ovisH,ovisS,dvisH,dvisS,
+		mvisH, mvisS);
 	RecurDec rd(store, out);
 	rd.computeFirstSet();
 	//std::cout<<store.first<<std::endl;

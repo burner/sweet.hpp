@@ -60,7 +60,8 @@ class RecurDec {
 	void genAst(const std::vector<std::vector<RulePart>>&);
 	void genAstClassDeclStart();
 	void genAstClassDeclEnd(const std::set<RulePart>&);
-	void genAstOutputMethods(const std::map<std::string,std::vector<RulePart>>&);
+	void genAstOutputMethods(
+		const std::map<std::string,std::vector<RulePart>>&);
 	void genVisitor(const std::map<std::string,std::vector<RulePart>>&);
 
 public:
