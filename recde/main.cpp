@@ -51,9 +51,9 @@ int main(int argc, char** argv) {
 	opts.get("-ds", "--dotvisitoroutputsource", 
 		"Output file for Dot file visitor source", outdvS);
 	opts.get("-mh", "--multivisitoroutputheader", 
-		"Output file for Multi visitor header", outdvH);
+		"Output file for Multi visitor header", outMvH);
 	opts.get("-ms", "--multivisitoroutputsource", 
-		"Output file for Multi visitor source", outdvS);
+		"Output file for Multi visitor source", outMvS);
 	opts.get("-op", "--outputprefix", 
 		"All output files will be prefixed with this string", outPrefix);
 	opts.finalize();
