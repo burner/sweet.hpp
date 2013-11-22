@@ -33,19 +33,19 @@ int main(int argc, char** argv) {
 	opts.get("-ah", "--astoutputheader", "Output file for ast header", outAstH);
 	opts.get("-as", "--astoutputsource", "Output file for ast source", outAstS);
 	opts.get("-ph", "--parseroutputheader", "Output file for parser header", 
-		outAstH);
+		outPrsH);
 	opts.get("-ps", "--parseroutputsource", "Output file for parser source", 
-		outAstS);
+		outPrsS);
 	opts.get("-eh", "--erroroutputheader", "Output file for error header", 
-		outAstH);
+		outErrH);
 	opts.get("-es", "--erroroutputsource", "Output file for error source", 
-		outAstS);
+		outErrS);
 	opts.get("-vh", "--visitoroutputheader", 
 		"Output file for tree visitor header", outVH);
 	opts.get("-oh", "--outvisitoroutputheader", 
-		"Output file for std::out visitor header", outovH);
+		"Output file for std::cout visitor header", outovH);
 	opts.get("-os", "--outvisitoroutputsource", 
-		"Output file for std::out visitor source", outovS);
+		"Output file for std::cout visitor source", outovS);
 	opts.get("-dh", "--dotvisitoroutputheader", 
 		"Output file for Dot file visitor header", outdvH);
 	opts.get("-ds", "--dotvisitoroutputsource", 
@@ -107,6 +107,8 @@ int main(int argc, char** argv) {
 		LOG("%s : %s\n", it.first, it.second);
 	}
 	std::cout<<std::endl;
+	SweetLogger::enableLogger(64);
 	rd.gen();
+	LOG("%s\n%s\n", outPrsH, outPrsS);
 	return 0;
 }

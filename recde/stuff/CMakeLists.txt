@@ -24,6 +24,7 @@ set(dpp_HEADERS
 	token.hpp
 	dotvisitor.hpp
 	outvisitor.hpp
+	multivisitor.hpp
 )
 
 ## well and the sources
@@ -38,6 +39,7 @@ set(dpp_SOURCES
 	token.cpp
 	dotvisitor.cpp
 	outvisitor.cpp
+	multivisitor.cpp
 )
 
 

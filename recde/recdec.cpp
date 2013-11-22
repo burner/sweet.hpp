@@ -76,6 +76,7 @@ void RecurDec::genRules() {
 	//auto start = rs.rules.find(current);
 	//ASSERT_T(start != rs.rules.end());
 	//genRules(start->first);
+
 	format(out.prsH, "// DO not MODIFY this FILE it IS generated\n\n");
 	format(out.prsH, "#pragma once\n\n");
 	format(out.prsH, "#include <ast.hpp>\n");
@@ -124,6 +125,34 @@ void RecurDec::genRules() {
 }
 
 void RecurDec::genAstForwardDecl() {
+	format(out.mulH, "// DO not MODIFY this FILE it IS generated\n\n");
+	format(out.mulH, "#pragma once\n\n");
+	format(out.mulH, "#include <vector>\n");
+	format(out.mulH, "#include <functional>\n\n");
+	format(out.mulH, "#include <visitor.hpp>\n\n");
+	format(out.mulH, "typedef std::vector<std::reference_wrapper<Visitor>>"
+		" VisitorVec;\n\n");
+	format(out.mulH, "class MultiVisitor {\n");
+	format(out.mulH, "public:\n");
+	format(out.mulH, "\tvoid addVisitor(Visitor&);\n");
+	format(out.mulH, "\tVisitorVec& getVisitor();\n");
+	format(out.mulH, "\tconst VisitorVec& getVisitor() const;\n\n");
+
+	format(out.mulS, "#include <ast.hpp>\n");
+	format(out.mulS, "#include <multivisitor.hpp>\n\n");
+
+	format(out.mulS, "void MultiVisitor::addVisitor(Visitor& v) {\n");
+	format(out.mulS, "\tthis->visitor.emplace_back(std::ref(v));\n");
+	format(out.mulS, "}\n\n");
+
+	format(out.mulS, "VisitorVec& MultiVisitor::getVisitor() {\n");
+	format(out.mulS, "\treturn this->visitor;\n");
+	format(out.mulS, "}\n\n");
+
+	format(out.mulS, "const VisitorVec& MultiVisitor::getVisitor() const {\n");
+	format(out.mulS, "\treturn this->visitor;\n");
+	format(out.mulS, "}\n\n");
+
 	format(out.visH, "// DO not MODIFY this FILE it IS generated\n\n");
 	format(out.visH, "#pragma once\n\n");
 	//format(out.visH, "#include <ast.hpp>\n\n");
@@ -160,7 +189,6 @@ void RecurDec::genAstForwardDecl() {
 	format(out.outS, "\t\tss<<' ';\n");
 	format(out.outS, "\t}\n");
 	format(out.outS, "}\n\n");
-
 
 	format(out.dotH, "// DO not MODIFY this FILE it IS generated\n\n");
 	format(out.dotH, "#pragma once\n\n");
@@ -232,8 +260,8 @@ void RecurDec::genAstForwardDecl() {
 		format(out.visH, "\tvirtual bool visit%s(%s*) = 0;\n", it.first, 
 			it.first
 		);
-		format(out.visH, "\tvirtual bool visit%s(const %s*) = 0;\n\n", it.first,
-			it.first
+		format(out.visH, "\tvirtual bool visit%s(const %s*) = 0;\n\n", 
+			it.first, it.first
 		);
 		format(out.visH, "\tvirtual bool leave%s(%s*) = 0;\n", it.first, 
 			it.first
@@ -241,7 +269,20 @@ void RecurDec::genAstForwardDecl() {
 		format(out.visH, "\tvirtual bool leave%s(const %s*) = 0;\n\n", 
 			it.first, it.first
 		);
-		format(out.outH, "\tbool visit%s(%s*) override;\n", it.first, it.first);
+		format(out.mulH, "\tvirtual bool leave%s(%s*) = 0;\n", it.first, 
+			it.first
+		);
+		format(out.mulH, "\tvirtual bool leave%s(const %s*) = 0;\n\n", 
+			it.first, it.first
+		);
+		format(out.mulH, "\tvirtual bool visit%s(%s*) = 0;\n", it.first, 
+			it.first
+		);
+		format(out.mulH, "\tvirtual bool visit%s(const %s*) = 0;\n\n", 
+			it.first, it.first
+		);
+		format(out.outH, "\tbool visit%s(%s*) override;\n", it.first, 
+			it.first);
 		format(out.outH, "\tbool visit%s(const %s*) override;\n\n", it.first, 
 			it.first
 		);
@@ -266,6 +307,10 @@ void RecurDec::genAstForwardDecl() {
 	format(out.outH, "\tvoid incrementIndent();\n");
 	format(out.outH, "\tvoid decrementIndent();\n");
 	format(out.outH, "};\n");
+
+	format(out.mulH, "private:\n");
+	format(out.mulH, "\tVisitorVec visitor;\n");
+	format(out.mulH, "};\n");
 
 	format(out.dotH, "private:\n");
 	format(out.dotH, "\tstd::ostream& ss;\n");
@@ -534,9 +579,6 @@ void RecurDec::genAstClassDeclStart() {
 void RecurDec::genVisitor(
 		const std::map<std::string,std::vector<RulePart>>& rules) 
 {
-	format(out.mulH, "// DO not MODIFY this FILE it IS generated\n\n");
-	format(out.mulH, "#pragma once\n\n");
-
 	format(out.astS, "void %s::acceptVisitor(Visitor& visitor) {\n", current);
 	format(out.astS, "\t%s* tmp = this;\n", current);
 	format(out.astS, "\tvisitor.visit%s(tmp);\n", current);
@@ -857,6 +899,42 @@ void RecurDec::genAst(const std::vector<std::vector<RulePart>>& r) {
 		"}\n\n", current, current
 	);
 
+	format(out.mulS, "bool MultiVisitor::visit%s(%s* node) {\n", current, 
+		current);
+	format(out.mulS, "\tbool ret = true;\n");
+	format(out.mulS, "\tfor(auto& it : this->visitor) {\n");
+	format(out.mulS, "\t\tret &= it.get().visit%s(node);\n", current);
+	format(out.mulS, "\t}\n");
+	format(out.mulS, "\treturn ret;\n");
+	format(out.mulS, "}\n\n");
+
+	format(out.mulS, "bool MultiVisitor::visit%s(const %s* node) {\n", 
+		current, current);
+	format(out.mulS, "\tbool ret = true;\n");
+	format(out.mulS, "\tfor(auto& it : this->visitor) {\n");
+	format(out.mulS, "\t\tret &= it.get().visit%s(node);\n", current);
+	format(out.mulS, "\t}\n");
+	format(out.mulS, "\treturn ret;\n");
+	format(out.mulS, "}\n\n");
+
+	format(out.mulS, "bool MultiVisitor::leave%s(%s* node) {\n", current, 
+		current);
+	format(out.mulS, "\tbool ret = true;\n");
+	format(out.mulS, "\tfor(auto& it : this->visitor) {\n");
+	format(out.mulS, "\t\tret &= it.get().leave%s(node);\n", current);
+	format(out.mulS, "\t}\n");
+	format(out.mulS, "\treturn ret;\n");
+	format(out.mulS, "}\n\n");
+
+	format(out.mulS, "bool MultiVisitor::leave%s(const %s* node) {\n", 
+		current, current);
+	format(out.mulS, "\tbool ret = true;\n");
+	format(out.mulS, "\tfor(auto& it : this->visitor) {\n");
+	format(out.mulS, "\t\tret &= it.get().leave%s(node);\n", current);
+	format(out.mulS, "\t}\n");
+	format(out.mulS, "\treturn ret;\n");
+	format(out.mulS, "}\n\n");
+
 	format(out.dotS, "bool DotVisitor::visit%s(%s* node) {\n", current, 
 		current);
 	format(out.dotS, "\treturn visit%s(static_cast<const %s*>(node));\n", 
@@ -1106,5 +1184,4 @@ void RecurDec::gen() {
 	this->genAstForwardDecl();
 	this->genRules();
 	this->writeErrorStuff();
-	this->genMultiVisitor();
 }
