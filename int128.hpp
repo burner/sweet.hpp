@@ -1,6 +1,7 @@
-
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdint.h>
+#include <ostream>
 
 // Assignment and Assignment-Conversion operators
 // Infix addition
@@ -50,7 +51,8 @@ struct int128 {
 		double result;
 
 		if(high >= 0) {
-			result = (((double) high) * ((double) 18446744073709551616.0)) + ((double) low);
+			result = (((double) high) * ((double) 18446744073709551616.0)) + 
+				((double) low);
 		} else {
 			int64_t h; 
 		uint64_t l;
@@ -62,7 +64,8 @@ struct int128 {
 			if(l == 0) {
 				h += 1;
 			}
-			result = -((((double) h) * ((double) 18446744073709551616.0)) + ((double) l));
+			result = -((((double) h) * ((double) 18446744073709551616.0)) + 
+				((double) l));
 		}
 
 		return result;
@@ -139,7 +142,7 @@ struct int128 {
 	}
 };
 
-static int operator < ( const int128 & lhs, const int128 & rhs ) {
+inline int operator < ( const int128 & lhs, const int128 & rhs ) {
 	if(lhs.high < rhs.high)
 		return 1;
 	if(rhs.high < lhs.high)
@@ -150,7 +153,7 @@ static int operator < ( const int128 & lhs, const int128 & rhs ) {
 	return 0;
 }
 
-static int operator < ( const int128 & lhs, int32_t rhs ) {
+inline int operator < ( const int128 & lhs, int32_t rhs ) {
 	int128 r;
 
 	r = rhs;
@@ -165,7 +168,7 @@ static int operator < ( const int128 & lhs, int32_t rhs ) {
 	return 0;
 }
 
-static int operator <= ( const int128 & lhs, const int128 & rhs ) {
+inline int operator <= ( const int128 & lhs, const int128 & rhs ) {
 	if((lhs.high == rhs.high) && (lhs.low == rhs.low))
 		return 1;
 
@@ -179,7 +182,7 @@ static int operator <= ( const int128 & lhs, const int128 & rhs ) {
 	return 0;
 }
 
-static int operator <= ( const int128 & lhs, int32_t rhs ) {
+inline int operator <= ( const int128 & lhs, int32_t rhs ) {
 	int128 t;
 
 	t = rhs;
@@ -197,7 +200,7 @@ static int operator <= ( const int128 & lhs, int32_t rhs ) {
 	return 0;
 }
 
-static int operator == ( const int128 & lhs, const int128 & rhs ) {
+inline int operator == ( const int128 & lhs, const int128 & rhs ) {
 	if(lhs.high != rhs.high)
 		return 0;
 	if(lhs.low != rhs.low)
@@ -205,7 +208,7 @@ static int operator == ( const int128 & lhs, const int128 & rhs ) {
 	return 1;
 }
 
-static int operator == ( const int128 & lhs, int32_t rhs ) {
+inline int operator == ( const int128 & lhs, int32_t rhs ) {
 	int128 t;
 
 	t = rhs;
@@ -213,7 +216,7 @@ static int operator == ( const int128 & lhs, int32_t rhs ) {
 	return ((lhs.high == t.high) && (lhs.low == t.low));
 }
 
-static int operator != ( const int128 & lhs, const int128 & rhs ) {
+inline int operator != ( const int128 & lhs, const int128 & rhs ) {
 	if(lhs.high != rhs.high)
 		return 1;
 	if(lhs.low != rhs.low)
@@ -221,7 +224,7 @@ static int operator != ( const int128 & lhs, const int128 & rhs ) {
 	return 0;
 }
 
-static int operator != ( const int128 & lhs, int32_t rhs ) {
+inline int operator != ( const int128 & lhs, int32_t rhs ) {
 	int128 t;
 
 	t = rhs;
@@ -229,7 +232,7 @@ static int operator != ( const int128 & lhs, int32_t rhs ) {
 	return ( (lhs.high != t.high) || (lhs.low != t.low) );
 }
 
-static int operator > ( const int128 & lhs, const int128 & rhs ) {
+inline int operator > ( const int128 & lhs, const int128 & rhs ) {
 	if(lhs.high > rhs.high)
 		return 1;
 	if(rhs.high > lhs.high)
@@ -240,7 +243,7 @@ static int operator > ( const int128 & lhs, const int128 & rhs ) {
 	return 0;
 }
 
-static int operator > ( const int128 & lhs, int32_t rhs ) {
+inline int operator > ( const int128 & lhs, int32_t rhs ) {
 	int128 t;
 
 	t = rhs;
@@ -255,7 +258,7 @@ static int operator > ( const int128 & lhs, int32_t rhs ) {
 	return 0;
 }
 
-static int operator >= ( const int128 & lhs, const int128 & rhs ) {
+inline int operator >= ( const int128 & lhs, const int128 & rhs ) {
 	if((lhs.high == rhs.high) && (lhs.low == rhs.low))
 		return 1;
 
@@ -269,7 +272,7 @@ static int operator >= ( const int128 & lhs, const int128 & rhs ) {
 	return 0;
 }
 
-static int128 operator + ( const int128 & lhs, const int128 & rhs ) {
+inline int128 operator + ( const int128 & lhs, const int128 & rhs ) {
 	int128 res;
 
 	res.high = lhs.high + rhs.high;
@@ -281,7 +284,7 @@ static int128 operator + ( const int128 & lhs, const int128 & rhs ) {
 	return res;
 }
 
-static int128 operator + ( const int128 & lhs, int64_t rhs ) {
+inline int128 operator + ( const int128 & lhs, int64_t rhs ) {
 	int128 res;
 
 	if(rhs < 0) {
@@ -301,7 +304,7 @@ static int128 operator + ( const int128 & lhs, int64_t rhs ) {
 	return res;
 }
 
-static int128 operator + ( const int128 & lhs, uint64_t rhs ) {
+inline int128 operator + ( const int128 & lhs, uint64_t rhs ) {
 	int128 res;
 
 	res.high = lhs.high;
@@ -313,7 +316,7 @@ static int128 operator + ( const int128 & lhs, uint64_t rhs ) {
 	return res;
 }
 
-static int128 operator + ( const int128 & lhs, int32_t rhs ) {
+inline int128 operator + ( const int128 & lhs, int32_t rhs ) {
 	int128 res;
 
 	if(rhs < 0) {
@@ -333,7 +336,7 @@ static int128 operator + ( const int128 & lhs, int32_t rhs ) {
 	return res;
 }
 
-static int128 operator + ( int64_t lhs, const int128 & rhs ) {
+inline int128 operator + ( int64_t lhs, const int128 & rhs ) {
 	int128 res;
 	int128 a;
 
@@ -351,7 +354,7 @@ static int128 operator + ( int64_t lhs, const int128 & rhs ) {
 
 // Infix subtraction
 
-static int128 operator - ( const int128 & lhs, const int128 & rhs ) {
+inline int128 operator - ( const int128 & lhs, const int128 & rhs ) {
 	int128 res;
 
 	res.high = lhs.high - rhs.high;
@@ -364,7 +367,7 @@ static int128 operator - ( const int128 & lhs, const int128 & rhs ) {
 	return res;
 }
 
-static int128 operator - ( const int128 & lhs, int32_t rhs ) {
+inline int128 operator - ( const int128 & lhs, int32_t rhs ) {
 	int128 res;
 	int128 b;
 
@@ -382,7 +385,7 @@ static int128 operator - ( const int128 & lhs, int32_t rhs ) {
 
 // Unary minus
 
-static int128 operator - ( const int128 & x ) {
+inline int128 operator - ( const int128 & x ) {
 	int128 res;
 
 	res.high = ~(x.high);
@@ -425,16 +428,16 @@ static int128 mult1(int128 xi, int128 yi) {
 	uint64_t acc, ac2, carry, o1, o2;
 	uint64_t a, b, c, d, e, f, g, h, ah, bh, ch, dh, bg, cg, dg, cf, df, de;
 
-	/*						x			a	b	c	d
-								y			e	f	g	h
-									 ---------------
-											ah bh ch dh
-											bg cg dg
-											cf df
-											de
-				--------------------------
-											-o2-- -o1--
-																	*/
+  /*            x      a  b  c  d
+                y      e  f  g  h
+                   ---------------
+                      ah bh ch dh
+                      bg cg dg
+                      cf df
+                      de
+        --------------------------
+                      -o2-- -o1--
+                                  */
 
 	d = xi.low & LO_WORD;
 	c = (xi.low & HI_WORD) >> 32LL;
@@ -470,7 +473,7 @@ static int128 mult1(int128 xi, int128 yi) {
 	return rv2;
 }
 
-static int128 operator * ( const int128 & lhs, const int128 & rhs ) {
+inline int128 operator * ( const int128 & lhs, const int128 & rhs ) {
 	int128 rv;
 
 	rv = mult1(lhs, rhs);
@@ -478,7 +481,7 @@ static int128 operator * ( const int128 & lhs, const int128 & rhs ) {
 	return rv;
 }
 
-static int128 operator * ( const int128 & lhs, uint64_t rhs ) {
+inline int128 operator * ( const int128 & lhs, uint64_t rhs ) {
 	int128 t;
 	int128 rv;
 
@@ -488,7 +491,7 @@ static int128 operator * ( const int128 & lhs, uint64_t rhs ) {
 	return rv;
 }
 
-static int128 operator * ( const int128 & lhs, int32_t rhs ) {
+inline int128 operator * ( const int128 & lhs, int32_t rhs ) {
 	int128 t;
 	int128 rv;
 
@@ -569,7 +572,7 @@ static int128 div1(int128 x, int128 d, int128 *r) {
 	return rv;
 }
 
-static int128 operator / ( const int128 & x, const int128 & d ) {
+inline int128 operator / ( const int128 & x, const int128 & d ) {
 	int128 rv;
 
 	rv = div1(x, d, 0);
@@ -577,7 +580,7 @@ static int128 operator / ( const int128 & x, const int128 & d ) {
 	return rv;
 }
 
-static int128 operator / ( const int128 & x, uint64_t d ) {
+inline int128 operator / ( const int128 & x, uint64_t d ) {
 	int128 t;
 	int128 rv;
 
@@ -657,34 +660,34 @@ std::ostream& operator<<(std::ostream& os, int128 i) {
 	return os;
 }
 
-static int128 operator += ( int128 & lhs, const int128 & rhs )  {
+inline int128 operator += ( int128 & lhs, const int128 & rhs )  {
 	lhs = lhs + rhs;
 }
 
-static int128 operator += ( int128 & lhs, const int64_t & rhs )  {
+inline int128 operator += ( int128 & lhs, const int64_t & rhs )  {
 	lhs = lhs + rhs;
 }
 
-static int128 operator -= ( int128 & lhs, const int128 & rhs )  {
+inline int128 operator -= ( int128 & lhs, const int128 & rhs )  {
 	lhs = lhs - rhs;
 }
 
-static int128 operator -= ( int128 & lhs, const int64_t & rhs )  {
+inline int128 operator -= ( int128 & lhs, const int64_t & rhs )  {
 	lhs = lhs - ((int128)rhs);
 }
 
-static int128 operator *= ( int128 & lhs, const int128 & rhs )  {
+inline int128 operator *= ( int128 & lhs, const int128 & rhs )  {
 	lhs = lhs * rhs;
 }
 
-static int128 operator *= ( int128 & lhs, const int64_t & rhs )  {
+inline int128 operator *= ( int128 & lhs, const int64_t & rhs )  {
 	lhs = lhs * ((int128) rhs);
 }
 
-static int128 operator /= ( int128 & lhs, const int128 & rhs )  {
+inline int128 operator /= ( int128 & lhs, const int128 & rhs )  {
 	lhs = lhs / rhs;
 }
 
-static int128 operator /= ( int128 & lhs, const int64_t & rhs )  {
+inline int128 operator /= ( int128 & lhs, const int64_t & rhs )  {
 	lhs = lhs / ((int128) rhs);
 }
