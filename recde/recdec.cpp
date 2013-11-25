@@ -230,15 +230,20 @@ void RecurDec::genAstForwardDecl() {
 	format(out.astH, "#include <string>\n");
 	format(out.astH, "#include <token.hpp>\n\n");
 	format(out.astH, "#include <visitor.hpp>\n\n");
+	format(out.astH, "class SymbolTable;\n\n");
 	format(out.astH, "uint64_t getNextAstId();\n\n");
 	format(out.astH, "class AstNode {\n"); 
 	format(out.astH, "public:\n"); 
 	format(out.astH, "\tAstNode();\n"); 
-	format(out.astH, "\tuint64_t getId() const;\n"); 
+	format(out.astH, "\tuint64_t getId() const;\n\n"); 
 	format(out.astH, "\tAstNode* getParent();\n"); 
 	format(out.astH, "\tconst AstNode* getParent() const;\n"); 
-	format(out.astH, "\tvoid setParent(AstNode*);\n"); 
+	format(out.astH, "\tvoid setParent(AstNode*);\n\n"); 
+	format(out.astH, "\tSymbolTable* getSymbolTable();\n"); 
+	format(out.astH, "\tconst SymbolTable* getSymbolTable() const;\n"); 
+	format(out.astH, "\tvoid setSymbolTable(SymbolTable*);\n"); 
 	format(out.astH, "\nprivate:\n"); 
+	format(out.astH, "\tSymbolTable* symbolTable;\n");
 	format(out.astH, "\tuint64_t id;\n");
 	format(out.astH, "\tAstNode* parent;\n");
 	format(out.astH, "};\n\n"); 
@@ -351,6 +356,12 @@ void RecurDec::genAstForwardDecl() {
 	format(out.astS, "const AstNode* AstNode::getParent() const {\n\treturn this->parent;\n}\n\n");
 	format(out.astS, "AstNode* AstNode::getParent() {\n\treturn this->parent;\n}\n\n");
 	format(out.astS, "void AstNode::setParent(AstNode* p) {\n\tthis->parent = p;\n}\n\n");
+	format(out.astS, "const SymbolTable* AstNode::getSymbolTable() const "
+		"{\n\treturn this->symbolTable;\n}\n\n");
+	format(out.astS, "SymbolTable* AstNode::getSymbolTable() {\n\treturn "
+		"this->symbolTable;\n}\n\n");
+	format(out.astS, "void AstNode::setSymbolTable(SymbolTable* t) "
+		"{\n\tthis->symbolTable = t;\n}\n\n");
 	//format(out.astS, "std::ostream& AstNode::operator<<(std::ostream& ss) const "
 	//	"{\n\ttoOutStream(ss);\n\treturn ss;\n}\n\n"
 	//);
