@@ -132,7 +132,7 @@ void RecurDec::genAstForwardDecl() {
 	format(out.mulH, "#include <visitor.hpp>\n\n");
 	format(out.mulH, "typedef std::vector<std::reference_wrapper<Visitor>>"
 		" VisitorVec;\n\n");
-	format(out.mulH, "class MultiVisitor {\n");
+	format(out.mulH, "class MultiVisitor : public Visitor {\n");
 	format(out.mulH, "public:\n");
 	format(out.mulH, "\tvoid addVisitor(Visitor&);\n");
 	format(out.mulH, "\tVisitorVec& getVisitor();\n");
@@ -257,8 +257,9 @@ void RecurDec::genAstForwardDecl() {
 			it.first, it.first
 		);
 
-		format(out.visH, "\tvirtual bool visit%s(%s*) = 0;\n", it.first, 
-			it.first
+		// Visitor header
+		format(out.visH, "\tvirtual bool visit%s(%s*) = 0;\n\n", 
+			it.first, it.first
 		);
 		format(out.visH, "\tvirtual bool visit%s(const %s*) = 0;\n\n", 
 			it.first, it.first
@@ -269,34 +270,57 @@ void RecurDec::genAstForwardDecl() {
 		format(out.visH, "\tvirtual bool leave%s(const %s*) = 0;\n\n", 
 			it.first, it.first
 		);
-		format(out.mulH, "\tvirtual bool leave%s(%s*) = 0;\n", it.first, 
+
+		// Include method decl
+		format(out.inH, "\tvirtual bool visit%s(%s*) override;\n", it.first, 
 			it.first
 		);
-		format(out.mulH, "\tvirtual bool leave%s(const %s*) = 0;\n\n", 
+		format(out.inH, "\tvirtual bool visit%s(const %s*) override;\n\n", 
 			it.first, it.first
 		);
-		format(out.mulH, "\tvirtual bool visit%s(%s*) = 0;\n", it.first, 
+		format(out.inH, "\tvirtual bool leave%s(%s*) override;\n", it.first, 
 			it.first
 		);
-		format(out.mulH, "\tvirtual bool visit%s(const %s*) = 0;\n\n", 
+		format(out.inH, "\tvirtual bool leave%s(const %s*) override;\n", 
 			it.first, it.first
 		);
-		format(out.outH, "\tbool visit%s(%s*) override;\n", it.first, 
+
+		// Multi Visitor
+		format(out.mulH, "\tvirtual bool leave%s(%s*) override;\n", it.first, 
+			it.first
+		);
+		format(out.mulH, "\tvirtual bool leave%s(const %s*) override;\n\n", 
+			it.first, it.first
+		);
+		format(out.mulH, "\tvirtual bool visit%s(%s*) override;\n", it.first, 
+			it.first
+		);
+		format(out.mulH, "\tvirtual bool visit%s(const %s*) override;\n\n", 
+			it.first, it.first
+		);
+
+		// StdOut Visitor
+		format(out.outH, "\tvirtual bool visit%s(%s*) override;\n", it.first, 
 			it.first);
-		format(out.outH, "\tbool visit%s(const %s*) override;\n\n", it.first, 
-			it.first
+		format(out.outH, "\tvirtual bool visit%s(const %s*) override;\n\n", 
+			it.first, it.first
 		);
-		format(out.dotH, "\tbool visit%s(%s*) override;\n", it.first, it.first);
-		format(out.dotH, "\tbool visit%s(const %s*) override;\n\n", it.first, 
-			it.first
+		format(out.outH, "\tvirtual bool leave%s(%s*) override;\n", it.first, 
+			it.first);
+		format(out.outH, "\tvirtual bool leave%s(const %s*) override;\n\n", 
+			it.first, it.first
 		);
-		format(out.outH, "\tbool leave%s(%s*) override;\n", it.first, it.first);
-		format(out.outH, "\tbool leave%s(const %s*) override;\n\n", it.first, 
-			it.first
+
+		// Dot Visitor
+		format(out.dotH, "\tvirtual bool visit%s(%s*) override;\n", it.first, 
+			it.first);
+		format(out.dotH, "\tvirtual bool visit%s(const %s*) override;\n\n", 
+			it.first, it.first
 		);
-		format(out.dotH, "\tbool leave%s(%s*) override;\n", it.first, it.first);
-		format(out.dotH, "\tbool leave%s(const %s*) override;\n\n", it.first, 
-			it.first
+		format(out.dotH, "\tvirtual bool leave%s(%s*) override;\n", it.first, 
+			it.first);
+		format(out.dotH, "\tvirtual bool leave%s(const %s*) override;\n\n", 
+			it.first, it.first
 		);
 	}
 	format(out.visH, "};\n");
@@ -579,11 +603,55 @@ void RecurDec::genAstClassDeclStart() {
 void RecurDec::genVisitor(
 		const std::map<std::string,std::vector<RulePart>>& rules) 
 {
-	format(out.astS, "void %s::acceptVisitor(Visitor& visitor) {\n", current);
-	format(out.astS, "\t%s* tmp = this;\n", current);
+	format(out.astS, "void %s::acceptVisitor(Visitor& visitor) const {\n", 
+		current);
+	format(out.astS, "\tconst %s* tmp = this;\n", current);
 	format(out.astS, "\tvisitor.visit%s(tmp);\n", current);
 	bool first = true;
 	size_t globalCnt = 0;
+	for(auto& it : rules) {
+		size_t cnt = 0;
+		for(auto& jt : it.second) {
+			if(!jt.storeName.empty()) {
+				if(rs.rules.find(jt.name) != rs.rules.end()) {
+					++cnt;
+				}
+			}
+		}
+		LOG("cnt %u", cnt);
+		if(!cnt) {
+			continue;
+		}
+		globalCnt += cnt;
+
+		format(out.astS, "\t%s(this->rule == %sEnum::%s) {\n", 
+			first ? "if" : "} else if", current, it.first
+		);
+		first = false;
+		LOG("%s", it.second);
+		for(auto& jt : it.second) {
+			if(!jt.storeName.empty()) {
+				if(rs.rules.find(jt.name) != rs.rules.end()) {
+					format(out.astS, "\t\tthis->%s->acceptVisitor(visitor);\n",
+						jt.storeName
+					);
+				} 
+			}
+		}
+	}
+	//if(!rules.empty()) {
+	if(globalCnt) {
+		format(out.astS, "\t}\n\n");
+	}
+
+	format(out.astS, "\tvisitor.leave%s(tmp);\n", current);
+	format(out.astS, "}\n");
+	format(out.astS, "void %s::acceptVisitor(Visitor& visitor) {\n", current);
+	format(out.astS, "\t%s* tmp = this;\n", current);
+	format(out.astS, "\tvisitor.visit%s(tmp);\n", current);
+
+	first = true;
+	globalCnt = 0;
 	for(auto& it : rules) {
 		size_t cnt = 0;
 		for(auto& jt : it.second) {
@@ -652,9 +720,9 @@ void RecurDec::genAstClassDeclEnd(const std::set<RulePart>& allValues) {
 		allreadyProcessed.insert(name);
 	}
 	format(out.astH, "\n\t%sEnum getRule() const;\n\n", current);
+	format(out.astH, "\n\tvoid acceptVisitor(Visitor&) const;\n");
 	format(out.astH, "\n\tvoid acceptVisitor(Visitor&);\n\n");
-	//format(out.astH, "\tvoid toOutStream(std::ostream&,uint32_t=0) const override;\n"); 
-	//format(out.astH, "\tvoid toDotStream(std::ostream&) const override;\n\n"); 
+
 	format(out.astH, "private:\n");
 	std::map<std::string,std::string> names;
 	for(auto& it : allValues) {
@@ -853,7 +921,15 @@ void RecurDec::genAst(const std::vector<std::vector<RulePart>>& r) {
 		for(auto& jt : sorted) {
 			format(out.astS, "%s(%s_arg), ", jt.storeName, jt.storeName);
 		}
-		format(out.astS, "rule(enumType)\n{\n}\n\n");
+		format(out.astS, "rule(enumType)\n{\n");
+
+		for(auto& jt : it) {
+			if(rs.rules.find(jt.name) != rs.rules.end()) {
+				format(out.astS, "\t%s->setParent(this);\n", jt.storeName);
+			}
+		}
+
+		format(out.astS, "}\n\n");
 	}
 
 	format(out.astS, "%s::%s(", current, current);

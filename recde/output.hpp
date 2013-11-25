@@ -16,11 +16,13 @@ struct Output {
 	std::ostream& dotS;
 	std::ostream& mulH;
 	std::ostream& mulS;
+	std::ostream& inH;
 
 	std::string errHfn;
 
 	explicit Output(std::ostream&,std::ostream&,std::ostream&,
 		std::ostream&,std::ostream&,std::ostream&,
 		std::ostream&,std::ostream&,std::ostream&,
-		std::ostream&,std::ostream&,std::ostream&,std::ostream&);
+		std::ostream&,std::ostream&,std::ostream&,std::ostream&,
+		std::ostream&);
 };

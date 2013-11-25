@@ -27,6 +27,7 @@ int main(int argc, char** argv) {
 	std::string outdvS("dotvisitor.cpp");
 	std::string outMvH("multivisitor.hpp");
 	std::string outMvS("multivisitor.cpp");
+	std::string outH("visitorinclude");
 	std::string outPrefix;
 	Options opts(argc, argv);
 	opts.get("-i", "--inputFile", "The grammar file to parse", inputFile);
@@ -56,6 +57,8 @@ int main(int argc, char** argv) {
 		"Output file for Multi visitor source", outMvS);
 	opts.get("-op", "--outputprefix", 
 		"All output files will be prefixed with this string", outPrefix);
+	opts.get("-in", "--visitorinclude", 
+		"Visitor method declarations", outH);
 	opts.finalize();
 
 	if(!outPrefix.empty()) {
@@ -72,6 +75,7 @@ int main(int argc, char** argv) {
 		outdvS = outPrefix + outdvS;
 		outMvH = outPrefix + outMvH;
 		outMvS = outPrefix + outMvS;
+		outH = outPrefix + outH;
 	}
 
 	if(inputFile.empty()) {
@@ -94,8 +98,10 @@ int main(int argc, char** argv) {
 	std::ofstream dvisS(outdvS);
 	std::ofstream mvisH(outMvH);
 	std::ofstream mvisS(outMvS);
+	std::ofstream inH(outH);
 	Output out(prsS,prsH,astS,astH,errS,errH,visH,ovisH,ovisS,dvisH,dvisS,
-		mvisH, mvisS);
+		mvisH,mvisS,inH
+	);
 	RecurDec rd(store, out);
 	rd.computeFirstSet();
 	//std::cout<<store.first<<std::endl;
