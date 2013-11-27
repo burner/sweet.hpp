@@ -155,6 +155,10 @@ void RecurDec::genAstForwardDecl() {
 
 	format(out.visH, "// DO not MODIFY this FILE it IS generated\n\n");
 	format(out.visH, "#pragma once\n\n");
+
+	format(out.visS, "// DO not MODIFY this FILE it IS generated\n\n");
+	format(out.visS, "#include <visitor.hpp>\n\n");
+
 	//format(out.visH, "#include <ast.hpp>\n\n");
 	
 	std::set<std::string> done;
@@ -263,17 +267,31 @@ void RecurDec::genAstForwardDecl() {
 		);
 
 		// Visitor header
-		format(out.visH, "\tvirtual bool visit%s(%s*) = 0;\n\n", 
+		format(out.visH, "\tvirtual bool visit%s(%s*);\n\n", 
 			it.first, it.first
 		);
-		format(out.visH, "\tvirtual bool visit%s(const %s*) = 0;\n\n", 
+		format(out.visH, "\tvirtual bool visit%s(const %s*);\n\n", 
 			it.first, it.first
 		);
-		format(out.visH, "\tvirtual bool leave%s(%s*) = 0;\n", it.first, 
+		format(out.visH, "\tvirtual bool leave%s(%s*);\n", it.first, 
 			it.first
 		);
-		format(out.visH, "\tvirtual bool leave%s(const %s*) = 0;\n\n", 
+		format(out.visH, "\tvirtual bool leave%s(const %s*);\n\n", 
 			it.first, it.first
+		);
+
+		// Visitor source
+		format(out.visS, "bool Visitor::visit%s(%s*) { return true; }\n\n", 
+			it.first, it.first
+		);
+		format(out.visS, "bool Visitor::visit%s(const %s*) { return true; "
+			"}\n\n", it.first, it.first
+		);
+		format(out.visS, "bool Visitor::leave%s(%s*) { return true; "
+			"}\n", it.first, it.first
+		);
+		format(out.visS, "bool Visitor::leave%s(const %s*) { return true; "
+			"}\n\n", it.first, it.first
 		);
 
 		// Include method decl

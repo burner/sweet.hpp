@@ -21,6 +21,7 @@ int main(int argc, char** argv) {
 	std::string outErrH("error.hpp");
 	std::string outErrS("error.cpp");
 	std::string outVH("visitor.hpp");
+	std::string outVS("visitor.cpp");
 	std::string outovH("outvisitor.hpp");
 	std::string outovS("outvisitor.cpp");
 	std::string outdvH("dotvisitor.hpp");
@@ -43,6 +44,8 @@ int main(int argc, char** argv) {
 		outErrS);
 	opts.get("-vh", "--visitoroutputheader", 
 		"Output file for tree visitor header", outVH);
+	opts.get("-vs", "--visitoroutputsource", 
+		"Output file for tree visitor source", outVS);
 	opts.get("-oh", "--outvisitoroutputheader", 
 		"Output file for std::cout visitor header", outovH);
 	opts.get("-os", "--outvisitoroutputsource", 
@@ -69,6 +72,7 @@ int main(int argc, char** argv) {
 		outErrH = outPrefix + outErrH;
 		outErrS = outPrefix + outErrS;
 		outVH = outPrefix + outVH;
+		outVS = outPrefix + outVS;
 		outovH = outPrefix + outovH;
 		outovS = outPrefix + outovS;
 		outdvH = outPrefix + outdvH;
@@ -91,6 +95,7 @@ int main(int argc, char** argv) {
 	std::ofstream prsS(outPrsS);
 	std::ofstream errH(outErrH);
 	std::ofstream errS(outErrS);
+	std::ofstream visS(outVS);
 	std::ofstream visH(outVH);
 	std::ofstream ovisH(outovH);
 	std::ofstream ovisS(outovS);
@@ -99,7 +104,7 @@ int main(int argc, char** argv) {
 	std::ofstream mvisH(outMvH);
 	std::ofstream mvisS(outMvS);
 	std::ofstream inH(outH);
-	Output out(prsS,prsH,astS,astH,errS,errH,visH,ovisH,ovisS,dvisH,dvisS,
+	Output out(prsS,prsH,astS,astH,errS,errH,visS,visH,ovisH,ovisS,dvisH,dvisS,
 		mvisH,mvisS,inH
 	);
 	RecurDec rd(store, out);

@@ -9,6 +9,7 @@ struct Output {
 	std::ostream& astH;
 	std::ostream& errS;
 	std::ostream& errH;
+	std::ostream& visS;
 	std::ostream& visH;
 	std::ostream& outH;
 	std::ostream& outS;
@@ -22,7 +23,7 @@ struct Output {
 
 	explicit Output(std::ostream&,std::ostream&,std::ostream&,
 		std::ostream&,std::ostream&,std::ostream&,
-		std::ostream&,std::ostream&,std::ostream&,
+		std::ostream&,std::ostream&,std::ostream&,std::ostream&,
 		std::ostream&,std::ostream&,std::ostream&,std::ostream&,
 		std::ostream&);
 };
