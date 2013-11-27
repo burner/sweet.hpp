@@ -17,6 +17,8 @@ struct Output {
 	std::ostream& dotS;
 	std::ostream& mulH;
 	std::ostream& mulS;
+	std::ostream& lamH;
+	std::ostream& lamS;
 	std::ostream& inH;
 
 	std::string errHfn;
@@ -25,5 +27,5 @@ struct Output {
 		std::ostream&,std::ostream&,std::ostream&,
 		std::ostream&,std::ostream&,std::ostream&,std::ostream&,
 		std::ostream&,std::ostream&,std::ostream&,std::ostream&,
-		std::ostream&);
+		std::ostream&,std::ostream&,std::ostream&);
 };

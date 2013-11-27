@@ -125,6 +125,28 @@ void RecurDec::genRules() {
 }
 
 void RecurDec::genAstForwardDecl() {
+	format(out.lamH, "// DO not MODIFY this FILE it IS generated\n\n");
+	format(out.lamH, "#pragma once\n\n");
+	format(out.lamH, "#include <functional>\n\n");
+	format(out.lamH, "#include <visitor.hpp>\n\n");
+	format(out.lamH, "class LambdaVisitor : public Visitor {\n");
+	format(out.lamH, "public:\n");
+	format(out.lamH, "\tLambdaVisitor(std::function<bool(AstNode*)>);\n");
+	format(out.lamH, "\tLambdaVisitor(std::function<bool(AstNode*)>,"
+		"std::function<bool(const AstNode*)>);\n\n");
+
+	format(out.lamS, "#include <iostream>\n");
+	format(out.lamS, "#include <ast.hpp>\n");
+	format(out.lamS, "#include <lambdavisitor.hpp>\n\n");
+	format(out.lamS, "#include <format.hpp>\n");
+	format(out.lamS,
+		"LambdaVisitor::LambdaVisitor(std::function<bool(AstNode*)> f)"
+		" : lambda(f) {}\n\n");
+	format(out.lamS,
+		"LambdaVisitor::LambdaVisitor(std::function<bool(AstNode*)> f," 
+		" std::function<bool(const AstNode*)> cf) : lambda(f), "
+	 	" lambdaConst(cf) {}\n\n");
+
 	format(out.mulH, "// DO not MODIFY this FILE it IS generated\n\n");
 	format(out.mulH, "#pragma once\n\n");
 	format(out.mulH, "#include <vector>\n");
@@ -294,6 +316,42 @@ void RecurDec::genAstForwardDecl() {
 			"}\n\n", it.first, it.first
 		);
 
+		// Lambda header
+		format(out.lamH, "\tvirtual bool visit%s(%s*) override;\n\n", 
+			it.first, it.first
+		);
+		format(out.lamH, "\tvirtual bool visit%s(const %s*) override;\n\n", 
+			it.first, it.first
+		);
+		format(out.lamH, "\tvirtual bool leave%s(%s*) override;\n", it.first, 
+			it.first
+		);
+		format(out.lamH, "\tvirtual bool leave%s(const %s*) override;\n\n", 
+			it.first, it.first
+		);
+
+		// Lambda source
+		format(out.lamS, "bool LambdaVisitor::visit%s(%s* n) "
+			"{\n\tif(!this->lambda(n)) { "
+			"\n\t\tformat(std::cout, \"%s id(%%u)\\n\", n->getId());\n"
+			"\t}\n\n", it.first, it.first, it.first
+		);
+		format(out.lamS, "\treturn true;\n}\n\n");
+
+		format(out.lamS, "bool LambdaVisitor::visit%s(const %s* n) "
+			"{\n\tif(!this->lambdaConst(n)) { "
+			"\n\t\tformat(std::cout, \"%s id(%%u)\\n\", n->getId());\n"
+			"\t}\n\n", it.first, it.first, it.first
+		);
+		format(out.lamS, "\treturn true;\n}\n\n");
+
+		format(out.lamS, "bool LambdaVisitor::leave%s(%s*) "
+			"{ return true; " "}\n", it.first, it.first
+		);
+		format(out.lamS, "bool LambdaVisitor::leave%s(const %s*) "
+			"{ return true; " "}\n\n", it.first, it.first
+		);
+
 		// Include method decl
 		format(out.inH, "\tvirtual bool visit%s(%s*) override;\n", it.first, 
 			it.first
@@ -346,6 +404,11 @@ void RecurDec::genAstForwardDecl() {
 			it.first, it.first
 		);
 	}
+	format(out.lamH, "private:\n");
+	format(out.lamH, "\tstd::function<bool(AstNode*)> lambda;\n");
+	format(out.lamH, "\tstd::function<bool(const AstNode*)> lambdaConst;\n");
+	format(out.lamH, "};\n");
+
 	format(out.visH, "};\n");
 	format(out.outH, "private:\n");
 	format(out.outH, "\tstd::ostream& ss;\n");

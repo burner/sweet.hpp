@@ -28,6 +28,8 @@ int main(int argc, char** argv) {
 	std::string outdvS("dotvisitor.cpp");
 	std::string outMvH("multivisitor.hpp");
 	std::string outMvS("multivisitor.cpp");
+	std::string outLamH("lambdavisitor.hpp");
+	std::string outLamS("lambdavisitor.cpp");
 	std::string outH("visitorinclude");
 	std::string outPrefix;
 	Options opts(argc, argv);
@@ -58,6 +60,10 @@ int main(int argc, char** argv) {
 		"Output file for Multi visitor header", outMvH);
 	opts.get("-ms", "--multivisitoroutputsource", 
 		"Output file for Multi visitor source", outMvS);
+	opts.get("-lh", "--lambdavisitorheader", 
+		"Output file for Lambda visitor header", outLamH);
+	opts.get("-ls", "--lambdavisitorsource", 
+		"Output file for Lambda visitor source", outLamS);
 	opts.get("-op", "--outputprefix", 
 		"All output files will be prefixed with this string", outPrefix);
 	opts.get("-in", "--visitorinclude", 
@@ -79,6 +85,8 @@ int main(int argc, char** argv) {
 		outdvS = outPrefix + outdvS;
 		outMvH = outPrefix + outMvH;
 		outMvS = outPrefix + outMvS;
+		outLamS = outPrefix + outLamS;
+		outLamH = outPrefix + outLamH;
 		outH = outPrefix + outH;
 	}
 
@@ -103,9 +111,11 @@ int main(int argc, char** argv) {
 	std::ofstream dvisS(outdvS);
 	std::ofstream mvisH(outMvH);
 	std::ofstream mvisS(outMvS);
+	std::ofstream lamH(outLamH);
+	std::ofstream lamS(outLamS);
 	std::ofstream inH(outH);
 	Output out(prsS,prsH,astS,astH,errS,errH,visS,visH,ovisH,ovisS,dvisH,dvisS,
-		mvisH,mvisS,inH
+		mvisH,mvisS,lamS,lamH,inH
 	);
 	RecurDec rd(store, out);
 	rd.computeFirstSet();
