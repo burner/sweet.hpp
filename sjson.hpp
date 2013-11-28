@@ -502,12 +502,19 @@ private:
 	}
 
 	inline void eatWhitespace() {
+		begin:
 		if(idx >= curLine.size()) { readline(); }
 		while(!eof && (curLine.size() == 0 
 				 || curLine[idx] == ' ' 
 				 || curLine[idx] == '\t')) {
 			++idx;
-			if(idx >= curLine.size()) { readline(); }
+			if(idx >= curLine.size()) { 
+				readline(); 
+			}
+		}
+		if(idx < curLine.size() && curLine[idx] == '#') {
+			readline();
+			goto begin;
 		}
 	}
 };
