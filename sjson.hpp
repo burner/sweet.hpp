@@ -1,5 +1,4 @@
-#ifndef SWEE_TCPPJSON_HPP
-#define SWEE_TCPPJSON_HPP
+#pragma once
 
 #include <memory>
 #include <string>
@@ -329,20 +328,39 @@ public:
 	}
 
 	inline std::string parseString() {
-		size_t f = idx;
-		for(; f < curLine.size(); ++f) {
-			if(curLine[f] == '"' && curLine[f-1] != '\\') {
-				break;
+		std::stringstream ss;
+		size_t f;
+		do {
+			con:
+			f = idx;
+			for(; f < curLine.size(); ++f) {
+				if(curLine[f] == '"' && curLine[f-1] != '\\') {
+					ss<<curLine.substr(idx, f-idx);
+
+					if(f+1 < curLine.size() && curLine[f+1] == '\\') {
+						idx = f+2;
+						eatWhitespace();
+						testAndEatOrThrow('"', "parseString");
+						goto con;
+					}
+					goto br1;
+				}
 			}
-		}
-		if(f == curLine.size()) { 
-			throw std::logic_error(locToStr() + " excepted and '\"'"); }
-		else { 
+			ss<<curLine.substr(idx, f-idx);
+			readline();
+		} while(eof);
+
+		throw std::logic_error(locToStr() + " excepted and '\"'"); 
+
+		br1:
+		/*if(f == curLine.size()) { 
+			throw std::logic_error(locToStr() + " excepted and '\"'"); 
+		} else { 
 			std::string ret = curLine.substr(idx, f-idx); 
 			//std::cout<<ret<<std::endl;
-			idx = f+1; 
-			return ret;
-		}
+		}*/
+		idx = f+1; 
+		return ss.str();
 	}
 
 	inline bool parseNull() {
@@ -537,4 +555,3 @@ inline std::ostream& operator<<(std::ostream& o, const jsonparser& p) {
 }
 
 } // cppjson
-#endif
