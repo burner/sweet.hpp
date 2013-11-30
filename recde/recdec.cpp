@@ -832,7 +832,9 @@ void RecurDec::genAstClassDeclEnd(const std::set<RulePart>& allValues) {
 			//format(out.astH, "\t%sPtr %s;\n", it.name, it.storeName);
 			format(out.astH, "\t%sPtr %s;\n", it.second, it.first);
 		} else {
-			ASSERT_T_MSG(false, "nor token neither rule");
+			ASSERT_T_MSG(false, format("'%s' nor token neither rule",
+				it.second
+			));
 		}
 	}
 	format(out.astH, "\t%sEnum rule;\n", current);
