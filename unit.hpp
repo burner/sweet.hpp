@@ -130,9 +130,9 @@ __VA_ARGS__)
 
 #define IF_BREAK(e)			if(!e) return;
 
-#define UNIT_COMPARE(compare,result,e1,e2,msg,c) IF_BREAK\
-(Unit::Unittest::evaluate(compare,result, e1, e2, #e1, #e2,__FILE__, __LINE__\
-,msg,c))
+#define UNIT_COMPARE(compare,result,e1,e2,msg,c) this->increNumAsserts(); \
+IF_BREAK (Unit::Unittest::evaluate(compare,result, e1, e2, #e1, #e2,\
+__FILE__, __LINE__ ,msg,c))
 
 #define UNIT_COMPARED(compare,result,e1,e2,msg,c) \
 Unit::Unittest::evaluates(compare, result, e1, e2, #e1, #e2,__FILE__, __LINE__,\
@@ -178,6 +178,11 @@ namespace Unit {
 		return tests;
 	}
 
+	inline unsigned& getNumOfAsserts() {
+		static unsigned numAsserts;
+		return numAsserts;
+	}
+
 	class Unittest {
 	public:
 		Unittest(const string& name, std::string f, int l, int count = 1,
@@ -186,6 +191,10 @@ namespace Unit {
 				errors_(0), out_(&cerr) 
 		{
 			getTests().push_back(this);
+		}
+
+		inline void increNumAsserts() {
+			getNumOfAsserts()++;
 		}
 
 		template<typename E1, typename E2, typename C> 
