@@ -41,6 +41,7 @@ int main() {
 #include <vector>
 #include <iostream>
 #include <fstream>
+#include <functional>
 #include <chrono>
 #include <cmath>
 #include <type_traits>
@@ -138,6 +139,7 @@ Unit::Unittest::evaluates(compare, result, e1, e2, #e1, #e2,__FILE__, __LINE__,\
 &std::cout, "", true, msg, c)
 
 namespace Unit {
+
 	using namespace std;
 	static inline string sname(const string& str) {
 		size_t idx(str.rfind('/'));

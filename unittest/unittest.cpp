@@ -1,11 +1,12 @@
 //#include "format.hpp"
 //#include "logger.hpp"
+#include <cstddef>
 #include <iostream>
 #include <iostream> // optional
 #include <stdexcept> // optional
 #include <unit.hpp>
 #include <logger.hpp>
-	
+
 UNITTEST(fancyname) {
 	//std::ofstream unittestlog("testlog.tst");	// optional
 	// this->setOutputStream(&unittestlog); 	// optional
@@ -44,13 +45,9 @@ UNITTEST(bar) {
 	//throw std::logic_error("something went wrong");
 }
 
-UNITTEST(bar2) {
-	//throw std::string("something went wrong");
-}
-
 int main() {
 	unsigned c = 0;
-	if(c = Unit::runTests("TheNameOfTheFileWithTheBenchmarkResults")) {
+	if((c = Unit::runTests("TheNameOfTheFileWithTheBenchmarkResults"))) {
 		WARN("%u errors occured", c);
 	}
 	//formatToStream(std::cout, "hello print world %10d\n", 10);
