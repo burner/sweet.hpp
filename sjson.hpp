@@ -328,6 +328,11 @@ public:
 		else { ++idx; return true; }
 	}
 
+	inline bool stringBreak(const char c) {
+		return c == ':' || c == '}' || c == '{' || c == '[' || c == ']' 
+			|| c == ',';
+	}
+
 	inline std::string parseString() {
 		std::stringstream ss;
 		bool isTickString = curLine[idx] == '"';
@@ -336,28 +341,23 @@ public:
 		}
 
 		for(; idx < curLine.size(); ++idx) {
-			//LOG("%b %c %u %u", isTickString, curLine[idx], idx, curLine.size());
-			if(!isTickString && std::isspace(curLine[idx])) {
-				//LOG();
+			if(!isTickString && 
+					(std::isspace(curLine[idx]) || stringBreak(curLine[idx]))) {
 				break;
 			} else if(isTickString && idx > 0 && curLine[idx] == '"' &&
 					curLine[idx-1] != '\\') {
-				//LOG();
 				break;
 			} else if(isTickString && idx+1 < curLine.size() && 
 					curLine[idx] == '"' && curLine[idx+1] == '\\') {
-				//LOG();
 				++idx;
 				eatWhitespace();
 				continue;
 			} 
-			//LOG("%c", curLine[idx]);
 			ss<<curLine[idx];
 		}
 		if(isTickString) {
 			++idx;
 		}
-		//LOG(ss.str());
 		return ss.str();
 	}
 
