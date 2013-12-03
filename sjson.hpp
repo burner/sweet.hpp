@@ -12,6 +12,7 @@
 #include <ostream>
 #include <vector>
 #include <assert.h>
+#include <logger.hpp>
 
 namespace sjson {
 
@@ -329,53 +330,46 @@ public:
 
 	inline std::string parseString() {
 		std::stringstream ss;
-		size_t f;
-		do {
-			con:
-			f = idx;
-			for(; f < curLine.size(); ++f) {
-				if(curLine[f] == '"' && curLine[f-1] != '\\') {
-					ss<<curLine.substr(idx, f-idx);
+		bool isTickString = curLine[idx] == '"';
+		if(isTickString) { 
+			++idx; 
+		}
 
-					if(f+1 < curLine.size() && curLine[f+1] == '\\') {
-						idx = f+2;
-						eatWhitespace();
-						testAndEatOrThrow('"', "parseString");
-						goto con;
-					}
-					goto br1;
-				}
-			}
-			ss<<curLine.substr(idx, f-idx);
-			readline();
-		} while(eof);
-
-		throw std::logic_error(locToStr() + " excepted and '\"'"); 
-
-		br1:
-		/*if(f == curLine.size()) { 
-			throw std::logic_error(locToStr() + " excepted and '\"'"); 
-		} else { 
-			std::string ret = curLine.substr(idx, f-idx); 
-			//std::cout<<ret<<std::endl;
-		}*/
-		idx = f+1; 
+		for(; idx < curLine.size(); ++idx) {
+			//LOG("%b %c %u %u", isTickString, curLine[idx], idx, curLine.size());
+			if(!isTickString && std::isspace(curLine[idx])) {
+				//LOG();
+				break;
+			} else if(isTickString && idx > 0 && curLine[idx] == '"' &&
+					curLine[idx-1] != '\\') {
+				//LOG();
+				break;
+			} else if(isTickString && idx+1 < curLine.size() && 
+					curLine[idx] == '"' && curLine[idx+1] == '\\') {
+				//LOG();
+				++idx;
+				eatWhitespace();
+				continue;
+			} 
+			//LOG("%c", curLine[idx]);
+			ss<<curLine[idx];
+		}
+		if(isTickString) {
+			++idx;
+		}
+		//LOG(ss.str());
 		return ss.str();
 	}
 
-	inline bool parseNull() {
+	inline std::string parseNullOrString() {
 		size_t f = idx;
-		for(size_t i = 0; f < curLine.size() && i < 4; ++f, ++i) {
-			if(i == 0 && curLine[f] != 'n') {
-				return false;
-			} else if(i == 1 && curLine[f] != 'u') {
-				return false;
-			} else if((i == 2 || i == 3) && curLine[f] != 'l') {
-				return false;
-			}
+		std::string ret;
+		for(;f < curLine.size() && std::isalnum(curLine[f]); ++f) {
+			std::cout<<curLine[f]<<std::endl;
+			ret.push_back(curLine[f]);
 		}
 		idx = f+1;
-		return true;
+		return ret;
 	}
 
 	inline std::string parseNumber() {
@@ -398,7 +392,7 @@ public:
 
 		do {
 			eatWhitespace();
-			testAndEatOrThrow('"', "Object");
+			//testAndEatOrThrow('"', "Object");
 			std::string name(parseString());
 			eatWhitespace();
 			testAndEatOrThrow(':', "Object");
@@ -434,6 +428,7 @@ public:
 			ret->setType(value::type_array);
 			return ret;
 		} else if(testAndEatOrThrow('"', "Value", true)) {
+			--idx;
 			return std::make_shared<value>(parseString());
 		} else if(isdigit(curLine[idx]) || curLine[idx] == '+' || 
 				curLine[idx] == '-') {
@@ -448,10 +443,16 @@ public:
 			ValuePtr ret(std::make_shared<value>());
 			ret->setType(value::type_object);
 			return ret;
-		} else if(parseNull()) {
-			ValuePtr ret(std::make_shared<value>());
-			ret->setType(value::type_null);
-			return ret;
+		//} else if(parseNullOrString()) {
+		} else if(std::islower(curLine[idx]) || std::isupper(curLine[idx])) {
+			std::string parsedString(parseNullOrString());
+			if(parsedString == "null") {
+				ValuePtr ret(std::make_shared<value>());
+				ret->setType(value::type_null);
+				return ret;
+			} else {
+				return std::make_shared<value>(parsedString);
+			}
 		}
 		throw std::logic_error(locToStr() + " no value found curLine(" +
 				curLine + ") curChar(" + curLine[idx] + ")");
@@ -470,8 +471,8 @@ public:
 			if(curLine[idx] == ']') {
 				++idx;
 				return ret;
-			}
-			ret.push_back(parseValue());
+				}
+				ret.push_back(parseValue());
 			eatWhitespace();
 			if(curLine[idx] == ',') {
 				++idx;
@@ -540,11 +541,11 @@ inline void print(std::ostream& o, ValuePtr v, size_t tab, bool) {
 }
 
 inline void print(std::ostream& o, ObjectPtr p, size_t tab, bool firstIn) {
-	if(!firstIn) for(size_t i = 0; i < tab; ++i) { o<<'\t'; }
+	if(!firstIn) for(size_t i = 0; i < tab; ++i) { o<<"    "; }
 	o<<'{'<<std::endl;
 	auto it = p->getMappings().begin();
 	for(; it != p->getMappings().end();) {
-		for(size_t i = 0; i < tab+1; ++i) { o<<'\t'; }
+		for(size_t i = 0; i < tab+1; ++i) { o<<"    "; }
 		o<<(*it).first<<" : "; print(o, (*it).second, tab+1, false);
 		if((++it) != p->getMappings().end()) { o<<','; }
 		o<<std::endl;

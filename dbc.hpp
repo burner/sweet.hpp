@@ -52,7 +52,7 @@ fancyNameNobodyWillEverGuess
 #define Esr(tests) sweet::testEnsure(__FILE__, __LINE__, tests)
 
 // Main convience macros
-#define Rqr(tests...) sweet::testCondition(__FILE__, __LINE__, tests)
+#define Rqr(...) sweet::testCondition(__FILE__, __LINE__, __VA_ARGS__)
 
 namespace sweet {
 

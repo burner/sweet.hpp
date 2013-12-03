@@ -23,14 +23,14 @@ inline void __cpuid(int CPUInfo[4],int InfoType) {
 }
 #endif
 
+#ifdef __clang__
 #ifdef __i386
-__inline__ uint64_t __rdtsc() {
+__inline__ __attribute__((gnu_inline)) uint64_t __rdtsc() {
   uint64_t x;
   __asm__ volatile ("rdtsc" : "=A" (x));
   return x;
 }
 #elif __amd64
-#ifdef __clang__
 __inline__ uint64_t __rdtsc() {
   uint64_t a, d;
   __asm__ volatile ("rdtsc" : "=a" (a), "=d" (d));
