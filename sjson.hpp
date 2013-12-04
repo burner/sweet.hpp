@@ -345,12 +345,17 @@ public:
 					(std::isspace(curLine[idx]) || stringBreak(curLine[idx]))) {
 				break;
 			} else if(isTickString && idx > 0 && curLine[idx] == '"' &&
-					curLine[idx-1] != '\\') {
+					curLine[idx-1] != '\\' && !(idx+1 < curLine.size() && curLine[idx+1] == '\\')) {
 				break;
 			} else if(isTickString && idx+1 < curLine.size() && 
 					curLine[idx] == '"' && curLine[idx+1] == '\\') {
-				++idx;
+				idx+=2;
 				eatWhitespace();
+				if(curLine[idx] != '"') {
+					throw std::logic_error(locToStr() + std::string(
+						" excepeted a \" but found a " + curLine[idx]
+					));
+				}
 				continue;
 			} 
 			ss<<curLine[idx];
