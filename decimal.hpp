@@ -56,7 +56,7 @@ public:
 		typename std::enable_if<std::is_floating_point<T>::value >::type* = 0) 
 	{
 		this->fixed = static_cast<int64_t>(t);
-		this->fraction = static_cast<int64_t>(fmod(t, 1.0)) * this->fractionLength;
+		this->fraction = static_cast<int64_t>(fmod(t, 1.0) * Decimal::fractionLength);
 	}
 
 	template<typename T>
