@@ -29,12 +29,6 @@ public:
 		return *this;
 	}
 
-	/*Decimal& operator=(const Decimal& o) {
-	   	this->fixed = o.fixed; 
-		this->fraction = o.fraction;
-		return *this;
-	}*/
-
 	template<typename T>
 	Decimal(T t) {
 		this->set(t);
@@ -118,8 +112,91 @@ public:
 	}
 
 	template<typename T>
-	Decimal& operator==	(T t) {
+	Decimal minus(T t, 
+		typename std::enable_if<std::is_same<Decimal,T>::value >::type* = 0) 
+		const 
+	{
+		Decimal ret(*this);
+		ret.fixed -= t.fixed;
+		ret.fraction -= t.fraction;
+		if(ret.fraction < 0u) {
+			ret.fraction = fractionLength + ret.fraction;
+		}
+		return ret;
 	}
+
+	template<typename T>
+	Decimal minus(T t, 
+		typename std::enable_if<std::is_integral<T>::value >::type* = 0) 
+		const 
+	{
+		Decimal ret = *this;
+		ret.fixed -= t;
+		return ret;
+	}
+
+	template<typename T>
+	Decimal minus(T t, 
+		typename std::enable_if<std::is_floating_point<T>::value >::type* = 0) 
+		const 
+	{
+		Decimal ret(t);
+		return this->minus(ret);
+	}
+
+	template<typename T>
+	Decimal operator-(T t) const {
+		return this->minus(t);
+	}
+
+	template<typename T>
+	Decimal& operator-=(T t) {
+		*this = this->minus(t);
+		return *this;
+	}
+
+	//
+	// Comparision
+	//
+
+	template<typename T>
+	int compare(T t,
+		typename std::enable_if<
+			std::is_same<typename std::remove_reference<T>::type,Decimal>::value
+		>::type* = 0) const
+	{
+		int fi = this->fixed == t.fixed ? 0 : 
+				this->fixed < t.fixed ? -1 : 1;
+
+		int fa = this->fraction == t.fraction ? 0 : 
+				this->fraction < t.fraction ? -1 : 1;
+
+		return fi ? fa : fi;
+	}
+
+	template<typename T>
+	int compare(T t, 
+		typename std::enable_if<std::is_integral<T>::value >::type* = 0) 
+		const 
+	{
+		Decimal d(t);
+		return this->compare(d);
+
+	}
+	template<typename T>
+	int compare(T t, 
+		typename std::enable_if<std::is_floating_point<T>::value >::type* = 0) 
+		const 
+	{
+		Decimal d(t);
+		return this->compare(d);
+	}
+
+	template<typename T>
+	Decimal& operator==	(T t) const {
+		return this->compare(t) == 0;
+	}
+	
 
 private:
 	int64_t fixed;

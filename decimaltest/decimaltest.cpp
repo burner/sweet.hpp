@@ -18,6 +18,14 @@ UNITTEST(decimal1) {
 	std::cout<<d1<<std::endl;
 }
 
+UNITTEST(decimal2minus) {
+	Decimal d(1.0);
+
+	std::cout<<"\n"<<d<<std::endl;
+	auto d2 = d - Decimal(1.1);
+	std::cout<<d2<<std::endl;
+}
+
 int main() {
 	Unit::runTests();
 	return 0;
