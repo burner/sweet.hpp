@@ -13,6 +13,9 @@ UNITTEST(decimal1) {
 	std::cout<<d2<<std::endl;
 	Decimal d3(0.1);
 	std::cout<<d3<<std::endl;
+
+	d1 = d3;
+	std::cout<<d1<<std::endl;
 }
 
 int main() {

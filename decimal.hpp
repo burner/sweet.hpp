@@ -10,6 +10,11 @@
 class Decimal {
 	friend std::ostream& operator<<(std::ostream&,const Decimal&);
 public:
+
+	//
+	// Constructor and assignment operator
+	//
+
 	Decimal() : fixed(0llu), fraction(0llu) {}
 
 	Decimal(const Decimal&& o) : fixed(o.fixed), fraction(o.fraction) {
@@ -18,17 +23,17 @@ public:
 	Decimal(const Decimal& o) : fixed(o.fixed), fraction(o.fraction) {
 	}
 
-	Decimal& operator=(const Decimal&& o) {
-	   	this->fixed = o.fixed; 
-		this->fraction = o.fraction;
+	template<typename T>
+	Decimal& operator=(T&& t) {
+		this->set<T>(t);
 		return *this;
 	}
 
-	Decimal& operator=(const Decimal& o) {
+	/*Decimal& operator=(const Decimal& o) {
 	   	this->fixed = o.fixed; 
 		this->fraction = o.fraction;
 		return *this;
-	}
+	}*/
 
 	template<typename T>
 	Decimal(T t) {
@@ -37,7 +42,9 @@ public:
 
 	template<typename T>
 	void set(T t,
-		typename std::enable_if<std::is_same<Decimal,T>::value >::type* = 0) 
+		typename std::enable_if<
+			std::is_same<typename std::remove_reference<T>::type,Decimal>::value
+		>::type* = 0) 
 	{
 		this->fixed = t.fixed;
 		this->fraction = t.fraction;
@@ -56,8 +63,14 @@ public:
 		typename std::enable_if<std::is_floating_point<T>::value >::type* = 0) 
 	{
 		this->fixed = static_cast<int64_t>(t);
-		this->fraction = static_cast<int64_t>(fmod(t, 1.0) * Decimal::fractionLength);
+		this->fraction = static_cast<int64_t>(fmod(t, 1.0) * 
+			Decimal::fractionLength
+		);
 	}
+
+	//
+	// Operator
+	//
 
 	template<typename T>
 	Decimal add(T t, 
@@ -102,6 +115,10 @@ public:
 	Decimal& operator+=(T t) {
 		*this = this->add(t);
 		return *this;
+	}
+
+	template<typename T>
+	Decimal& operator==	(T t) {
 	}
 
 private:
