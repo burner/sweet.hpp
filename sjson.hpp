@@ -370,7 +370,7 @@ public:
 		size_t f = idx;
 		std::string ret;
 		for(;f < curLine.size() && std::isalnum(curLine[f]); ++f) {
-			std::cout<<curLine[f]<<std::endl;
+			//std::cout<<curLine[f]<<std::endl;
 			ret.push_back(curLine[f]);
 		}
 		idx = f+1;
