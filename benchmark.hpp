@@ -1,14 +1,16 @@
 // LGPL 3 or higher Robert Burner Schadek rburners@gmail.com
-#ifndef SWEET_BENCHMARK_HPP
-#define SWEET_BENCHMARK_HPP
+#pragma once
 
 #include <chrono>
 #include <string>
 #include <vector>
 #include <iostream>
 #include <iomanip>
+#include <memory>
+#include <mutex>
 #include <algorithm>
 #include <math.h>
+#include <int128.hpp>
 
 #ifndef _WIN32
 inline void __cpuid(int CPUInfo[4],int InfoType) {
@@ -114,18 +116,23 @@ public:
 	long long line;
 	long long cnt;
 	long long time;
-	long long ticks;
+	//long long ticks;
+	std::shared_ptr<std::mutex> tickMutex;
+	int128 ticks;
 
-	inline Benchmark() {}
-	inline Benchmark(const std::string& n, const std::string& pf, const std::string& fn, int l) : 
-			name(n), prettyFunc(pf), filename(fn), line(l), cnt(0), time(0), ticks(0) {
+	inline Benchmark() : tickMutex(std::make_shared<std::mutex>()) {}
+	inline Benchmark(const std::string& n, const std::string& pf, 
+			const std::string& fn, int l) : name(n), prettyFunc(pf), 
+			filename(fn), line(l), cnt(0), time(0), 
+			tickMutex(std::make_shared<std::mutex>()), ticks(0ll) {
 		Benchmark::getBenchClasses().push_back(this);
 	}
 
-	inline void saveTimeAndIncCounter(unsigned long time, long long tick) { 
+	inline void saveTimeAndIncCounter(unsigned long time, int128 tick) { 
 		__sync_add_and_fetch(&this->cnt, static_cast<unsigned long>(1));
 		__sync_add_and_fetch(&this->time, time);
-		__sync_add_and_fetch(&this->ticks, tick);
+		std::lock_guard<std::mutex> lock(*tickMutex.get());
+		ticks += tick;
 	}
 
 	static inline std::string sname(const std::string& str) {
@@ -166,22 +173,23 @@ public:
 
 		for(auto& it : rslt) {
 			it.filename = sname(it.filename);
-			nLen = nLen > static_cast<long long>(it.name.size()) ? nLen : static_cast<long long>(it.name.size());
+			nLen = nLen > static_cast<long long>(it.name.size()) ? nLen : 
+				static_cast<long long>(it.name.size());
 			fLen = fLen > static_cast<long long>(it.filename.size()) ? fLen : 
 					static_cast<long long>(it.filename.size());
 			tLen = tLen > it.time ? tLen : it.time;
-			lLen = static_cast<long long>(lLen > static_cast<long long>(log10(it.line)) ? 
-				lLen : log10(it.line)
+			lLen = static_cast<long long>(lLen > static_cast<long long>(log10(it.line)+1) ? 
+				lLen : log10(it.line)+1
 			);
-			tiLen = static_cast<long long>(tiLen > static_cast<long long>(log10(it.ticks)) ? 
-				tiLen : log10(it.ticks)
+			tiLen = static_cast<long long>(tiLen > static_cast<long long>(it.ticks.digits()) ? 
+				tiLen : it.ticks.digits()
 			);
 			cLen = static_cast<long long>(cLen > static_cast<long long>(log10(it.cnt)) ? 
 				cLen : log10(it.cnt)
 			);
 		}
 		tLen =  std::max(static_cast<long long>(log10(tLen)), static_cast<long long>(time.size()));
-		tiLen = std::max(static_cast<long long>(log10(tiLen)),static_cast<long long>(numTicks.size()));
+		tiLen = std::max(static_cast<long long>(tiLen),static_cast<long long>(numTicks.size()));
 		cLen = std::max(static_cast<long long>(log10(cLen)),static_cast<long long>(numCalls.size()));
 		++nLen; ++tLen; ++fLen; ++lLen, ++cLen;
 
@@ -202,7 +210,7 @@ public:
 class C {
 	Benchmark* store;
 	std::chrono::time_point<std::chrono::system_clock> strt;
-	long long ticks;
+	int128 ticks;
 public:
 	inline C(Benchmark* s) : store(s), strt(std::chrono::system_clock::now()),
    		ticks(readTicks()) 
@@ -213,7 +221,7 @@ public:
 			std::chrono::duration_cast<std::chrono::milliseconds>(
 				std::chrono::system_clock::now()-strt
 			).count(),
-			readTicks() - ticks			
+			int128(readTicks()) - ticks			
 		);
 	}
 };
@@ -226,6 +234,4 @@ public:
 #define BENCH(name) static Benchmark CONCAT_IMPL(name, fooBar_youCantGuessMe) \
 (#name,__PRETTY_FUNCTION__,__FILE__,__LINE__); \
 C CONCAT_IMPL(name, __COUNTER__)(& CONCAT_IMPL(name, fooBar_youCantGuessMe))
-#endif
-
 #endif

@@ -1,3 +1,7 @@
+#pragma GCC diagnostic ignored "-Wunused-function"
+#pragma GCC diagnostic ignored "-Wsign-compare"
+#pragma GCC diagnostic ignored "-Wunused-variable"
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
@@ -21,11 +25,23 @@ struct int128 {
 	int64_t high;
 	uint64_t low;
 
-	inline int128(): high(0), low(0) { }
-	
-	inline int128(uint64_t x): high(0), low(x) { }
-	
+	explicit inline int128(): high(0), low(0) { }
+	explicit inline int128(uint64_t x): high(0), low(x) { }
 	inline int128(const int128& x): high(x.high), low(x.low) { }
+
+	template<typename T>
+	void set(T t,
+		typename std::enable_if<std::is_integral<T>::value >::type* = 0) 
+	{
+		this->low = t;
+		this->high = 0;
+	}
+
+	template<typename T>
+	int128 operator=(T t) {
+		this->set(t);
+		return *this;
+	}
 
 	inline operator int () {
 		int result;
@@ -42,8 +58,6 @@ struct int128 {
 	}
 
 	inline operator long long () {
-		long long result;
-
 		return low;
 	}
 
@@ -71,7 +85,7 @@ struct int128 {
 		return result;
 	}
 
-	inline int128(int x) {
+	explicit inline int128(int x) {
 		this->low = x;
 	
 		if(x < 0) {
@@ -81,7 +95,7 @@ struct int128 {
 		}
 	}
 	
-	inline int128 (int64_t x) {
+	explicit inline int128 (int64_t x) {
 		this->low = x;
 	
 		if(x < 0) {
@@ -91,7 +105,7 @@ struct int128 {
 		}
 	}
 	
-	inline int128 (double x) {
+	explicit inline int128 (double x) {
 		uint64_t t, m, h, l;
 	
 		if(x < -1.7014118346046e38) {
@@ -140,6 +154,12 @@ struct int128 {
 			this->low = ALLBITS;
 		}
 	}
+
+	inline size_t digits() const {
+		size_t l(log10(this->low));
+		size_t h(log10(abs(this->high)));
+		return l+h;
+	}
 };
 
 inline int operator < ( const int128 & lhs, const int128 & rhs ) {
@@ -154,9 +174,7 @@ inline int operator < ( const int128 & lhs, const int128 & rhs ) {
 }
 
 inline int operator < ( const int128 & lhs, int32_t rhs ) {
-	int128 r;
-
-	r = rhs;
+	int128 r(rhs);
 
 	if(lhs.high < r.high)
 		return 1;
@@ -183,9 +201,7 @@ inline int operator <= ( const int128 & lhs, const int128 & rhs ) {
 }
 
 inline int operator <= ( const int128 & lhs, int32_t rhs ) {
-	int128 t;
-
-	t = rhs;
+	int128 t(rhs);
 
 	if((lhs.high == t.high) && (lhs.low == t.low))
 		return 1;
@@ -209,9 +225,7 @@ inline int operator == ( const int128 & lhs, const int128 & rhs ) {
 }
 
 inline int operator == ( const int128 & lhs, int32_t rhs ) {
-	int128 t;
-
-	t = rhs;
+	int128 t(rhs);
 
 	return ((lhs.high == t.high) && (lhs.low == t.low));
 }
@@ -225,9 +239,7 @@ inline int operator != ( const int128 & lhs, const int128 & rhs ) {
 }
 
 inline int operator != ( const int128 & lhs, int32_t rhs ) {
-	int128 t;
-
-	t = rhs;
+	int128 t(rhs);
 
 	return ( (lhs.high != t.high) || (lhs.low != t.low) );
 }
@@ -244,9 +256,7 @@ inline int operator > ( const int128 & lhs, const int128 & rhs ) {
 }
 
 inline int operator > ( const int128 & lhs, int32_t rhs ) {
-	int128 t;
-
-	t = rhs;
+	int128 t(rhs);
 
 	if(lhs.high > t.high)
 		return 1;
@@ -486,7 +496,7 @@ inline int128 operator * ( const int128 & lhs, uint64_t rhs ) {
 	int128 rv;
 
 	t = rhs;
-	rv = mult1(lhs, rhs);
+	rv = mult1(lhs, int128(rhs));
 
 	return rv;
 }
@@ -496,7 +506,7 @@ inline int128 operator * ( const int128 & lhs, int32_t rhs ) {
 	int128 rv;
 
 	t = rhs;
-	rv = mult1(lhs, rhs);
+	rv = mult1(lhs, int128(rhs));
 
 	return rv;
 }
@@ -653,7 +663,7 @@ static void int128_str(int128 x, char *s) {
 	*s=0;
 }
 
-std::ostream& operator<<(std::ostream& os, int128 i) {
+inline std::ostream& operator<<(std::ostream& os, int128 i) {
 	char out[128] = {'\0'};
 	int128_str(i, out);
 	os<<out;
@@ -662,32 +672,40 @@ std::ostream& operator<<(std::ostream& os, int128 i) {
 
 inline int128 operator += ( int128 & lhs, const int128 & rhs )  {
 	lhs = lhs + rhs;
+	return lhs;
 }
 
 inline int128 operator += ( int128 & lhs, const int64_t & rhs )  {
 	lhs = lhs + rhs;
+	return lhs;
 }
 
 inline int128 operator -= ( int128 & lhs, const int128 & rhs )  {
 	lhs = lhs - rhs;
+	return lhs;
 }
 
 inline int128 operator -= ( int128 & lhs, const int64_t & rhs )  {
 	lhs = lhs - ((int128)rhs);
+	return lhs;
 }
 
 inline int128 operator *= ( int128 & lhs, const int128 & rhs )  {
 	lhs = lhs * rhs;
+	return lhs;
 }
 
 inline int128 operator *= ( int128 & lhs, const int64_t & rhs )  {
 	lhs = lhs * ((int128) rhs);
+	return lhs;
 }
 
 inline int128 operator /= ( int128 & lhs, const int128 & rhs )  {
 	lhs = lhs / rhs;
+	return lhs;
 }
 
 inline int128 operator /= ( int128 & lhs, const int64_t & rhs )  {
 	lhs = lhs / ((int128) rhs);
+	return lhs;
 }
