@@ -112,6 +112,28 @@ public:
 	}
 
 	template<typename T>
+	Decimal operator-(T t) const {
+		return this->minus(t);
+	}
+
+	template<typename T>
+	Decimal& operator-=(T t) {
+		*this = this->minus(t);
+		return *this;
+	}
+
+	//
+	// Comparision
+	//
+
+	template<typename T>
+	Decimal& operator==	(T t) const {
+		return this->compare(t) == 0;
+	}
+	
+
+private:
+	template<typename T>
 	Decimal minus(T t, 
 		typename std::enable_if<std::is_same<Decimal,T>::value >::type* = 0) 
 		const 
@@ -143,21 +165,6 @@ public:
 		Decimal ret(t);
 		return this->minus(ret);
 	}
-
-	template<typename T>
-	Decimal operator-(T t) const {
-		return this->minus(t);
-	}
-
-	template<typename T>
-	Decimal& operator-=(T t) {
-		*this = this->minus(t);
-		return *this;
-	}
-
-	//
-	// Comparision
-	//
 
 	template<typename T>
 	int compare(T t,
@@ -192,13 +199,6 @@ public:
 		return this->compare(d);
 	}
 
-	template<typename T>
-	Decimal& operator==	(T t) const {
-		return this->compare(t) == 0;
-	}
-	
-
-private:
 	int64_t fixed;
 	int64_t fraction;
 
