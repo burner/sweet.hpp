@@ -34,6 +34,56 @@ public:
 		this->set(t);
 	}
 
+	//
+	// Operator
+	//
+
+	template<typename T>
+	Decimal operator+(T t) const {
+		return this->add(t);
+	}
+
+	template<typename T>
+	Decimal& operator+=(T t) {
+		*this = this->add(t);
+		return *this;
+	}
+
+	template<typename T>
+	Decimal operator-(T t) const {
+		return this->minus(t);
+	}
+
+	template<typename T>
+	Decimal& operator-=(T t) {
+		*this = this->minus(t);
+		return *this;
+	}
+
+	//
+	// Comparision
+	//
+
+	template<typename T>
+	bool operator==(T t) const {
+		return this->compare(t) == 0;
+	}
+
+	template<typename T>
+	bool operator<(T t) const {
+		return this->compare(t) == -1;
+	}
+
+	template<typename T>
+	bool operator>(T t) const {
+		return this->compare(t) == 1;
+	}
+
+private:
+
+	//
+	// setting
+	//
 	template<typename T>
 	void set(T t,
 		typename std::enable_if<
@@ -63,9 +113,8 @@ public:
 	}
 
 	//
-	// Operator
+	// add
 	//
-
 	template<typename T>
 	Decimal add(T t, 
 		typename std::enable_if<std::is_same<Decimal,T>::value >::type* = 0) 
@@ -101,39 +150,6 @@ public:
 	}
 
 	template<typename T>
-	Decimal operator+(T t) const {
-		return this->add(t);
-	}
-
-	template<typename T>
-	Decimal& operator+=(T t) {
-		*this = this->add(t);
-		return *this;
-	}
-
-	template<typename T>
-	Decimal operator-(T t) const {
-		return this->minus(t);
-	}
-
-	template<typename T>
-	Decimal& operator-=(T t) {
-		*this = this->minus(t);
-		return *this;
-	}
-
-	//
-	// Comparision
-	//
-
-	template<typename T>
-	Decimal& operator==	(T t) const {
-		return this->compare(t) == 0;
-	}
-	
-
-private:
-	template<typename T>
 	Decimal minus(T t, 
 		typename std::enable_if<std::is_same<Decimal,T>::value >::type* = 0) 
 		const 
@@ -147,6 +163,9 @@ private:
 		return ret;
 	}
 
+	//
+	// minus
+	//
 	template<typename T>
 	Decimal minus(T t, 
 		typename std::enable_if<std::is_integral<T>::value >::type* = 0) 
@@ -166,6 +185,9 @@ private:
 		return this->minus(ret);
 	}
 
+	//
+	// comparision
+	//
 	template<typename T>
 	int compare(T t,
 		typename std::enable_if<
@@ -178,7 +200,7 @@ private:
 		int fa = this->fraction == t.fraction ? 0 : 
 				this->fraction < t.fraction ? -1 : 1;
 
-		return fi ? fa : fi;
+		return fi == 0 ? fa : fi;
 	}
 
 	template<typename T>
@@ -190,6 +212,7 @@ private:
 		return this->compare(d);
 
 	}
+
 	template<typename T>
 	int compare(T t, 
 		typename std::enable_if<std::is_floating_point<T>::value >::type* = 0) 
@@ -198,6 +221,10 @@ private:
 		Decimal d(t);
 		return this->compare(d);
 	}
+
+	//
+	// Data member
+	//
 
 	int64_t fixed;
 	int64_t fraction;

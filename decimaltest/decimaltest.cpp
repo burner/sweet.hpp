@@ -14,7 +14,11 @@ UNITTEST(decimal1) {
 	Decimal d3(0.1);
 	std::cout<<d3<<std::endl;
 
+	ASSERT_T_C(d1 > d3, [&](){
+		LOG("%s > %s", d1,d2);
+	});
 	d1 = d3;
+	ASSERT_EQ(d1,d3);
 	std::cout<<d1<<std::endl;
 }
 
