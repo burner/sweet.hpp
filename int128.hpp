@@ -26,6 +26,7 @@ struct int128 {
 	uint64_t low;
 
 	explicit inline int128(): high(0), low(0) { }
+	explicit inline int128(long long x): high(0), low(x) { }
 	explicit inline int128(uint64_t x): high(0), low(x) { }
 	inline int128(const int128& x): high(x.high), low(x.low) { }
 
