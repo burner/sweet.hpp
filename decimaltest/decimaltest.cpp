@@ -20,6 +20,7 @@ UNITTEST(decimal1) {
 	d1 = d3;
 	ASSERT_EQ(d1,d3);
 	std::cout<<d1<<std::endl;
+	d1 = d1 * d3;
 }
 
 UNITTEST(decimal2minus) {

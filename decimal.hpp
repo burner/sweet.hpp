@@ -60,6 +60,11 @@ public:
 		return *this;
 	}
 
+	template<typename T>
+	Decimal operator*(T t) const {
+		return this->multiply(t);
+	}
+
 	//
 	// Comparision
 	//
@@ -111,6 +116,37 @@ private:
 			Decimal::fractionLength
 		);
 	}
+	
+	//
+	// multiply
+	//
+	template<typename T>
+	Decimal multiply(T t, 
+		typename std::enable_if<std::is_same<Decimal,T>::value >::type* = 0) 
+		const 
+	{
+		Decimal ret(*this);
+		return ret;
+	}
+
+	template<typename T>
+	Decimal multiply(T t, 
+		typename std::enable_if<std::is_integral<T>::value >::type* = 0) 
+		const 
+	{
+		Decimal ret = *this;
+		ret.fixed += t;
+		return ret;
+	}
+
+	template<typename T>
+	Decimal multiply(T t, 
+		typename std::enable_if<std::is_floating_point<T>::value >::type* = 0) 
+		const 
+	{
+		Decimal ret(t);
+		return ret + *this;
+	}
 
 	//
 	// add
@@ -149,6 +185,9 @@ private:
 		return ret + *this;
 	}
 
+	//
+	// minus
+	//
 	template<typename T>
 	Decimal minus(T t, 
 		typename std::enable_if<std::is_same<Decimal,T>::value >::type* = 0) 
@@ -163,9 +202,6 @@ private:
 		return ret;
 	}
 
-	//
-	// minus
-	//
 	template<typename T>
 	Decimal minus(T t, 
 		typename std::enable_if<std::is_integral<T>::value >::type* = 0) 
