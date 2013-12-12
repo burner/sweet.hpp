@@ -1,4 +1,4 @@
-/* unit.hpp - a small but elegant Desing by Contract framework for C++ 
+/* dbc.hpp - a small but elegant Desing by Contract framework for C++ 
 Author: Robert "burner" Schadek rburners@gmail.com License: LGPL 3 or higher
 */
 

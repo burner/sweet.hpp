@@ -138,6 +138,7 @@ __FILE__, __LINE__ ,msg,c))
 Unit::Unittest::evaluates(compare, result, e1, e2, #e1, #e2,__FILE__, __LINE__,\
 &std::cout, "", true, msg, c)
 
+namespace sweet {
 namespace Unit {
 
 	using namespace std;
@@ -328,4 +329,5 @@ namespace Unit {
 		}
 		return rs;
 	}
+}
 }

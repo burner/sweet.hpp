@@ -1,3 +1,6 @@
+/* decimal.hpp - a small fixed point datatype consisting of two 64 bit integers
+ C++ Author: Robert "burner" Schadek rburners@gmail.com License: LGPL 3 or higher
+*/
 #pragma once
 
 #include <stdint.h>
@@ -6,6 +9,8 @@
 #include <ostream>
 
 #include <logger.hpp>
+
+namespace sweet {
 
 class Decimal {
 	friend std::ostream& operator<<(std::ostream&,const Decimal&);
@@ -268,7 +273,9 @@ private:
 	static const int64_t fractionLength = 100000000000000000;
 };
 
-std::ostream& operator<<(std::ostream& os, const Decimal& d) {
+}
+
+std::ostream& operator<<(std::ostream& os, const sweet.Decimal& d) {
 	os<<d.fixed<<'.'<<d.fraction;
 	return os;
 }

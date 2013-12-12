@@ -12,6 +12,8 @@
 #include <math.h>
 #include <int128.hpp>
 
+namespace sweet {
+
 #ifndef _WIN32
 inline void __cpuid(int CPUInfo[4],int InfoType) {
     __asm__ __volatile__ (
@@ -225,13 +227,15 @@ public:
 		);
 	}
 };
+}
 
 #define CONCAT_IMPL( x, y ) x##y
 
 #ifdef SWEET_NO_BENCHMARK
 #define BENCH(name)
 #else
-#define BENCH(name) static Benchmark CONCAT_IMPL(name, fooBar_youCantGuessMe) \
+#define BENCH(name) static sweet::Benchmark CONCAT_IMPL(name, fooBar_youCantGuessMe) \
 (#name,__PRETTY_FUNCTION__,__FILE__,__LINE__); \
-C CONCAT_IMPL(name, __COUNTER__)(& CONCAT_IMPL(name, fooBar_youCantGuessMe))
+sweet::C CONCAT_IMPL(name, __COUNTER__)(& CONCAT_IMPL(name, fooBar_youCantGuessMe))
 #endif
+

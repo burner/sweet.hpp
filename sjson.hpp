@@ -567,4 +567,4 @@ inline std::ostream& operator<<(std::ostream& o, const jsonparser& p) {
 	return o;
 }
 
-} // cppjson
+}

@@ -1,6 +1,5 @@
 // LGPL 3 or higher Robert Burner Schadek rburners@gmail.com
-#ifndef SWEET_OPTIONS_HPP
-#define SWEET_OPTIONS_HPP
+#pragma once
 #include <map>
 #include <unordered_map>
 #include <vector>
@@ -14,6 +13,8 @@
 #include <type_traits>
 #include "format.hpp"
 #include "conv.hpp"
+
+namespace sweet {
 
 class Options {
 	struct Option {
@@ -161,4 +162,5 @@ private:
 	std::vector<std::string>	argv;
 	MapType						mapping;
 };
-#endif
+}
+

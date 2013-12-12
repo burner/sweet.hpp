@@ -9,7 +9,7 @@
 #include <mutex>
 #include <unistd.h>
 
-namespace css {
+namespace sweet {
 
 inline unsigned getNumberOfCores() {
 	return sysconf(_SC_NPROCESSORS_ONLN);
