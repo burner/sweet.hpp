@@ -130,7 +130,7 @@ __VA_ARGS__)
 
 #define IF_BREAK(e)			if(!e) return;
 
-#define UNIT_COMPARE(compare,result,e1,e2,msg,c) this->increNumAsserts(); \
+#define UNIT_COMPARE(compare,result,e1,e2,msg,c); this->increNumAsserts(); \
 IF_BREAK (sweet::Unit::Unittest::evaluate(compare,result, e1, e2, #e1, #e2,\
 __FILE__, __LINE__ ,msg,c))
 
