@@ -16,6 +16,7 @@ UNITTEST(fancyname) {
 	AS_NEQ(42, 43);
 
 	AS_T(true)
+	AS_T_MSG(true, format("foo %d", a))
 	LOG("Hello");
 	AS_T(false)
 	LOG();

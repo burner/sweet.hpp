@@ -14,7 +14,7 @@
 #include <assert.h>
 #include <logger.hpp>
 
-namespace sjson {
+namespace sweet {
 
 class value;
 typedef std::shared_ptr<value> ValuePtr;
