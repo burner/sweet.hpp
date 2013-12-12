@@ -56,16 +56,16 @@ PP_HAS_ARGS_SOURCE())
 
 
 #define __UTEST_NOTEST_ONE(test_name) \
-class test_name##_test_class : public Unit::Unittest { void nevercall(); \
+class test_name##_test_class : public sweet::Unit::Unittest { void nevercall(); \
 public: \
-test_name##_test_class() : Unit::Unittest(#test_name,__FILE__,__LINE__) {} \
+test_name##_test_class() : sweet::Unit::Unittest(#test_name,__FILE__,__LINE__) {} \
 } test_name##_test_class_impl; \
 void test_name##_test_class::nevercall()
 
 #define __UTEST_NOTEST_MULTI(test_name,...) \
-class test_name##_test_class : public Unit::Unittest { void nevercall(); \
+class test_name##_test_class : public sweet::Unit::Unittest { void nevercall(); \
 public: \
-test_name##_test_class() : Unit::Unittest(#test_name,__FILE__,__LINE__,\
+test_name##_test_class() : sweet::Unit::Unittest(#test_name,__FILE__,__LINE__,\
 __VA_ARGS__) {}  } test_name##_test_class_impl; \
 void test_name##_test_class::nevercall()
 
@@ -78,16 +78,16 @@ __VA_ARGS__), __VA_ARGS__)
 
 
 #define __UTEST_ONE(test_name) \
-class test_name##_test_class : public Unit::Unittest { void run_impl(); \
+class test_name##_test_class : public sweet::Unit::Unittest { void run_impl(); \
 public: \
-test_name##_test_class() : Unit::Unittest(#test_name,__FILE__,__LINE__) {} \
+test_name##_test_class() : sweet::Unit::Unittest(#test_name,__FILE__,__LINE__) {} \
 } test_name##_test_class_impl; \
 void test_name##_test_class::run_impl()
 
 #define __UTEST_MULTI(test_name,...) \
-class test_name##_test_class : public Unit::Unittest { void run_impl(); \
+class test_name##_test_class : public sweet::Unit::Unittest { void run_impl(); \
 public: \
-test_name##_test_class() : Unit::Unittest(#test_name,__FILE__,__LINE__,\
+test_name##_test_class() : sweet::Unit::Unittest(#test_name,__FILE__,__LINE__,\
 __VA_ARGS__) {} } test_name##_test_class_impl; \
 void test_name##_test_class::run_impl()
 
@@ -131,11 +131,11 @@ __VA_ARGS__)
 #define IF_BREAK(e)			if(!e) return;
 
 #define UNIT_COMPARE(compare,result,e1,e2,msg,c) this->increNumAsserts(); \
-IF_BREAK (Unit::Unittest::evaluate(compare,result, e1, e2, #e1, #e2,\
+IF_BREAK (sweet::Unit::Unittest::evaluate(compare,result, e1, e2, #e1, #e2,\
 __FILE__, __LINE__ ,msg,c))
 
 #define UNIT_COMPARED(compare,result,e1,e2,msg,c) \
-Unit::Unittest::evaluates(compare, result, e1, e2, #e1, #e2,__FILE__, __LINE__,\
+sweet::Unit::Unittest::evaluates(compare, result, e1, e2, #e1, #e2,__FILE__, __LINE__,\
 &std::cout, "", true, msg, c)
 
 namespace sweet {
