@@ -5,7 +5,7 @@
 #include <unordered_set>
 
 #include "format.hpp"
-namespace SweetLogger {
+namespace sweet {
 
 #ifndef SWEET_NO_LOGGER
 inline std::unordered_set<size_t>& getAvaiLogger() {
@@ -76,8 +76,8 @@ struct Log {
 		}
 	}
 };
-#define LOG SweetLogger::Log(__FILE__,__LINE__)
-#define WARN SweetLogger::Log(__FILE__,__LINE__,true)
+#define LOG sweet::Log(__FILE__,__LINE__)
+#define WARN sweet::Log(__FILE__,__LINE__,true)
 
 #else
 struct Log {
@@ -97,7 +97,7 @@ inline bool enableLogger(const size_t) {
 inline bool disableLogger(const size_t) {
 	return false;
 }
-#define LOG SweetLogger::Log(__FILE__, __LINE__)
-#define WARN SweetLogger::Log(__FILE__, __LINE__,true) 
+#define LOG sweet::Log(__FILE__, __LINE__)
+#define WARN sweet::Log(__FILE__, __LINE__,true) 
 #endif
 }

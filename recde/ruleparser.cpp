@@ -38,13 +38,13 @@ RuleParser::RuleParser(const std::string& s, RuleStore& rs) : str(s), token(rs.t
 }
 
 void RuleParser::parse() {
-	sjson::jsonparser jp(str);
+	sweet::jsonparser jp(str);
 
 	std::string tokStr("Token");
 	if(jp.getRoot()->pathExists(tokStr)) {
 		auto tok = jp.getRoot()->access(tokStr);
 		auto tokType = tok->getType();
-		ASSERT_EQ(tokType, sjson::value::type_array);
+		ASSERT_EQ(tokType, sweet::value::type_array);
 
 		for(auto& it : tok->getArray()) {
 			std::string name = it->getObject()->access("Name")->getString();
@@ -63,7 +63,7 @@ void RuleParser::parse() {
 	if(jp.getRoot()->pathExists(ruleStr)) {
 		auto rls = jp.getRoot()->access(ruleStr);
 		auto rlsType = rls->getType();
-		ASSERT_EQ(rlsType, sjson::value::type_array);
+		ASSERT_EQ(rlsType, sweet::value::type_array);
 		for(auto& it : rls->getArray()) {
 
 			std::string ruleName = it->getObject()->access("Name")->getString();

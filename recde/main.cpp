@@ -32,7 +32,7 @@ int main(int argc, char** argv) {
 	std::string outLamS("lambdavisitor.cpp");
 	std::string outH("visitorinclude");
 	std::string outPrefix;
-	Options opts(argc, argv);
+	sweet::Options opts(argc, argv);
 	opts.get("-i", "--inputFile", "The grammar file to parse", inputFile);
 	opts.get("-ah", "--astoutputheader", "Output file for ast header", outAstH);
 	opts.get("-as", "--astoutputsource", "Output file for ast source", outAstS);
@@ -128,7 +128,7 @@ int main(int argc, char** argv) {
 		LOG("%s : %s\n", it.first, it.second);
 	}
 	std::cout<<std::endl;
-	SweetLogger::enableLogger(64);
+	sweet::enableLogger(64);
 	rd.gen();
 	LOG("%s\n%s\n", outPrsH, outPrsS);
 	return 0;
