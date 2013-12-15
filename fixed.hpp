@@ -108,10 +108,34 @@ public:
 		return this->compare(t) == 1;
 	}
 
+	//
+	// Cast operator
+	//
+	operator double() const {
+		//return castImpl<double>();
+		double a(static_cast<double>(this->value));
+		double b(static_cast<double>(Fixed::ShiftValue));
+		return a / b;
+	}
+
+	operator long double() const {
+		return castImpl<long double>();
+	}
+
 private:
 
 	//
-	// setting
+	// Cast implementation
+	//
+	template<typename T>
+	T castImpl() const {
+		T a(static_cast<T>(this->value));
+		T b(static_cast<T>(Fixed::ShiftValue));
+		return a / b;
+	}
+
+	//
+	// setting the value
 	//
 	template<typename T>
 	void set(T t,
@@ -126,7 +150,7 @@ private:
 	void set(T t,
 		typename std::enable_if<std::is_integral<T>::value >::type* = 0) 
 	{
-		this->value = t << Shift;
+		this->value = static_cast<int64_t>(t) << Fixed::Shift;
 	}
 
 	template<typename T>
@@ -134,12 +158,8 @@ private:
 		typename std::enable_if<std::is_floating_point<T>::value >::type* = 0) 
 	{
 
-		int64_t h = static_cast<int64_t>(t);
-		this->value = h << Fixed::Shift;
-		double l = fmod(t, 1.0);
-		l *= Fixed::ShiftValue;
-		int64_t li = static_cast<int64_t>(l);
-		this->value += li;
+		double tvv = t * Fixed::ShiftValue;
+		this->value = tvv + static_cast<int64_t>(tvv + t >= 0 ? 0.5 : -0.5);
 	}
 
 	template<typename T>
@@ -161,9 +181,11 @@ private:
 	}
 
 	void setString(const std::string& s) {
-		auto comma = s.find(',');
-		this->value = std::stol(s.substr(0, comma))<<Fixed::Shift;
+		auto comma = s.find('.');
+		//LOG("%s", s.substr(0,comma));
+		this->value = std::stoll(s.substr(0, comma))<<Fixed::Shift;
 		if(comma != std::string::npos && comma+1 != s.size()) {
+			//LOG("%s", s.substr(comma+1, s.size()));
 			this->value += std::stol(s.substr(comma+1, s.size()));
 		}
 	}
@@ -323,12 +345,13 @@ public:
 	int64_t value;
 	static const int Shift = 32;
 	static const int64_t ShiftValue = (1llu<<Shift);
+	static const int64_t ShiftValueMinus1 = ShiftValue-1;
 };
 
 }
 
 std::ostream& operator<<(std::ostream& os, const sweet::Fixed& d) {
-	os<<(d.value>>sweet::Fixed::Shift)<<"."<<(d.value & (sweet::Fixed::ShiftValue-1));
-	//os<<(d.value)<<"."<<(d.value&1023);
+	double v = d;
+	os<<v;
 	return os;
 }
