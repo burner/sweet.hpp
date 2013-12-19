@@ -112,10 +112,7 @@ public:
 	// Cast operator
 	//
 	operator double() const {
-		//return castImpl<double>();
-		double a(static_cast<double>(this->value));
-		double b(static_cast<double>(Fixed::ShiftValue));
-		return a / b;
+		return castImpl<double>();
 	}
 
 	operator long double() const {
