@@ -198,14 +198,21 @@ namespace Unit {
 			getNumOfAsserts()++;
 		}
 
+#ifndef SWEET_NO_ASSERTS
+		template<typename E1, typename E2, typename C> 
+		static bool evaluates(bool , bool , const E1& , 
+				const E2& , const char* , const char* , 
+				const char* , int , ostream* , const string& , 
+				bool , const string& , C ) 
+#else
 		template<typename E1, typename E2, typename C> 
 		static bool evaluates(bool compare, bool result, const E1& e1, 
 				const E2& e2, const char* str1, const char* str2, 
 				const char* file, int line, ostream* out, const string& name, 
 				bool die, const string& msg, C c) 
+#endif
 		{
 
-#ifndef SWEET_NO_ASSERTS
 			if(result ? 
 					(comp_sel<is_floating_point<E1>::value>::comp(e1, e2)) :
 					(!comp_sel<is_floating_point<E1>::value>::comp(e1, e2))) 
@@ -240,6 +247,7 @@ namespace Unit {
 			if(die) {
 				exit(1);
 			}
+#ifndef SWEET_NO_ASSERTS
 			return false;
 #else
 			return true;

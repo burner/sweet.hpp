@@ -259,7 +259,11 @@ inline bool testConditionImplImpl(S s) {
 }
 
 template<typename S>
+#ifndef SWEET_NO_DBC
 inline bool testConditionImpl(std::ostream& ss, const char* file, int line, S s) {
+#else
+inline bool testConditionImpl(std::ostream& , const char* , int , S ) {
+#endif
 #ifndef SWEET_NO_DBC
 	bool testRslt = testConditionImplImpl(s);
 	if(!testRslt) {
@@ -274,7 +278,11 @@ inline bool testConditionImpl(std::ostream& ss, const char* file, int line, S s)
 } 
 
 template<typename S,typename...Ts>
+#ifndef SWEET_NO_DBC
 inline bool testConditionImpl(std::ostream& ss, const char* file, int line, S s, Ts... t) {
+#else
+inline bool testConditionImpl(std::ostream& , const char* , int , S , Ts... ) {
+#endif
 #ifndef SWEET_NO_DBC
 	bool testRslt = testConditionImplImpl(s);
 	if(!testRslt) {
@@ -290,9 +298,10 @@ inline bool testConditionImpl(std::ostream& ss, const char* file, int line, S s,
 } 
 
 template<typename... Ts>
-inline void testCondition(const char* file, int line, Ts... t) {
 #ifdef SWEET_NO_DBC
+inline void testCondition(const char* , int , Ts...) {
 #else
+inline void testCondition(const char* file, int line, Ts... t) {
 	//std::stringstream s;
 	bool passed = testConditionImpl(std::cerr,file,line,t...);
 	if(!passed) {
@@ -305,8 +314,10 @@ inline void testCondition(const char* file, int line, Ts... t) {
 
 // Ensure
 template<typename T>
+#ifdef SWEET_NO_DBC
+inline typename T::value_type testEnsure(const char* , int , T t) {
+#else
 inline typename T::value_type testEnsure(const char* file, int line, T t) {
-#ifndef SWEET_NO_DBC
 	bool passed = testConditionImpl(std::cerr,file,line,t);
 	if(!passed) {
 		std::cerr<<"ENSURANCE TEST IN "<<file<<':'<<line<<" FAILED"<<std::endl;
@@ -317,8 +328,10 @@ inline typename T::value_type testEnsure(const char* file, int line, T t) {
 } 
 
 template<typename T>
+#ifdef SWEET_NO_DBC
+inline bool testEnsureB(const char* , int line, T) {
+#else
 inline bool testEnsureB(const char* file, int line, T t) {
-#ifndef SWEET_NO_DBC
 	bool passed = testConditionImpl(std::cerr,file,line,t);
 	if(!passed) {
 		return false;
@@ -342,8 +355,10 @@ struct InvariantStruct {
 #endif
 	}
 
+#ifdef SWEET_NO_DBC
+	inline void operator()(bool = false) {
+#else
 	inline void operator()(bool after = false) {
-#ifndef SWEET_NO_DBC
 		bool rslt = cls->InvariantTestMethod();
 		if(!rslt) {
 			int status;

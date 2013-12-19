@@ -25,12 +25,12 @@ struct int128 {
 	int64_t high;
 	uint64_t low;
 
-	explicit inline int128(): high(0), low(0) { }
-	//explicit inline int128(int32_t x): high(0), low(x) { }
-	explicit inline int128(uint32_t x): high(0), low(x) { }
-	//explicit inline int128(int64_t x): high(0), low(x) { }
-	explicit inline int128(uint64_t x): high(0), low(x) { }
-	inline int128(const int128& x): high(x.high), low(x.low) { }
+	explicit int128(): high(0), low(0) { }
+	explicit int128(uint8_t x): high(0), low(x) { }
+	explicit int128(uint16_t x): high(0), low(x) { }
+	explicit int128(uint32_t x): high(0), low(x) { }
+	explicit int128(uint64_t x): high(0), low(x) { }
+	int128(const int128& x): high(x.high), low(x.low) { }
 
 	template<typename T>
 	void set(T t,
@@ -88,7 +88,27 @@ struct int128 {
 		return result;
 	}
 
-	explicit inline int128(int32_t x) {
+	explicit int128(int8_t x) {
+		this->low = x;
+	
+		if(x < 0) {
+			this->high = -1;
+		} else {
+			this->high = 0;
+		}
+	}
+
+	explicit int128(int16_t x) {
+		this->low = x;
+	
+		if(x < 0) {
+			this->high = -1;
+		} else {
+			this->high = 0;
+		}
+	}
+
+	explicit int128(int32_t x) {
 		this->low = x;
 	
 		if(x < 0) {
@@ -98,7 +118,17 @@ struct int128 {
 		}
 	}
 	
-	explicit inline int128 (int64_t x) {
+	explicit int128(long long int x) {
+		this->low = x;
+	
+		if(x < 0) {
+			this->high = -1;
+		} else {
+			this->high = 0;
+		}
+	}
+
+	explicit int128(int64_t x) {
 		this->low = x;
 	
 		if(x < 0) {
@@ -108,7 +138,7 @@ struct int128 {
 		}
 	}
 	
-	explicit inline int128 (double x) {
+	explicit int128(double x) {
 		uint64_t t, m, h, l;
 	
 		if(x < -1.7014118346046e38) {
