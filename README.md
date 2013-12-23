@@ -28,7 +28,7 @@ UNITTEST(InformativTestName) {
 }
 
 int main() {
-	if(!Unit::runTests()) {
+	if(!sweet::Unit::runTests()) {
 		std::cerr<<"Some errors occoured"<<std::endl;
 	}
 	return 0;
@@ -105,9 +105,9 @@ void fun() {
 }
 
 int main() {
-	Bench t; // Simple time stopping struct
+	sweet::Bench t; // Simple time stopping struct
 
-	Benchmark::printResults(); // print results of BENCH marcos
+	sweet::Benchmark::printResults(); // print results of BENCH marcos
 
 	std::cout<<t.milli();
 }

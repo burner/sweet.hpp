@@ -4,7 +4,7 @@ int main(int argc, char** argv) {
 	bool b = "false";
 	int c;
 	std::vector<int> fs;
-	Options opt(argc, argv);
+	sweet::Options opt(argc, argv);
 	opt.get("-bt", "--bool", "test if bool were set alot more bool"
 			"more boring test sjfalaskjdflkjsdfl kjasldfkjalsdkfj "
 			" asldfjasldf jalsdfkj ksjdfl jlksjdfl kjljfdsaf", b);

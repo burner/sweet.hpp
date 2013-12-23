@@ -15,6 +15,8 @@ UNITTEST(fancyname) {
 	AS_EQ(42, 42);
 	AS_NEQ(42, 43);
 
+	int a;
+
 	AS_T(true)
 	AS_T_MSG(true, format("foo %d", a))
 	LOG("Hello");
@@ -48,7 +50,7 @@ UNITTEST(bar) {
 
 int main() {
 	unsigned c = 0;
-	if((c = Unit::runTests("TheNameOfTheFileWithTheBenchmarkResults"))) {
+	if((c = sweet::Unit::runTests("TheNameOfTheFileWithTheBenchmarkResults"))) {
 		WARN("%u errors occured", c);
 	}
 	//formatToStream(std::cout, "hello print world %10d\n", 10);

@@ -17,7 +17,7 @@ template<typename T>
 class SqlAttribute {
 public:
 	SqlAttribute(unsigned char t) : type(t) {}
-	virtual long getInt(T&) const { 
+	virtual int64_t getInt(T&) const { 
 		throw std::logic_error("getInt not implemented"); 
 	}
 	virtual double getFloat(T&) const { 
@@ -35,7 +35,7 @@ public:
 	virtual del getBlobDel(T&) const { 
 		throw std::logic_error("getBlobSize not implemented"); 
 	}
-	virtual void setInt(T&,long) {
+	virtual void setInt(T&,int64_t) {
 		throw std::logic_error("setInt not implemented"); 
 	}
 	virtual void setFloat(T&,double) {
@@ -68,15 +68,15 @@ private:
 template<typename T>
 class SqlIntAttribute : public SqlAttribute<T> {
 public:
-	SqlIntAttribute(int T::* i) : SqlAttribute<T>(SQLITE_INTEGER), integer(i) {}
-	long getInt(T& t) const { 
+	SqlIntAttribute(int64_t T::* i) : SqlAttribute<T>(SQLITE_INTEGER), integer(i) {}
+	int64_t getInt(T& t) const { 
 		return t.*integer;
 	}
-	void setInt(T& t, long i) {
+	void setInt(T& t, int64_t i) {
 		t.*integer = i;
 	}
 private:
-	int T::* integer;
+	int64_t T::* integer;
 };
 
 template<typename T>

@@ -6,6 +6,8 @@
 #include <logger.hpp>
 #include <benchmark.hpp>
 
+using namespace sweet;
+
 void fun(int& a) {
 	a *= 5;
 }
@@ -22,17 +24,17 @@ int main() {
 	std::vector<int> v(1, 1);
 
 	Bench a;
-	css::for_each(v.begin(), v.end(), [](int& a) {
+	sweet::for_each(v.begin(), v.end(), [](int& a) {
 		auto n = std::chrono::system_clock::now().time_since_epoch().count();
 		a *= 5 * n;
 	});
 	a.stop();
-	LOG("css::for_each took %u milliseconds", a.milli());
+	LOG("sweet::for_each took %u milliseconds", a.milli());
 
 	for(int i = 0; i < 10; ++i) {
 		Bench b;
 		std::set<int> rslt;
-		css::mapReduce<
+		sweet::mapReduce<
 			std::vector<int>::iterator, 
 			std::insert_iterator<std::set<int>>,
 			std::set<int>
@@ -45,7 +47,7 @@ int main() {
 					rslt2.begin()), fun2_5);
 		c.stop();
 
-		LOG("css::map_reduce took %u milliseconds", b.milli());
+		LOG("sweet::map_reduce took %u milliseconds", b.milli());
 		LOG("transform took %u milliseconds", c.milli());
 	}
 
