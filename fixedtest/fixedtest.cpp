@@ -9,68 +9,44 @@ UNITTEST(decimal1) {
 	std::cout<<std::fixed<<d<<std::endl;
 }
 
+UNITTEST(decimal2) {
+	Fixed d("1.5");
+
+	std::cout<<std::fixed<<d<<std::endl;
+}
+
 int main() {
 	Unit::runTests();
+	std::cout<<"Number of Asserts "<<
+		sweet::Unit::getNumOfAsserts()<<std::endl;
 	return 0;
 }
 
-UNITTEST(decimalTest1) {
-	std::vector<Fixed> nums = {
-		Fixed(889.122),
-		Fixed(858.580),
-		Fixed(234.366),
-		Fixed(364.329),
-		Fixed(957.409),
-		Fixed(398.172),
-		Fixed(961.347),
-		Fixed(799.327),
-		Fixed(754.603),
-		Fixed(864.419),
-		Fixed(184.259),
-		Fixed(96.347),
-		Fixed(475.833),
-		Fixed(507.306),
-		Fixed(285.686),
-		Fixed(299.183),
-		Fixed(732.102),
-		Fixed(549.708),
-		Fixed(302.171),
-		Fixed(341.213),
-		Fixed(656.841),
-		Fixed(868.370),
-		Fixed(723.710),
-		Fixed(897.054),
-		Fixed(891.672),
-	
-		Fixed("889.122"),
-		Fixed("858.580"),
-		Fixed("234.366"),
-		Fixed("364.329"),
-		Fixed("957.409"),
-		Fixed("398.172"),
-		Fixed("961.347"),
-		Fixed("799.327"),
-		Fixed("754.603"),
-		Fixed("864.419"),
-		Fixed("184.259"),
-		Fixed("96.347"),
-		Fixed("475.833"),
-		Fixed("507.306"),
-		Fixed("285.686"),
-		Fixed("299.183"),
-		Fixed("732.102"),
-		Fixed("549.708"),
-		Fixed("302.171"),
-		Fixed("341.213"),
-		Fixed("656.841"),
-		Fixed("868.370"),
-		Fixed("723.710"),
-		Fixed("897.054"),
-		Fixed("891.672")
-	};
+UNITTEST(randomGen) {
+	std::random_device rd;
+	std::mt19937 m(rd());
+	std::uniform_real_distribution<> dist(
+		std::numeric_limits<int32_t>::min()/2,
+		std::numeric_limits<int32_t>::max()/2
+	);
 
-	for(auto& it : nums) {
-		//double dv = it;
-		std::cout<<std::setprecision(10)<<it<<std::endl;
+	for(size_t i = 0; i < 1000000; ++i) {
+		if(i % 50000 == 0) {
+			std::cout<<i<<std::endl;
+		}
+		double a(dist(m));
+		double b(dist(m));
+
+		AS_EQ(Fixed(std::to_string(a)) + Fixed(std::to_string(b)),
+			Fixed(std::to_string(a+b)));
+
+		AS_EQ(Fixed(std::to_string(a)) - Fixed(std::to_string(b)),
+			Fixed(std::to_string(a-b)));
+
+		AS_EQ(Fixed(std::to_string(a)) * Fixed(std::to_string(b)),
+			Fixed(std::to_string(a*b)));
+
+		AS_EQ(Fixed(std::to_string(a)) / Fixed(std::to_string(b)),
+			Fixed(std::to_string(a/b)));
 	}
 }

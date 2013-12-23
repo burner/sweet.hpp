@@ -29,7 +29,8 @@ UNITTEST(foon, 66666, "-O3") {
 }
 
 int main() {
-	if(!Unit::runTests("TheOptionalNameOfTheFileWithTheBenchmarkResults")) {
+	if(!sweet::Unit::runTests(
+			"TheOptionalNameOfTheFileWithTheBenchmarkResults")) {
 		return 1;
 	}
 }

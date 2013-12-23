@@ -12,16 +12,16 @@ def fun():
 	print("UNITTEST(decimalTest1) {")
 	print("\tstd::vector<Fixed> nums = {");
 	for i in num:
-            print("\t\tFixed(\"{:.3f}\"),".format(i))
+            print("\t\tFixed(\"{:.7f}\"),".format(i))
 
 	print("\t}\n")
 	for i in enumerate(num):
 		for j in enumerate(num):
-			print("\tAS_EQ(nums[{}] + nums[{}], Fixed({:.3f}));".format(i[0], j[0], i[1]+j[1]))
-			print("\tAS_EQ(nums[{}] - nums[{}], Fixed({:.3f}));".format(i[0], j[0], i[1]-j[1]))
+			print("\tAS_EQ(nums[{}] + nums[{}], Fixed(\"{:.7f}\"));".format(i[0], j[0], i[1]+j[1]))
+			print("\tAS_EQ(nums[{}] - nums[{}], Fixed(\"{:.7f}\"));".format(i[0], j[0], i[1]-j[1]))
 			if len(str(int(i[1]*j[1]))) < 17:
-				print("\tAS_EQ(nums[{}] * nums[{}], Fixed({:.3f}));".format(i[0], j[0], i[1]*j[1]))
-			print("\tAS_EQ(nums[{}] / nums[{}], Fixed({:.3f}));".format(i[0], j[0], i[1]/j[1]))
+				print("\tAS_EQ(nums[{}] * nums[{}], Fixed(\"{:.7f}\"));".format(i[0], j[0], i[1]*j[1]))
+			print("\tAS_EQ(nums[{}] / nums[{}], Fixed(\"{:.7f}\"));".format(i[0], j[0], i[1]/j[1]))
 	print("}\n")
 
 if __name__ == "__main__":

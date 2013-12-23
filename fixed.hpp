@@ -9,13 +9,17 @@ rburners@gmail.com License: LGPL 3 or higher
 #include <type_traits>
 #include <ostream>
 #include <string>
+//#include <bitset>
 
 #include <logger.hpp>
+
+namespace sweet { class Fixed; }
+std::ostream& operator<<(std::ostream&, const sweet::Fixed&);
 
 namespace sweet {
 
 class Fixed {
-	//friend std::ostream& operator<<(std::ostream&,const sweet::Fixed&);
+	friend std::ostream& ::operator<<(std::ostream&,const sweet::Fixed&);
 public:
 
 	//
@@ -111,6 +115,10 @@ public:
 	//
 	// Cast operator
 	//
+	operator int64_t() const {
+		return castImpl<int64_t>();
+	}
+
 	operator double() const {
 		return castImpl<double>();
 	}
@@ -162,7 +170,9 @@ private:
 	template<typename T>
 	void set(T s,
 		typename std::enable_if<
-			std::is_same<typename std::remove_reference<T>::type,std::string>::value
+			std::is_same<typename 
+				std::remove_reference<T>::type,std::string
+			>::value
 		>::type* = 0) 
 	{
 		this->setString(s);
@@ -171,7 +181,9 @@ private:
 	template<typename T>
 	void set(T s,
 		typename std::enable_if<
-			std::is_same<typename std::remove_reference<T>::type,const char*>::value
+			std::is_same<typename 
+				std::remove_reference<T>::type,const char*
+			>::value
 		>::type* = 0) 
 	{
 		this->setString(s);
@@ -339,16 +351,19 @@ private:
 	//
 
 public:
-	int64_t value;
 	static const int Shift = 32;
 	static const int64_t ShiftValue = (1llu<<Shift);
 	static const int64_t ShiftValueMinus1 = ShiftValue-1;
+	static const int64_t ClearTop = 0x00000000FFFFFFFF;
+	static const int64_t ClearBottom = 0xFFFFFFFF00000000;
+
+private:
+	int64_t value;
 };
 
 }
 
 std::ostream& operator<<(std::ostream& os, const sweet::Fixed& d) {
-	double v = d;
-	os<<v;
+	os<<(d.value >> 32u)<<'.'<<(d.value & sweet::Fixed::ClearTop);
 	return os;
 }
