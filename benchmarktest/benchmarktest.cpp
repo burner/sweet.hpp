@@ -18,5 +18,5 @@ int main() {
 		fun();
 	}
 
-	Benchmark::printResults();
+	sweet::Benchmark::printResults();
 }
