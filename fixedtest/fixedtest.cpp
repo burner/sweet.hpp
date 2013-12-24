@@ -1,3 +1,4 @@
+#include <random>
 #include <fixed.hpp>
 #include <unit.hpp>
 
@@ -30,7 +31,7 @@ UNITTEST(randomGen) {
 		std::numeric_limits<int32_t>::max()/2
 	);
 
-	for(size_t i = 0; i < 1000000; ++i) {
+	for(size_t i = 0; i < std::numeric_limits<size_t>::max(); ++i) {
 		if(i % 50000 == 0) {
 			std::cout<<i<<std::endl;
 		}

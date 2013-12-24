@@ -9,9 +9,6 @@ rburners@gmail.com License: LGPL 3 or higher
 #include <type_traits>
 #include <ostream>
 #include <string>
-//#include <bitset>
-
-#include <logger.hpp>
 
 namespace sweet { class Fixed; }
 std::ostream& operator<<(std::ostream&, const sweet::Fixed&);
@@ -26,16 +23,16 @@ public:
 	// Constructor and assignment operator
 	//
 
-	Fixed() : value(0llu) {}
+	Fixed() noexcept : value(0llu) {}
 
-	Fixed(const Fixed&& o) : value(o.value) {
+	Fixed(const Fixed&& o) noexcept : value(o.value) {
 	}
 
-	Fixed(const Fixed& o) : value(o.value) {
+	Fixed(const Fixed& o) noexcept : value(o.value) {
 	}
 
 	template<typename T>
-	Fixed& operator=(T&& t) {
+	Fixed& operator=(T&& t) noexcept {
 		this->set<T>(t);
 		return *this;
 	}
@@ -50,7 +47,7 @@ public:
 	//
 
 	template<typename T>
-	Fixed operator+(T t) const {
+	Fixed operator+(T t) const noexcept {
 		return this->add(t);
 	}
 
@@ -61,34 +58,34 @@ public:
 	}
 
 	template<typename T>
-	Fixed operator-(T t) const {
+	Fixed operator-(T t) const noexcept {
 		return this->minus(t);
 	}
 
 	template<typename T>
-	Fixed& operator-=(T t) {
+	Fixed& operator-=(T t) noexcept {
 		*this = this->minus(t);
 		return *this;
 	}
 
 	template<typename T>
-	Fixed operator*(T t) const {
+	Fixed operator*(T t) const noexcept {
 		return this->multiply(t);
 	}
 
 	template<typename T>
-	Fixed& operator*=(T t) {
+	Fixed& operator*=(T t) noexcept {
 		*this = this->multiply(t);
 		return *this;
 	}
 
 	template<typename T>
-	Fixed operator/(T t) const {
+	Fixed operator/(T t) const noexcept {
 		return this->multiply(t);
 	}
 
 	template<typename T>
-	Fixed& operator/=(T t) {
+	Fixed& operator/=(T t) noexcept {
 		*this = this->div(t);
 		return *this;
 	}
@@ -98,33 +95,37 @@ public:
 	//
 
 	template<typename T>
-	bool operator==(T t) const {
+	bool operator==(T t) const noexcept {
 		return this->compare(t) == 0;
 	}
 
 	template<typename T>
-	bool operator<(T t) const {
+	bool operator<(T t) const noexcept {
 		return this->compare(t) == -1;
 	}
 
 	template<typename T>
-	bool operator>(T t) const {
+	bool operator>(T t) const noexcept {
 		return this->compare(t) == 1;
 	}
 
 	//
 	// Cast operator
 	//
-	operator int64_t() const {
+	operator int64_t() const noexcept {
 		return castImpl<int64_t>();
 	}
 
-	operator double() const {
+	operator double() const noexcept {
 		return castImpl<double>();
 	}
 
-	operator long double() const {
+	operator long double() const noexcept {
 		return castImpl<long double>();
+	}
+
+	int64_t getValue() const noexcept {
+		return this->value;
 	}
 
 private:
@@ -133,7 +134,7 @@ private:
 	// Cast implementation
 	//
 	template<typename T>
-	T castImpl() const {
+	T castImpl() const noexcept {
 		T a(static_cast<T>(this->value));
 		T b(static_cast<T>(Fixed::ShiftValue));
 		return a / b;
@@ -146,7 +147,7 @@ private:
 	void set(T t,
 		typename std::enable_if<
 			std::is_same<typename std::remove_reference<T>::type,Fixed>::value
-		>::type* = 0) 
+		>::type* = 0) noexcept
 	{
 		this->value = t.value;
 	}
@@ -154,6 +155,7 @@ private:
 	template<typename T>
 	void set(T t,
 		typename std::enable_if<std::is_integral<T>::value >::type* = 0) 
+		noexcept
 	{
 		this->value = static_cast<int64_t>(t) << Fixed::Shift;
 	}
@@ -161,6 +163,7 @@ private:
 	template<typename T>
 	void set(T t,
 		typename std::enable_if<std::is_floating_point<T>::value >::type* = 0) 
+		noexcept
 	{
 
 		double tvv = t * Fixed::ShiftValue;
@@ -191,10 +194,8 @@ private:
 
 	void setString(const std::string& s) {
 		auto comma = s.find('.');
-		//LOG("%s", s.substr(0,comma));
 		this->value = std::stoll(s.substr(0, comma))<<Fixed::Shift;
 		if(comma != std::string::npos && comma+1 != s.size()) {
-			//LOG("%s", s.substr(comma+1, s.size()));
 			this->value += std::stol(s.substr(comma+1, s.size()));
 		}
 	}
@@ -207,7 +208,7 @@ private:
 	template<typename T>
 	Fixed div(T t, 
 		typename std::enable_if<std::is_same<Fixed,T>::value >::type* = 0) 
-		const 
+		const noexcept
 	{
 		Fixed ret = *this;
 		ret.value /= t.value;
@@ -217,7 +218,7 @@ private:
 	template<typename T>
 	Fixed div(T t, 
 		typename std::enable_if<std::is_integral<T>::value >::type* = 0) 
-		const 
+		const noexcept
 	{
 		return this->div(Fixed(t));
 	}
@@ -225,7 +226,7 @@ private:
 	template<typename T>
 	Fixed div(T t, 
 		typename std::enable_if<std::is_floating_point<T>::value >::type* = 0) 
-		const 
+		const noexcept
 	{
 		return this->div(Fixed(t));
 	}
@@ -236,7 +237,7 @@ private:
 	template<typename T>
 	Fixed multiply(T t, 
 		typename std::enable_if<std::is_same<Fixed,T>::value >::type* = 0) 
-		const 
+		const noexcept
 	{
 		Fixed ret = *this;
 		ret.value *= t.value;
@@ -246,7 +247,7 @@ private:
 	template<typename T>
 	Fixed multiply(T t, 
 		typename std::enable_if<std::is_integral<T>::value >::type* = 0) 
-		const 
+		const noexcept
 	{
 		return this->multiply(Fixed(t));
 	}
@@ -254,7 +255,7 @@ private:
 	template<typename T>
 	Fixed multiply(T t, 
 		typename std::enable_if<std::is_floating_point<T>::value >::type* = 0) 
-		const 
+		const noexcept
 	{
 		return this->multiply(Fixed(t));
 	}
@@ -265,7 +266,7 @@ private:
 	template<typename T>
 	Fixed add(T t, 
 		typename std::enable_if<std::is_same<Fixed,T>::value >::type* = 0) 
-		const 
+		const noexcept
 	{
 		Fixed r;
 		r.value = this->value + t.value;
@@ -275,7 +276,7 @@ private:
 	template<typename T>
 	Fixed add(T t, 
 		typename std::enable_if<std::is_integral<T>::value >::type* = 0) 
-		const 
+		const noexcept
 	{
 		return this->add(Fixed(t));
 	}
@@ -283,7 +284,7 @@ private:
 	template<typename T>
 	Fixed add(T t, 
 		typename std::enable_if<std::is_floating_point<T>::value >::type* = 0) 
-		const 
+		const noexcept
 	{
 		return this->add(Fixed(t));
 	}
@@ -294,7 +295,7 @@ private:
 	template<typename T>
 	Fixed minus(T t, 
 		typename std::enable_if<std::is_same<Fixed,T>::value >::type* = 0) 
-		const 
+		const noexcept
 	{
 		Fixed r;
 		r.value = this->value - t.value;
@@ -304,7 +305,7 @@ private:
 	template<typename T>
 	Fixed minus(T t, 
 		typename std::enable_if<std::is_integral<T>::value >::type* = 0) 
-		const 
+		const noexcept
 	{
 		return this->minus(Fixed(t));
 	}
@@ -312,7 +313,7 @@ private:
 	template<typename T>
 	Fixed minus(T t, 
 		typename std::enable_if<std::is_floating_point<T>::value >::type* = 0) 
-		const 
+		const noexcept
 	{
 		return this->minus(Fixed(t));
 	}
@@ -324,7 +325,7 @@ private:
 	int compare(T t,
 		typename std::enable_if<
 			std::is_same<typename std::remove_reference<T>::type,Fixed>::value
-		>::type* = 0) const
+		>::type* = 0) const noexcept
 	{
 		return this->value < t.value ? - 1 : this->value == t.value ? 0 : 1;
 	}
@@ -332,7 +333,7 @@ private:
 	template<typename T>
 	int compare(T t, 
 		typename std::enable_if<std::is_integral<T>::value >::type* = 0) 
-		const 
+		const noexcept
 	{
 		return this->compare(Fixed(t));
 
@@ -341,7 +342,7 @@ private:
 	template<typename T>
 	int compare(T t, 
 		typename std::enable_if<std::is_floating_point<T>::value >::type* = 0) 
-		const 
+		const noexcept
 	{
 		return this->compare(Fixed(t));
 	}
