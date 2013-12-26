@@ -12,6 +12,17 @@ UNITTEST(decimal1) {
 
 UNITTEST(decimal2) {
 	Fixed d("1.5");
+	d*=4;
+	d*=4.0;
+
+	d-=4;
+	d-=4.0;
+
+	d/=4;
+	d/=4.0;
+
+	d+=4;
+	d+=4.0;
 
 	std::cout<<std::fixed<<d<<std::endl;
 }
@@ -49,5 +60,10 @@ UNITTEST(randomGen) {
 
 		AS_EQ(Fixed(std::to_string(a)) / Fixed(std::to_string(b)),
 			Fixed(std::to_string(a/b)));
+
+		AS_EQ(Fixed(std::to_string(a)) < Fixed(std::to_string(b)),
+			a < b);
+		AS_EQ(Fixed(std::to_string(a)) > Fixed(std::to_string(b)),
+			a > b);
 	}
 }

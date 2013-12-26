@@ -364,7 +364,7 @@ private:
 
 }
 
-std::ostream& operator<<(std::ostream& os, const sweet::Fixed& d) {
+inline std::ostream& operator<<(std::ostream& os, const sweet::Fixed& d) {
 	os<<(d.value >> 32u)<<'.'<<(d.value & sweet::Fixed::ClearTop);
 	return os;
 }
