@@ -24,7 +24,31 @@ UNITTEST(traitstest) {
 	AS_T(sweet::is_associated<std::unordered_set<int>>::value);
 	AS_T((sweet::is_associated<std::unordered_map<int,int>>::value));
 	AS_T((sweet::is_associated<std::map<int,int>>::value));
+}
 
+UNITTEST(cachetest2) {
+	sweet::cache<std::string,std::vector<int>, 48> c1;
+	c1.insert("key1", std::vector<int>());
+	c1.insert("key2", std::vector<int>());
+	AS_T(c1.contains("key1"));
+	AS_T(c1.contains("key2"));
+	LOG("%u", c1.bytesStored());
+	c1.insert("key3", std::vector<int>());
+	AS_T(c1.contains("key1"));
+	AS_T(c1.contains("key3"));
+	AS_F(c1.contains("key2"));
+	LOG("%u", c1.bytesStored());
+}
+
+UNITTEST(cachetest1) {
+	sweet::cache<std::string,std::vector<int>, 4096> c1;
+	c1.insert("key", std::vector<int>());
+	AS_EQ(c1.size(), 1u);
+	AS_T(c1.contains("key"));
+	AS_F(c1.find("key") == c1.end());
+	AS_T(c1.find("not_a_key") == c1.end());
+	AS_F(c1.contains("not_a_key"));
+	LOG("bytes stored %u", c1.bytesStored());
 }
 
 int main() {

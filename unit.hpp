@@ -199,7 +199,7 @@ namespace Unit {
 			getNumOfAsserts()++;
 		}
 
-#ifndef SWEET_NO_ASSERTS
+#ifdef SWEET_NO_ASSERTS
 		template<typename E1, typename E2, typename C> 
 		static bool evaluates(bool , bool , const E1& , 
 				const E2& , const char* , const char* , 

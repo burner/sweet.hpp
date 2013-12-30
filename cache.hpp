@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <cassert>
 #include <list>
 #include <set>
 #include <map>
@@ -56,20 +57,20 @@ template <typename... Ts>
 struct is_associated<std::unordered_set<Ts...> > : std::true_type { };
 
 template<typename T>
-constexpr size_t SizeOf(const T& t, 
+size_t SizeOf(const T& t, 
 		typename std::enable_if<is_vector<T>::value, T>::type* = 0) {
 	return sizeof(typename T::value_type) * t.capacity() + sizeof(T);
 }
 
 template<typename T>
-constexpr size_t SizeOf(const T& t, 
+size_t SizeOf(const T& t, 
 		typename std::enable_if<is_list<T>::value, T>::type* = 0) {
 	return sizeof(typename T::value_type) * t.size() + sizeof(T) +
 		t.size() * 2u * sizeof(size_t);
 }
 
 template<typename T>
-constexpr size_t SizeOf(const T& t, 
+size_t SizeOf(const T& t, 
 		typename std::enable_if<is_map<T>::value || is_set<T>::value, T>
 		::type* = 0) {
 	return sizeof(typename T::value_type) * t.size() + sizeof(T) +
@@ -77,7 +78,7 @@ constexpr size_t SizeOf(const T& t,
 }
 
 template<typename T>
-constexpr size_t SizeOf(const T& t, 
+size_t SizeOf(const T& t, 
 		typename std::enable_if<is_unordered_map<T>::value || 
 		is_unordered_set<T>::value, T>::type* = 0) {
 	return sizeof(typename T::value_type) * t.size() + sizeof(T) +
@@ -99,8 +100,69 @@ constexpr size_t SizeOf(const T&,
 //
 template<typename K, typename V, size_t CacheSize>
 class cache {
-private:
+public:
+	cache() : memInBytes(0u) {
+	}
 
+	typedef std::pair<K,V> ListEntry;
+	typedef std::list<ListEntry> List;
+	typedef std::unordered_map<K,typename List::iterator> Map;
+
+	void insert(const K& key, V value) {
+		size_t bytesOfNew(SizeOf(value));
+		LOG("%u %u", this->bytesStored(), bytesOfNew);
+		if(this->memInBytes + bytesOfNew > CacheSize && !this->list.empty()) {
+			auto toDel(this->list.back());
+			this->list.pop_back();
+
+			auto mapIt(this->map.find(toDel.first));
+			assert(mapIt != this->map.end());
+			this->map.erase(mapIt);
+		}
+
+		this->list.push_front(std::make_pair(key, value));
+		this->map.insert(std::make_pair(key, this->list.begin()));
+
+		this->memInBytes = this->sizeOfSavedElementsInBytes();
+	}
+
+	size_t size() const {
+		assert(this->list.size() == this->map.size());
+		return this->list.size();
+	}
+
+	size_t bytesStored() const {
+		return this->memInBytes;
+	}
+
+	typename Map::iterator find(const K& key) {
+		auto ret(this->map.find(key));
+		if(ret != this->map.end()) {
+			this->list.splice(this->list.end(), this->list, ret->second);
+		}
+		return ret;
+	}
+
+	typename Map::iterator end() {
+		return this->map.end();
+	}
+
+	bool contains(const K& key) {
+		return this->find(key) != this->end();
+	}
+
+private:
+	size_t sizeOfSavedElementsInBytes() const {
+		size_t ret(0);
+		std::for_each(list.cbegin(), list.cend(), [&ret](const ListEntry& v) {
+			ret += SizeOf(v.second);
+		});
+		return ret;
+	}
+
+	size_t memInBytes;
+	Map map;
+	List list;
 };
 
 }
