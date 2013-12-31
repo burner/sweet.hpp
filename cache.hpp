@@ -1,13 +1,14 @@
 #pragma once
 
-#include <vector>
 #include <cassert>
 #include <list>
-#include <set>
 #include <map>
-#include <unordered_set>
-#include <unordered_map>
+#include <set>
 #include <type_traits>
+#include <unordered_map>
+#include <unordered_set>
+#include <utility>
+#include <vector>
 
 namespace sweet {
 
@@ -110,7 +111,6 @@ public:
 
 	void insert(const K& key, V value) {
 		size_t bytesOfNew(SizeOf(value));
-		LOG("%u %u", this->bytesStored(), bytesOfNew);
 		if(this->memInBytes + bytesOfNew > CacheSize && !this->list.empty()) {
 			auto toDel(this->list.back());
 			this->list.pop_back();
@@ -118,6 +118,24 @@ public:
 			auto mapIt(this->map.find(toDel.first));
 			assert(mapIt != this->map.end());
 			this->map.erase(mapIt);
+		}
+
+		this->list.push_front(std::make_pair(key, value));
+		this->map.insert(std::make_pair(key, this->list.begin()));
+
+		this->memInBytes = this->sizeOfSavedElementsInBytes();
+	}
+
+	void insert(const K& key, V value, std::function<void(const K&, V&&)> saveFunc) {
+		size_t bytesOfNew(SizeOf(value));
+		if(this->memInBytes + bytesOfNew > CacheSize && !this->list.empty()) {
+			auto toDel(this->list.back());
+			this->list.pop_back();
+
+			auto mapIt(this->map.find(toDel.first));
+			assert(mapIt != this->map.end());
+			this->map.erase(mapIt);
+			saveFunc(toDel.first, std::move(toDel.second));
 		}
 
 		this->list.push_front(std::make_pair(key, value));
@@ -138,7 +156,7 @@ public:
 	typename Map::iterator find(const K& key) {
 		auto ret(this->map.find(key));
 		if(ret != this->map.end()) {
-			this->list.splice(this->list.end(), this->list, ret->second);
+			this->list.splice(this->list.begin(), this->list, ret->second);
 		}
 		return ret;
 	}

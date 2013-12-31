@@ -34,9 +34,28 @@ UNITTEST(cachetest2) {
 	AS_T(c1.contains("key2"));
 	LOG("%u", c1.bytesStored());
 	c1.insert("key3", std::vector<int>());
-	AS_T(c1.contains("key1"));
+	AS_F(c1.contains("key1"));
 	AS_T(c1.contains("key3"));
-	AS_F(c1.contains("key2"));
+	AS_T(c1.contains("key2"));
+	LOG("%u", c1.bytesStored());
+}
+
+UNITTEST(cachetest3) {
+	sweet::cache<std::string,std::vector<int>, 48> c1;
+	c1.insert("key1", std::vector<int>());
+	c1.insert("key2", std::vector<int>());
+	AS_T(c1.contains("key1"));
+	AS_T(c1.contains("key2"));
+	LOG("%u", c1.bytesStored());
+	c1.insert("key3", std::vector<int>(), 
+		[&](const std::string& k, std::vector<int>&& v) {
+			AS_EQ(k, "key1");
+			AS_EQ(v.size(), 0u);
+		}
+	);
+	AS_F(c1.contains("key1"));
+	AS_T(c1.contains("key3"));
+	AS_T(c1.contains("key2"));
 	LOG("%u", c1.bytesStored());
 }
 
