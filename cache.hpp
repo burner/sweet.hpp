@@ -110,7 +110,7 @@ public:
 	typedef std::unordered_map<K,typename List::iterator> Map;
 
 	void insert(const K& key, V value) {
-		size_t bytesOfNew(SizeOf(value));
+		/*size_t bytesOfNew(SizeOf(value));
 		if(this->memInBytes + bytesOfNew > CacheSize && !this->list.empty()) {
 			auto toDel(this->list.back());
 			this->list.pop_back();
@@ -123,7 +123,8 @@ public:
 		this->list.push_front(std::make_pair(key, value));
 		this->map.insert(std::make_pair(key, this->list.begin()));
 
-		this->memInBytes = this->sizeOfSavedElementsInBytes();
+		this->memInBytes = this->sizeOfSavedElementsInBytes();*/
+		this->insert(key, value, [](const K&, V&&) {});
 	}
 
 	void insert(const K& key, V value, std::function<void(const K&, V&&)> saveFunc) {
@@ -142,6 +143,28 @@ public:
 		this->map.insert(std::make_pair(key, this->list.begin()));
 
 		this->memInBytes = this->sizeOfSavedElementsInBytes();
+	}
+
+	bool erase(const typename Map::iterator& it) {
+		if(it != this->map.end()) {
+			return this->erase(it->first);
+		}
+		return false;
+	}
+
+	bool erase(const K& key) {
+		return this->erase(key, [](const K&, V&&) {});
+	}
+
+	bool erase(const K& key, std::function<void(const K&, V&&)> saveFunc) {
+		auto mapIt(this->map.find(key));
+		if(mapIt != this->map.end()) {
+			saveFunc(key,std::move(mapIt->second->second));
+			this->list.erase(mapIt->second);
+			this->map.erase(mapIt);
+			return true;
+		}
+		return false;
 	}
 
 	size_t size() const {

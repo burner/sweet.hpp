@@ -32,12 +32,10 @@ UNITTEST(cachetest2) {
 	c1.insert("key2", std::vector<int>());
 	AS_T(c1.contains("key1"));
 	AS_T(c1.contains("key2"));
-	LOG("%u", c1.bytesStored());
 	c1.insert("key3", std::vector<int>());
 	AS_F(c1.contains("key1"));
 	AS_T(c1.contains("key3"));
 	AS_T(c1.contains("key2"));
-	LOG("%u", c1.bytesStored());
 }
 
 UNITTEST(cachetest3) {
@@ -46,7 +44,6 @@ UNITTEST(cachetest3) {
 	c1.insert("key2", std::vector<int>());
 	AS_T(c1.contains("key1"));
 	AS_T(c1.contains("key2"));
-	LOG("%u", c1.bytesStored());
 	c1.insert("key3", std::vector<int>(), 
 		[&](const std::string& k, std::vector<int>&& v) {
 			AS_EQ(k, "key1");
@@ -56,7 +53,13 @@ UNITTEST(cachetest3) {
 	AS_F(c1.contains("key1"));
 	AS_T(c1.contains("key3"));
 	AS_T(c1.contains("key2"));
-	LOG("%u", c1.bytesStored());
+	AS_T(c1.erase("key2"));
+	AS_EQ(c1.size(), 1u);
+	AS_T(c1.contains("key3"));
+	AS_F(c1.contains("key2"));
+	
+	AS_T(c1.erase(c1.find("key3")));
+	AS_EQ(c1.size(), 0u);
 }
 
 UNITTEST(cachetest1) {
