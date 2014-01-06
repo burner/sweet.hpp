@@ -1,3 +1,5 @@
+#pragma once
+
 #pragma GCC diagnostic ignored "-Wunused-function"
 #pragma GCC diagnostic ignored "-Wsign-compare"
 #pragma GCC diagnostic ignored "-Wunused-variable"
@@ -118,7 +120,7 @@ struct int128 {
 		}
 	}
 	
-	explicit int128(long long int x) {
+	/*explicit int128(long long int x) {
 		this->low = x;
 	
 		if(x < 0) {
@@ -126,7 +128,7 @@ struct int128 {
 		} else {
 			this->high = 0;
 		}
-	}
+	}*/
 
 	explicit int128(int64_t x) {
 		this->low = x;
