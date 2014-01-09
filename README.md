@@ -1,6 +1,10 @@
 SWEET_HPP
 =========
 
+A bunch of header useful for daily life. The headers contain functionally for
+Logging, Testing, Design by Contract, Filesystem, Fixed-point Types, int128,
+benchmarking, json, trie and some more.
+
 Usage
 -----
 To use the header, just make the sweet.hpp folder an include for your compiler.
