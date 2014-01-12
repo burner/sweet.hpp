@@ -585,29 +585,38 @@ void RecurDec::genRules(const std::string& start) {
 	allreadyDone.insert(start);
 
 	// header
+	const std::string headerStringTestToken(
+		"\tstatic bool lookAheadTest%s(const TokenType);\n");
 	const std::string headerStringTest(
-		"\tbool lookAheadTest%s(const Token&);\n");
+		"\tstatic bool lookAheadTest%s(const Token&);\n");
 	const std::string headerStringParse("\t%sPtr parse%s();\n");
 
 	format(out.prsH, "\n\n\t// %s\n", current);
 	format(out.prsH, headerStringTest, start);
+	format(out.prsH, headerStringTestToken, start);
 	format(out.prsH, headerStringParse, start, start);
 
 
 	// source
 	const std::string srcStringTest(
-		"bool Parser::lookAheadTest%s(const Token& token) {\n");
+		"bool Parser::lookAheadTest%s(const Token& token) {\n"
+		"\treturn Parser::lookAheadTest%s(token.type);\n"
+		"}\n");
+	const std::string srcStringTestReal(
+		"bool Parser::lookAheadTest%s(const TokenType type) {\n"
+	);
 	const std::string srcStringParse("%sPtr Parser::parse%s() {\n");
 
 	format(out.prsS, "\n\n// %s\n\n", current);
-	format(out.prsS, srcStringTest, start);
+	format(out.prsS, srcStringTest, start, start);
+	format(out.prsS, srcStringTestReal, start);
 	format(out.prsS, "\treturn");
 	auto lookAheadSet = rs.first.find(start);
 	ASSERT_T(lookAheadSet != rs.first.end());
 	const size_t lookAheadSetSize = lookAheadSet->second.size();
 	size_t i = 0;
 	for(auto& it : lookAheadSet->second) {
-		format(out.prsS, "%stoken.type == TokenType::%s", 
+		format(out.prsS, "%stype == TokenType::%s", 
 			(i != 0 ? "\t\t" : " "), it);
 		if(i+1 == lookAheadSetSize) {
 			format(out.prsS, ";\n");
