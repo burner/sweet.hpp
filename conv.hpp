@@ -21,6 +21,42 @@ public:
 };
 
 template<>
+class ConvStruct<char> {
+public:
+	char operator()(const std::string& s) {
+		return static_cast<char>(stoi(s));
+	}
+};
+
+template<>
+class ConvStruct<unsigned char> {
+public:
+	unsigned char operator()(const std::string& s) {
+		unsigned long tmp = stoul(s);
+		assert(tmp <= std::numeric_limits<unsigned char>::max());
+		return static_cast<unsigned char>(tmp);
+	}
+};
+
+template<>
+class ConvStruct<short> {
+public:
+	short operator()(const std::string& s) {
+		return static_cast<short>(stoi(s));
+	}
+};
+
+template<>
+class ConvStruct<unsigned short> {
+public:
+	unsigned short operator()(const std::string& s) {
+		unsigned long tmp = stoul(s);
+		assert(tmp <= std::numeric_limits<unsigned short>::max());
+		return static_cast<unsigned short>(tmp);
+	}
+};
+
+template<>
 class ConvStruct<int> {
 public:
 	int operator()(const std::string& s) {
