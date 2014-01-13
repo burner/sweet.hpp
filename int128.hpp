@@ -1,3 +1,7 @@
+/* int128.hpp - a small 128 bit datatype consisting of one 64 bit integer
+Author: Robert "burner" Schadek rburners@gmail.com License: LGPL 3 or higher
+*/
+
 #pragma once
 
 #pragma GCC diagnostic ignored "-Wunused-function"

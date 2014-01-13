@@ -1,3 +1,7 @@
+/* stringfunctions.hpp - a small header containing everyday string funcitons.
+Author: Robert "burner" Schadek rburners@gmail.com License: LGPL 3 or higher
+*/
+
 #pragma once
 
 #include <string>
@@ -24,7 +28,7 @@ V& split(const std::string& s, char delim, V& elems) {
 
 
 template<typename V>
-V split(const std::string& s, char delim) {
+V split(const std::string& s, char delim = ',') {
     V elems;
     split(s, delim, elems);
     return std::move(elems);
