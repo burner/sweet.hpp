@@ -14,6 +14,15 @@
 
 namespace sweet {
 
+uint64_t rdtsc_time(void) {
+   unsigned long long int x;
+   unsigned a, d;
+
+   __asm__ volatile("rdtsc" : "=a" (a), "=d" (d));
+
+   return static_cast<uint64_t>(a) | (static_cast<uint64_t>(d) << 32);
+}
+
 #ifndef _WIN32
 inline void __cpuid(int CPUInfo[4],int InfoType) {
     __asm__ __volatile__ (
@@ -49,7 +58,7 @@ inline long long readTicks() {
 	long long clock;
 	__cpuid(dummy, 0);
 	DontSkip = dummy[0];
-	clock = __rdtsc();
+	clock = rdtsc_time();
 	__cpuid(dummy, 0);
 	DontSkip = dummy[0];
 	DontSkip = DontSkip+0;
