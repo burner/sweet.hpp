@@ -36,6 +36,7 @@ inline void __cpuid(int CPUInfo[4],int InfoType) {
 }
 #endif
 
+/*
 #ifdef __clang__
 #ifdef __i386
 __inline__ __attribute__((gnu_inline)) uint64_t __rdtsc() {
@@ -50,7 +51,7 @@ __inline__ uint64_t __rdtsc() {
   return (d<<32) | a;
 }
 #endif
-#endif
+#endif*/
 
 inline long long readTicks() {
 	int dummy[4];
