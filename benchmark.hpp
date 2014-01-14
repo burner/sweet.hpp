@@ -14,7 +14,7 @@
 
 namespace sweet {
 
-uint64_t rdtsc_time(void) {
+inline uint64_t rdtsc_time(void) {
    unsigned long long int x;
    unsigned a, d;
 
