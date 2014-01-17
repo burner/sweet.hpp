@@ -1,5 +1,5 @@
 /* fixed.hpp - a small fixed point datatype consisting of one 64 bit integer
-with 3 decimal placed real part Author: Robert "burner" Schadek 
+with 32 bit for the decimal and real part Author: Robert "burner" Schadek 
 rburners@gmail.com License: LGPL 3 or higher
 */
 #pragma once

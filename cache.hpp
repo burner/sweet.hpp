@@ -1,6 +1,8 @@
 #pragma once
 
+#include <algorithm>
 #include <cassert>
+#include <deque>
 #include <list>
 #include <map>
 #include <set>
@@ -19,6 +21,11 @@ template <typename T>
 struct is_vector : std::false_type { };
 template <typename... Ts> 
 struct is_vector<std::vector<Ts...> > : std::true_type { };
+
+template <typename T>
+struct is_deque : std::false_type { };
+template <typename... Ts> 
+struct is_deque<std::deque<Ts...> > : std::true_type { };
 
 template <typename T>
 struct is_list : std::false_type { };
@@ -65,6 +72,12 @@ size_t SizeOf(const T& t,
 
 template<typename T>
 size_t SizeOf(const T& t, 
+		typename std::enable_if<is_deque<T>::value, T>::type* = 0) {
+	return sizeof(typename T::value_type) * t.size() + sizeof(T);
+}
+
+template<typename T>
+size_t SizeOf(const T& t, 
 		typename std::enable_if<is_list<T>::value, T>::type* = 0) {
 	return sizeof(typename T::value_type) * t.size() + sizeof(T) +
 		t.size() * 2u * sizeof(size_t);
@@ -89,6 +102,7 @@ size_t SizeOf(const T& t,
 template<typename T>
 constexpr size_t SizeOf(const T&,
 		typename std::enable_if<
+				is_deque<T>::value == false && 
 				is_vector<T>::value == false && 
 				is_list<T>::value == false && 
 				is_associated<T>::value == false,
@@ -97,12 +111,12 @@ constexpr size_t SizeOf(const T&,
 }
 
 //
-// the cache implementation
+// the Cache implementation
 //
 template<typename K, typename V, size_t CacheSize>
-class cache {
+class Cache {
 public:
-	cache() : memInBytes(0u) {
+	Cache() : memInBytes(0u) {
 	}
 
 	typedef std::pair<K,V> ListEntry;
@@ -110,24 +124,12 @@ public:
 	typedef std::unordered_map<K,typename List::iterator> Map;
 
 	void insert(const K& key, V value) {
-		/*size_t bytesOfNew(SizeOf(value));
-		if(this->memInBytes + bytesOfNew > CacheSize && !this->list.empty()) {
-			auto toDel(this->list.back());
-			this->list.pop_back();
-
-			auto mapIt(this->map.find(toDel.first));
-			assert(mapIt != this->map.end());
-			this->map.erase(mapIt);
-		}
-
-		this->list.push_front(std::make_pair(key, value));
-		this->map.insert(std::make_pair(key, this->list.begin()));
-
-		this->memInBytes = this->sizeOfSavedElementsInBytes();*/
 		this->insert(key, value, [](const K&, V&&) {});
 	}
 
-	void insert(const K& key, V value, std::function<void(const K&, V&&)> saveFunc) {
+	void insert(const K& key, V value, 
+			std::function<void(const K&, V&&)> saveFunc) 
+	{
 		size_t bytesOfNew(SizeOf(value));
 		if(this->memInBytes + bytesOfNew > CacheSize && !this->list.empty()) {
 			auto toDel(this->list.back());
