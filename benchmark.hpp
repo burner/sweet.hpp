@@ -53,10 +53,10 @@ __inline__ uint64_t __rdtsc() {
 #endif
 #endif*/
 
-inline long long readTicks() {
+inline int64_t readTicks() {
 	int dummy[4];
 	volatile int DontSkip;
-	long long clock;
+	int64_t clock;
 	__cpuid(dummy, 0);
 	DontSkip = dummy[0];
 	clock = rdtsc_time();
@@ -136,7 +136,7 @@ public:
 	inline Benchmark(const std::string& n, const std::string& pf, 
 			const std::string& fn, int l) : name(n), prettyFunc(pf), 
 			filename(fn), line(l), cnt(0), time(0), 
-			tickMutex(std::make_shared<std::mutex>()), ticks(0ll) {
+			tickMutex(std::make_shared<std::mutex>()), ticks(0) {
 		Benchmark::getBenchClasses().push_back(this);
 	}
 
