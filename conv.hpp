@@ -11,11 +11,35 @@ std::string to(T in) {
 	return std::to_string(in);
 }
 
+template<typename T, typename F, 
+	class = typename std::enable_if<std::is_signed<T>::value>::type>
+bool convIsOk(const F f) {
+	return std::numeric_limits<T>::min() <= f && 
+		std::numeric_limits<T>::max() >= f;
+}
+
+template<typename T, typename F, 
+	class = typename std::enable_if<std::is_unsigned<T>::value>::type>
+bool convIsOk(F f) {
+	return f >= 0 && std::numeric_limits<T>::max() >= f;
+}
+
+template<typename T>
+class NumberConv {
+	template<typename F>
+	S operator()(const F f) const {
+		if(convIsOk<T,F>(f)) {
+			return static_cast<S>(f);
+		} else {
+			throw std::exception(format("illegal conv"));
+		}
+	}
+};
+
 template<typename S>
 class ConvStruct {
 public:
 	S operator()(const std::string& s) {
-		//assert(false);
 		return static_cast<S>(s);
 	}
 };

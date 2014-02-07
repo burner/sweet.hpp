@@ -143,6 +143,11 @@ struct int128 {
 			this->high = 0;
 		}
 	}
+
+	union DoubleUint64 {
+		double d;
+		uint64_t i;
+	};
 	
 	explicit int128(double x) {
 		uint64_t t, m, h, l;
@@ -153,7 +158,10 @@ struct int128 {
 			this->low = 0;
 		} else if(x < -9.2233720368547e18) {
 			// take the 54 mantissa bits and shift into position
-			t = *((uint64_t *) &x);
+			DoubleUint64 di;
+			di.d = x;
+			//t = *(reinterpret_cast<uint64_t*>(reinterpret_cast<char*>(&x)));
+			t = di.i;
 			m = (t & BITS51_0) | BIT_52;
 			t = (t & BITS62_0) >> 52;
 			// if x is 1.5 * 2^1, t will be 1024
@@ -174,7 +182,11 @@ struct int128 {
 			this->high = ((x<0) ? -1 : 0);
 		} else if(x < 1.7014118346046e38) {
 			// take the 54 mantissa bits and shift into position
-			t = *((uint64_t *) &x);
+			//t = *((uint64_t *) &x);
+			DoubleUint64 di;
+			di.d = x;
+			//t = *(reinterpret_cast<uint64_t*>(reinterpret_cast<char*>(&x)));
+			t = di.i;
 			m = (t & BITS51_0) | BIT_52;
 			t = (t & BITS62_0) >> 52;
 			// if x is 1.5 * 2^1, t will be 1024
