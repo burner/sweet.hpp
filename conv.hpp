@@ -1,37 +1,34 @@
 // LGPL 3 or higher Robert Burner Schadek rburners@gmail.com
-#ifndef SWEET_HPP_CONV
-#define SWEET_HPP_CONV
+#pragma once
+
 #include <string>
 #include <limits>
 #include <assert.h>
 #include <type_traits>
+#include <stdexcept>
 
-template<typename T>
-std::string to(T in) {
-	return std::to_string(in);
-}
-
-template<typename T, typename F, 
-	class = typename std::enable_if<std::is_signed<T>::value>::type>
-bool convIsOk(const F f) {
+template<typename T, typename F>
+bool convIsOk(const F f, typename std::enable_if<std::is_signed<T>::value>::type* = 0) {
 	return std::numeric_limits<T>::min() <= f && 
 		std::numeric_limits<T>::max() >= f;
 }
 
-template<typename T, typename F, 
-	class = typename std::enable_if<std::is_unsigned<T>::value>::type>
-bool convIsOk(F f) {
+template<typename T, typename F>
+bool convIsOk(const F f, typename std::enable_if<std::is_unsigned<T>::value>::type* = 0) {
 	return f >= 0 && std::numeric_limits<T>::max() >= f;
 }
 
 template<typename T>
 class NumberConv {
+public:
 	template<typename F>
-	S operator()(const F f) const {
+	T operator()(const F f, 
+			typename std::enable_if<std::is_fundamental<F>::value, F>::type* = 0) const 
+	{
 		if(convIsOk<T,F>(f)) {
-			return static_cast<S>(f);
+			return static_cast<T>(f);
 		} else {
-			throw std::exception(format("illegal conv"));
+			throw std::exception("illegal conv");
 		}
 	}
 };
@@ -40,7 +37,7 @@ template<typename S>
 class ConvStruct {
 public:
 	S operator()(const std::string& s) {
-		return static_cast<S>(s);
+		return static_cast<S>(stoi(s));
 	}
 };
 
@@ -164,29 +161,20 @@ public:
 	}
 };
 
-template<typename S>
-S to(const std::string& in) {
-	ConvStruct<S> ret;
-	return ret(in);
-}
-
 /*
-template<typename T, typename S, typename R>
-struct toImpl<T,S,R> {
-	T operator()(S s) {
-		return static_cast<T>(s);
-	}
-};
-
-template<typename T, typename S>
-struct toImpl<T,S,true> {
-	T operator()(S s) {
-		return static_cast<T>(s);
-	}
-};
-
-template<typename T, typename S>
-float to(S s) {
-	return toImpl<T,S,is_floating_point<T>::value && isInteger<S>::value>()(s);
+template<typename S, typename T>
+typename std::enable_if<std::is_same<S, std::string>::value, std::string>::type
+to(const T& in) {
+	return std::to_string(in);
 }*/
-#endif
+
+/*template<typename T, typename S>
+typename std::enable_if<
+	std::is_same<std::string, T>::value &&
+	(std::is_same<std::string, S>::value ||
+	 std::is_same<const char*, S>::value ||
+	 std::is_same<char[], S>::value)
+>::value, std::string>::type
+to(const S& in) {
+	return in;
+}*/
