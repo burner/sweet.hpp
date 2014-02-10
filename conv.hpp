@@ -161,20 +161,38 @@ public:
 	}
 };
 
-/*
+template<typename T>
+struct is_string {
+	enum { value = std::is_same<std::string, T>::value || std::is_same<const char*, T>::value ||
+		(std::is_array<T>::value && std::is_same<char, typename std::remove_extent<T>::type>::value) };
+};
+
+
 template<typename S, typename T>
-typename std::enable_if<std::is_same<S, std::string>::value, std::string>::type
+typename std::enable_if<is_string<T>::value && is_string<S>::value, S>::type
+to(const T& in) {
+	return in;
+}
+
+template<typename S, typename T>
+typename std::enable_if<!is_string<T>::value && is_string<S>::value, S>::type
 to(const T& in) {
 	return std::to_string(in);
-}*/
+}
 
-/*template<typename T, typename S>
-typename std::enable_if<
-	std::is_same<std::string, T>::value &&
-	(std::is_same<std::string, S>::value ||
-	 std::is_same<const char*, S>::value ||
-	 std::is_same<char[], S>::value)
->::value, std::string>::type
-to(const S& in) {
-	return in;
-}*/
+template<typename S, typename T>
+typename std::enable_if<is_string<T>::value && !is_string<S>::value, S>::type
+to(const T& in) {
+	ConvStruct<S> ret;
+	return ret(in);
+}
+
+template<typename S, typename T>
+typename std::enable_if<!is_string<T>::value && !is_string<S>::value, S>::type
+to(const T& in) {
+	if(convIsOk<S>(in)) {
+		return static_cast<S>(in);
+	} else {
+		throw std::range_error("illegal conv");
+	}
+}
