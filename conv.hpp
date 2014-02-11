@@ -7,6 +7,8 @@
 #include <type_traits>
 #include <stdexcept>
 
+#include <format.hpp>
+
 /*template<typename T, typename F>
 bool convIsOk(const F f, typename std::enable_if<
 	std::is_same<T, int64_t>::value && (
@@ -95,7 +97,7 @@ bool convIsOk(const F f, typename std::enable_if<std::is_signed<T>::value>::type
 
 template<typename T, typename F>
 bool convIsOk(const F f, typename std::enable_if<std::is_unsigned<T>::value>::type* = 0) {
-	return f >= 0 && std::numeric_limits<T>::max() >= f;
+	return f >= 0 && f <= std::numeric_limits<T>::max();
 }
 
 template<typename T>
@@ -108,7 +110,8 @@ public:
 		if(convIsOk<T,F>(f)) {
 			return static_cast<T>(f);
 		} else {
-			throw std::exception("illegal conv");
+			throw std::range_error(format("illegal conv %d <= %d <= %d", 
+				std::numeric_limits<T>::min(), f, std::numeric_limits<T>::max()));
 		}
 	}
 };
@@ -273,6 +276,7 @@ to(const T& in) {
 	if(convIsOk<S>(in)) {
 		return static_cast<S>(in);
 	} else {
-		throw std::range_error("illegal conv");
+		throw std::range_error(format("illegal conv %d <= %d <= %d", 
+			std::numeric_limits<T>::min(), in, std::numeric_limits<T>::max()));
 	}
 }
