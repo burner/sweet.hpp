@@ -14,6 +14,10 @@ UNITTEST(traits) {
 	AS_T(is_string<std::string>::value);
 }
 
+UNITTEST(safeUpCast) {
+	AS_EQ(static_cast<int64_t>(128), to<int64_t>(128));
+}
+
 UNITTEST(toString) {
 	AS_EQ("1337", to<std::string>(1337));
 	AS_EQ("1337.000000", to<std::string>(1337.0));
@@ -24,7 +28,7 @@ UNITTEST(toString) {
 
 UNITTEST(intConvTest) {
 	short s = 1;
-	char c = to<char>(s);
+	char c = to<int8_t>(s);
 	AS_EQ(c, 1);
 }
 

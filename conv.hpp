@@ -7,6 +7,86 @@
 #include <type_traits>
 #include <stdexcept>
 
+/*template<typename T, typename F>
+bool convIsOk(const F f, typename std::enable_if<
+	std::is_same<T, int64_t>::value && (
+		std::is_same<F, int64_t>::value ||
+		std::is_same<F, int32_t>::value ||
+		std::is_same<F, int16_t>::value ||
+		std::is_same<F, int8_t>::value ||
+		std::is_same<F, uint32_t>::value ||
+		std::is_same<F, uint16_t>::value ||
+		std::is_same<F, uint8_t>::value), F>::type* = 0) {
+	return true;
+}
+
+template<typename T, typename F>
+bool convIsOk(const F f, typename std::enable_if<
+	std::is_same<T, uint64_t>::value && (
+		std::is_same<F, uint64_t>::value ||
+		std::is_same<F, uint32_t>::value ||
+		std::is_same<F, uint16_t>::value ||
+		std::is_same<F, uint8_t>::value), F>::type* = 0) {
+	return true;
+}
+
+template<typename T, typename F>
+bool convIsOk(const F f, typename std::enable_if<
+	std::is_same<T, int32_t>::value && (
+		std::is_same<F, int32_t>::value ||
+		std::is_same<F, int16_t>::value ||
+		std::is_same<F, int8_t>::value ||
+		std::is_same<F, uint16_t>::value ||
+		std::is_same<F, uint8_t>::value), F>::type* = 0) {
+	return true;
+}
+
+template<typename T, typename F>
+bool convIsOk(const F f, typename std::enable_if<
+	std::is_same<T, uint32_t>::value && (
+		std::is_same<F, uint32_t>::value ||
+		std::is_same<F, uint16_t>::value ||
+		std::is_same<F, uint8_t>::value), F>::type* = 0) {
+	return true;
+}
+
+template<typename T, typename F>
+bool convIsOk(const F f, typename std::enable_if<
+	std::is_same<T, int16_t>::value && (
+		std::is_same<F, int16_t>::value ||
+		std::is_same<F, int8_t>::value ||
+		std::is_same<F, uint8_t>::value), F>::type* = 0) {
+	return true;
+}
+
+template<typename T, typename F>
+bool convIsOk(const F f, typename std::enable_if<
+	std::is_same<T, uint16_t>::value && (
+		std::is_same<F, uint16_t>::value ||
+		std::is_same<F, uint8_t>::value), F>::type* = 0) {
+	return true;
+}
+
+template<typename T, typename F>
+bool convIsOk(const F f, typename std::enable_if<
+	std::is_same<T, int8_t>::value && (
+		std::is_same<F, int8_t>::value), F>::type* = 0) {
+	return true;
+}
+
+template<typename T, typename F>
+bool convIsOk(const F f, typename std::enable_if<
+	std::is_same<T, uint8_t>::value && (
+		std::is_same<F, uint8_t>::value), F>::type* = 0) {
+	return true;
+}
+
+template<typename T, typename F>
+bool convIsOk(const F f, typename std::enable_if<std::is_floating_point<F>:value>::type* = 0) {
+	return std::numeric_limits<T>::min() <= f && 
+		std::numeric_limits<T>::max() >= f;
+}*/
+
 template<typename T, typename F>
 bool convIsOk(const F f, typename std::enable_if<std::is_signed<T>::value>::type* = 0) {
 	return std::numeric_limits<T>::min() <= f && 
