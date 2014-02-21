@@ -84,6 +84,8 @@ struct Log {
 	explicit Log(const char*, int, bool = false) { }
 	void operator()() {
 	}
+	void operator()(const size_t) {
+	}
 	template<typename... Args>
 	void operator()(std::string, Args...) {
 	}
