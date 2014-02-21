@@ -511,8 +511,7 @@ public:
 	
 		const int path_max_length = 2048;
 		char* name_buf = memory;
-		ssize_t name_buf_length = readlink("/proc/self/exe", name_buf,
-																			 path_max_length - 1);
+		ssize_t name_buf_length = readlink("/proc/self/exe", name_buf, path_max_length - 1);
 		if (name_buf_length < 1) {
 			safe_abort();
 		}
