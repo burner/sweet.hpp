@@ -103,5 +103,19 @@ namespace sweet {
 				throw std::out_of_range("fector full");
 			}
 		}
+
+		void pop_back() {
+			--this->idx;
+		}
+
+		template<typename... Args>
+		void emplace_back(Args&&... args) {
+			if(idx+1 <= static_cast<long>(Capacity)) {
+				new(this->data[++idx]) T(args...);
+			} else {
+				throw std::out_of_range("fector full");
+			}
+			
+		}
 	};
 }
