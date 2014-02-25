@@ -158,12 +158,13 @@ struct int128 {
 			this->low = 0;
 		} else if(x < -9.2233720368547e18) {
 			// take the 54 mantissa bits and shift into position
-			DoubleUint64 di;
-			di.d = x;
-			//t = *(reinterpret_cast<uint64_t*>(reinterpret_cast<char*>(&x)));
-			t = di.i;
+			//DoubleUint64 di;
+			//di.d = x;
+			t = *((uint64_t *) &x);
 			m = (t & BITS51_0) | BIT_52;
 			t = (t & BITS62_0) >> 52;
+			//t = *(reinterpret_cast<uint64_t*>(reinterpret_cast<char*>(&x)));
+			//t = di.i;
 			// if x is 1.5 * 2^1, t will be 1024
 			// if x is 1.5 * 2^52, t will be 1024+51 = 1075
 			t = t - 1075;
@@ -182,11 +183,11 @@ struct int128 {
 			this->high = ((x<0) ? -1 : 0);
 		} else if(x < 1.7014118346046e38) {
 			// take the 54 mantissa bits and shift into position
-			//t = *((uint64_t *) &x);
-			DoubleUint64 di;
-			di.d = x;
+			t = *((uint64_t *) &x);
+			//DoubleUint64 di;
+			//di.d = x;
 			//t = *(reinterpret_cast<uint64_t*>(reinterpret_cast<char*>(&x)));
-			t = di.i;
+			//t = di.i;
 			m = (t & BITS51_0) | BIT_52;
 			t = (t & BITS62_0) >> 52;
 			// if x is 1.5 * 2^1, t will be 1024

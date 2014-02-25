@@ -229,10 +229,16 @@ public:
 	{
 	}
 	inline ~C() { 
+		auto n(std::chrono::system_clock::now());
+		auto dur(std::chrono::duration_cast<std::chrono::milliseconds>(
+			n-strt
+		));
+
 		store->saveTimeAndIncCounter(
-			std::chrono::duration_cast<std::chrono::milliseconds>(
-				std::chrono::system_clock::now()-strt
-			).count(),
+			//std::chrono::duration_cast<std::chrono::milliseconds>(
+			//	std::chrono::system_clock::now()-strt
+			//).count(),
+			dur.count(),
 			int128(readTicks()) - ticks			
 		);
 	}
