@@ -12,27 +12,29 @@ namespace sweet {
 		typedef const T& const_reference;
 		typedef T* pointer;
 		typedef const T* const_pointer;
+		typedef T* iterator;
+		typedef const T* const_iterator;
 
 	private:
-		T data[Capacity];
-		long idx; 
+		T data[Capacity+1];
+		size_t idx; 
 
 	public:
 		// constructor
-		Fector() : idx(-1) {
+		inline Fector() : idx(0) {
 		}
 
 		//access
 		
-		T& operator[](const size_t i) {
+		inline T& operator[](const size_t i) {
 			return this->data[i];
 		}
 
-		const T& operator[](const size_t i) const {
+		inline const T& operator[](const size_t i) const {
 			return this->data[i];
 		}
 
-		T& at(const size_t i) {
+		inline T& at(const size_t i) {
 			if(i < this->idx) {
 				return this->data[i];
 			} else {
@@ -40,7 +42,7 @@ namespace sweet {
 			}
 		}
 
-		const T& at(const size_t i) const {
+		inline const T& at(const size_t i) const {
 			if(i < this->idx) {
 				return this->data[i];
 			} else {
@@ -48,74 +50,92 @@ namespace sweet {
 			}
 		}
 
-		T& front() {
+		inline T& front() {
 			return this->data[0u];
 		}
 
-		const T& front() const {
+		inline const T& front() const {
 			return this->data[0u];
 		}
 
-		T& back() {
-			return this->data[idx];
+		inline T& back() {
+			return this->data[idx-1];
 		}
 
-		const T& back() const {
-			return this->data[idx];
+		inline const T& back() const {
+			return this->data[idx-1];
 		}
 
 		// capacity
 
-		bool empty() const {
-			return this->idx == -1;
+		inline bool empty() const {
+			return this->idx == 0;
 		}
 
-		bool size() const {
-			return this->idx+1;
+		inline bool size() const {
+			return this->idx;
 		}
 
-		constexpr size_t max_size() const {
+		inline constexpr size_t max_size() const {
 			return Capacity;
 		}
 
-		constexpr size_t capacity() const {
+		inline constexpr size_t capacity() const {
 			return Capacity;
 		}
 
 		// modifier
 
-		void clear() {
-			this->idx = -1;
+		inline void clear() {
+			this->idx = 0;
 		}
 
-		void push_back(const T& value) {
-			if(idx+1 <= static_cast<long>(Capacity)) {
-				this->data[++idx] = value;
+		inline void push_back(const T& value) {
+			if(idx <= Capacity) {
+				this->data[idx] = value;
+				++idx;
 			} else {
-				throw std::out_of_range("fector full");
+				throw std::out_of_range("fector full can not push_back");
 			}
 		}
 
-		void push_back(T&& value) {
-			if(idx+1 <= static_cast<long>(Capacity)) {
-				this->data[++idx] = value;
+		inline void push_back(T&& value) {
+			if(idx <= Capacity) {
+				this->data[idx] = value;
+				++idx;
 			} else {
-				throw std::out_of_range("fector full");
+				throw std::out_of_range("fector full can not push_back(&&)");
 			}
 		}
 
-		void pop_back() {
+		inline void pop_back() {
 			--this->idx;
 		}
 
-		template<typename... Args>
-		void emplace_back(Args&&... args) {
-			if(idx+1 <= static_cast<long>(Capacity)) {
-				new(this->data[++idx]) T(args...);
+		inline iterator insert(iterator it, const T& value) {
+			if(idx <= Capacity) {
+				return it;
 			} else {
-				throw std::out_of_range("fector full");
+				throw std::out_of_range("fector full can not insert");
 			}
-			
+		}
+
+		// iterator
+		
+		T* begin() {
+			return &this->data[0];
+		}
+
+		T* end() {
+			return &this->data[this->idx];
+		}
+
+		const T* begin() const {
+			return &this->data[0];
+		}
+
+		const T* end() const {
+			return &this->data[this->idx];
 		}
 	};
 }
