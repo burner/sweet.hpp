@@ -3,7 +3,7 @@
 #include <stdexcept>
 
 namespace sweet {
-	template<typename T, size_t Capacity>
+	template<typename T, size_t Capacity = 128>
 	class Fector {
 	public:
 		typedef T value_type;
@@ -72,7 +72,7 @@ namespace sweet {
 			return this->idx == 0;
 		}
 
-		inline bool size() const {
+		inline size_t size() const {
 			return this->idx;
 		}
 
@@ -114,6 +114,15 @@ namespace sweet {
 
 		inline iterator insert(iterator it, const T& value) {
 			if(idx <= Capacity) {
+				auto en(this->end());
+				do {
+					auto enm = en;
+					--enm;
+					*en = *enm;
+					--en;
+				} while(en!= it);
+				*it = value;
+				++this->idx;
 				return it;
 			} else {
 				throw std::out_of_range("fector full can not insert");
