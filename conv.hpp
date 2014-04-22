@@ -21,7 +21,7 @@ template<typename T, typename F>
 bool convIsOk(const F f, typename std::enable_if<
 			std::is_unsigned<T>::value && std::is_signed<F>::value
 		>::type* = 0) {
-	return f >= 0 && f <= std::numeric_limits<T>::max();
+	return f >= 0 && static_cast<uint64_t>(f) <= std::numeric_limits<T>::max();
 }
 
 template<typename T, typename F>

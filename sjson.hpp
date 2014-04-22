@@ -354,8 +354,8 @@ public:
 				eatWhitespace();
 				if(curLine[idx] != '"') {
 					throw std::logic_error(locToStr() + std::string(
-						" excepeted a \" but found a " + curLine[idx]
-					));
+						" excepeted a \" but found a ") + curLine[idx]
+					);
 				}
 				continue;
 			} 
@@ -522,6 +522,22 @@ private:
 		if(idx < curLine.size() && curLine[idx] == '#') {
 			readline();
 			goto begin;
+		} else if(idx < curLine.size() && curLine[idx] == '%') {
+			eatStartStopComment();
+		}
+	}
+
+	inline void eatStartStopComment() {
+		++idx;
+		while(curLine[idx] != '%') {
+			++idx;
+			if(idx >= curLine.size()) {
+				readline();
+				if(eof) {
+					return;
+				}
+				idx = 0;
+			}
 		}
 	}
 };
