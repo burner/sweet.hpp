@@ -168,6 +168,15 @@ public:
 		return ret;
 	}
 
+	static inline long long numDigists(long long in) {
+		long long n = 0;
+		while(in) {
+			in /= 10;
+			++n;
+		}
+		return n;
+	}
+
 	static inline void printResults() {
 		auto rslt = Benchmark::getTimeConsumer();
 		const std::string funcName = "Function Name:";
@@ -190,19 +199,24 @@ public:
 			fLen = fLen > static_cast<long long>(it.filename.size()) ? fLen : 
 					static_cast<long long>(it.filename.size());
 			tLen = tLen > it.time ? tLen : it.time;
-			lLen = static_cast<long long>(lLen > static_cast<long long>(log10(it.line)+1) ? 
-				lLen : log10(it.line)+1
-			);
-			tiLen = static_cast<long long>(tiLen > static_cast<long long>(it.ticks.digits()) ? 
-				tiLen : it.ticks.digits()
-			);
-			cLen = static_cast<long long>(cLen > static_cast<long long>(log10(it.cnt)) ? 
-				cLen : log10(it.cnt)
-			);
+			lLen = std::max(numDigists(it.line), lLen);
+			tiLen = std::max(numDigists(it.ticks.digits()), tiLen);
+			cLen = std::max(numDigists(it.cnt), cLen);
+			//lLen = static_cast<long long>(lLen > static_cast<long long>(log10(it.line)+1) ? 
+			//	lLen : log10(it.line)+1
+			//);
+			//tiLen = static_cast<long long>(tiLen > static_cast<long long>(it.ticks.digits()) ? 
+			//	tiLen : it.ticks.digits()
+			//);
+			//cLen = static_cast<long long>(cLen > static_cast<long long>(log10(it.cnt)) ? 
+			//	cLen : log10(it.cnt)
+			//);
 		}
-		tLen =  std::max(static_cast<long long>(log10(tLen)), static_cast<long long>(time.size()));
-		tiLen = std::max(static_cast<long long>(tiLen),static_cast<long long>(numTicks.size()));
-		cLen = std::max(static_cast<long long>(log10(cLen)),static_cast<long long>(numCalls.size()));
+		tLen =  std::max(static_cast<long long>(numDigists(tLen)), static_cast<long long>(time.size()));
+		tiLen = std::max(tiLen, static_cast<long long>(numTicks.size()))+3;
+		cLen = std::max(cLen ,static_cast<long long>(numCalls.size()));
+		//tiLen = std::max(static_cast<long long>(tiLen),static_cast<long long>(numTicks.size()));
+		//cLen = std::max(static_cast<long long>(log10(cLen)),static_cast<long long>(numCalls.size()));
 		++nLen; ++tLen; ++fLen; ++lLen, ++cLen;
 
 		std::cout<<std::setw(nLen)<<funcName<<" "<<std::setw(tLen)<<time<<" "
