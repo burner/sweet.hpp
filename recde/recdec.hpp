@@ -63,6 +63,8 @@ class RecurDec {
 	void genAstOutputMethods(
 		const std::map<std::string,std::vector<RulePart>>&);
 	void genVisitor(const std::map<std::string,std::vector<RulePart>>&);
+	void createDotPrefix();
+	void createDotPostfix();
 
 public:
 	RuleStore& rs;

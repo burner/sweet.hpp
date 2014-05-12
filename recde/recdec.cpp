@@ -638,6 +638,11 @@ void RecurDec::genRules(const std::string& start) {
 	}
 
 	format(out.prsS, srcStringParse, start, start);
+
+	// dot language
+	format(out.langGraph, "%s [label=\"%s\"];\n", start, start);
+	// dot language
+
 	walkTrie(&trie.getRoot(), start, 1);
 	LOG("The trie");
 	std::cout<<trie<<std::endl;
@@ -1359,8 +1364,18 @@ void RecurDec::genAst(const std::vector<std::vector<RulePart>>& r) {
 	this->genAstClassDeclEnd(allToStore);
 }
 
+void RecurDec::createDotPrefix() {
+	format(out.langGraph, "digraph Language {\n");
+}
+
+void RecurDec::createDotPostfix() {
+	format(out.langGraph, "}");
+}
+
 void RecurDec::gen() {
+	this->createDotPrefix();
 	this->genAstForwardDecl();
 	this->genRules();
 	this->writeErrorStuff();
+	this->createDotPostfix();
 }

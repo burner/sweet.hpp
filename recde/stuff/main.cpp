@@ -4,7 +4,7 @@
 #include <outvisitor.hpp>
 #include <dotvisitor.hpp>
 
-UNITTEST(rel1) {
+/*UNITTEST(rel1) {
 	auto ss = std::make_shared<std::stringstream>
 		("hello <= (foobar)");
 	Lexer l(ss);
@@ -134,10 +134,10 @@ UNITTEST(unary1) {
 	std::cout<<std::endl;
 	ast->acceptVisitor(v);
 	std::cout<<std::endl;
-}
+}*/
 
 
 int main() {
-	Unit::runTests();
+	sweet::Unit::runTests();
 	return 0;
 }

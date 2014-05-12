@@ -25,6 +25,7 @@ set(dpp_HEADERS
 	dotvisitor.hpp
 	outvisitor.hpp
 	multivisitor.hpp
+	visitor.hpp
 )
 
 ## well and the sources
@@ -40,6 +41,7 @@ set(dpp_SOURCES
 	dotvisitor.cpp
 	outvisitor.cpp
 	multivisitor.cpp
+	visitor.cpp
 )
 
 
