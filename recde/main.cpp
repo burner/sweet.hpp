@@ -31,6 +31,7 @@ int main(int argc, char** argv) {
 	std::string outLamH("lambdavisitor.hpp");
 	std::string outLamS("lambdavisitor.cpp");
 	std::string outH("visitorinclude");
+	std::string langGraph("languageGraph.dot");
 	std::string outPrefix;
 	sweet::Options opts(argc, argv);
 	opts.get("-i", "--inputFile", "The grammar file to parse", inputFile);
@@ -68,6 +69,8 @@ int main(int argc, char** argv) {
 		"All output files will be prefixed with this string", outPrefix);
 	opts.get("-in", "--visitorinclude", 
 		"Visitor method declarations", outH);
+	opts.get("-lg", "--languageGraph", 
+		"A graph of the language in .dot", langGraph);
 	opts.finalize();
 
 	if(!outPrefix.empty()) {
@@ -88,9 +91,11 @@ int main(int argc, char** argv) {
 		outLamS = outPrefix + outLamS;
 		outLamH = outPrefix + outLamH;
 		outH = outPrefix + outH;
+		langGraph = outPrefix + langGraph;
 	}
 
 	if(inputFile.empty()) {
+		LOG();
 		return 0;
 	}
 
@@ -114,8 +119,9 @@ int main(int argc, char** argv) {
 	std::ofstream lamH(outLamH);
 	std::ofstream lamS(outLamS);
 	std::ofstream inH(outH);
+	std::ofstream langGraphD(langGraph);
 	Output out(prsS,prsH,astS,astH,errS,errH,visS,visH,ovisH,ovisS,dvisH,dvisS,
-		mvisH,mvisS,lamS,lamH,inH
+		mvisH,mvisS,lamS,lamH,inH,langGraphD
 	);
 	RecurDec rd(store, out);
 	rd.computeFirstSet();

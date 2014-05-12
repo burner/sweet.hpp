@@ -20,6 +20,7 @@ struct Output {
 	std::ostream& lamH;
 	std::ostream& lamS;
 	std::ostream& inH;
+	std::ostream& langGraph;
 
 	std::string errHfn;
 
@@ -27,5 +28,5 @@ struct Output {
 		std::ostream&,std::ostream&,std::ostream&,
 		std::ostream&,std::ostream&,std::ostream&,std::ostream&,
 		std::ostream&,std::ostream&,std::ostream&,std::ostream&,
-		std::ostream&,std::ostream&,std::ostream&);
+		std::ostream&,std::ostream&,std::ostream&,std::ostream&);
 };
