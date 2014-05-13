@@ -105,17 +105,28 @@ void RecurDec::genRules() {
 		}
 
 	}
-
 	done.clear();*/
+	
+
 	for(auto& it : rs.rules) {
 		if(done.find(it.first) != done.end()) {
 			continue;
 		}
+		
+		// dot language
+		format(out.langGraph, "subgraph %s {\n", it.first);
+		format(out.langGraph, "\tlabel=%s\n", it.first);
+		format(out.langGraph, "\tcolor=black\n");
+		format(out.langGraph, "\t%s [label=\"%s\"];\n", it.first, it.first);
+		// dot language
 
 		LOG("\n\n%s\n\n", it.first);
 		current = it.first;
 		genRules(it.first);
 		done.insert(it.first);
+
+		// dot language
+		format(out.langGraph, "}\n");
 	}
 	format(out.prsH, "\nprivate:\n");
 	format(out.prsH, "\tLexer& lexer;\n");
@@ -547,6 +558,8 @@ void RecurDec::walkTrie(const GrammarPrefix::TrieEntry* path, const std::string&
 		} else {
 			format(out.prsS, "%s\tnextToken();\n", prefix);
 		}
+
+		format(out.langGraph, "%s -> %s;\n", part, it.first.name);
 		walkTrie(&(it.second), it.first.name, depth+1);
 		if(it.second.isValue) {
 			format(out.prsS, "\t%sreturn std::make_shared<%s>(", prefix, 
@@ -638,10 +651,6 @@ void RecurDec::genRules(const std::string& start) {
 	}
 
 	format(out.prsS, srcStringParse, start, start);
-
-	// dot language
-	format(out.langGraph, "%s [label=\"%s\"];\n", start, start);
-	// dot language
 
 	walkTrie(&trie.getRoot(), start, 1);
 	LOG("The trie");
