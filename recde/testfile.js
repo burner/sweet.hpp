@@ -2,8 +2,9 @@
 	"Token" : [
 		{ "Name" : "Var", "Regex" : "var", "ConvertFunction" : "void" },
 		{ "Name" : "Int", "Regex" : "int", "ConvertFunction" : "void" },
-		{ "Name" : "Identifier", "Regex" : "", "ConvertFunction" : "void" },
-		{ "Name" : "Float", "Regex" : "float", "ConvertFunction" : "void" }
+		{ "Name" : "Identifier", "Regex" : "[a-zA-Z]+", "ConvertFunction" : "void" },
+		{ "Name" : "Float", "Regex" : "float", "ConvertFunction" : "void" },
+		{ "Name" : "Colon", "Regex" : ":", "ConvertFunction" : "void" }
 	],
 	"Rules" : [
 		{ "Name" : "VarDecl", "Expression" : [

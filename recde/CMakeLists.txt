@@ -37,7 +37,8 @@ set(recde_SOURCES
 
 
 ## we love c++0x and a chatty compiler that comments on our code
-set(CMAKE_CXX_FLAGS "-Wall -Wextra -ggdb --std=c++0x -pedantic")
+set(CMAKE_CXX_FLAGS "-Wall -Wextra -ggdb --std=c++11 -pedantic")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fdiagnostics-color=auto")
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
 
 include_directories(

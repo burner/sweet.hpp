@@ -114,7 +114,7 @@ void RecurDec::genRules() {
 		}
 		
 		// dot language
-		format(out.langGraph, "subgraph %s {\n", it.first);
+		format(out.langGraph, "subgraph cluster%s {\n", it.first);
 		format(out.langGraph, "\tlabel=%s\n", it.first);
 		format(out.langGraph, "\tcolor=black\n");
 		format(out.langGraph, "\t%s [label=\"%s\"];\n", it.first, it.first);
@@ -559,7 +559,13 @@ void RecurDec::walkTrie(const GrammarPrefix::TrieEntry* path, const std::string&
 			format(out.prsS, "%s\tnextToken();\n", prefix);
 		}
 
-		format(out.langGraph, "%s -> %s;\n", part, it.first.name);
+		format(out.langGraph, "%s -> %s;\n", 
+			rs.token.find(part) != rs.token.end() ? format("\"%s(%s)\"",
+				part, rs.token.find(part)->second.regex) : part,
+			rs.token.find(it.first.name) != rs.token.end() ? 
+				format("\"%s(%s)\"", it.first.name,
+				rs.token.find(it.first.name)->second.regex) : it.first.name
+		);
 		walkTrie(&(it.second), it.first.name, depth+1);
 		if(it.second.isValue) {
 			format(out.prsS, "\t%sreturn std::make_shared<%s>(", prefix, 
@@ -1375,6 +1381,7 @@ void RecurDec::genAst(const std::vector<std::vector<RulePart>>& r) {
 
 void RecurDec::createDotPrefix() {
 	format(out.langGraph, "digraph Language {\n");
+	format(out.langGraph, "\nrankdir=LR\n");
 }
 
 void RecurDec::createDotPostfix() {
