@@ -3,10 +3,14 @@
 #include <stdio.h>
 #include <stddef.h>
 #include <limits>
+#include <algorithm>
+#include <deque>
 #include <memory>
 #include <stdexcept>
 
-#define BASE_ALLOCATOR_TYPES(T) \
+#include <conv.hpp>
+
+#define BASE_ALLOCATOR_TYPES(NAME,T) \
 typedef size_t size_type; \
 typedef ptrdiff_t difference_type; \
 typedef T* pointer; \
@@ -19,7 +23,7 @@ namespace sweet {
 	template<typename T>
 	class BaseAllocator {
 	  public:
-		BASE_ALLOCATOR_TYPES(T);
+		BASE_ALLOCATOR_TYPES(BaseAllocator,T);
 
 		template<typename U, typename... Args>
 		void construct(U* p, Args&&... args) {
@@ -34,7 +38,7 @@ namespace sweet {
 	template<typename T>
 	class Mallocator : public BaseAllocator<T> {
 	  public:
-		BASE_ALLOCATOR_TYPES(T);
+		BASE_ALLOCATOR_TYPES(Mallocator,T);
 
 		inline pointer address(reference r) const noexcept {
 			return &r;
@@ -65,7 +69,7 @@ namespace sweet {
 	template<typename T>
 	class FailAllocator : public BaseAllocator<T> {
 	  public:
-		BASE_ALLOCATOR_TYPES(T);
+		BASE_ALLOCATOR_TYPES(FailAllocator,T);
 
 		inline pointer address(reference) const noexcept {
 			return nullptr;
@@ -94,7 +98,7 @@ namespace sweet {
 		  Secondary secondary;
 
 	  public:
-		BASE_ALLOCATOR_TYPES(T);
+		BASE_ALLOCATOR_TYPES(FallbackAllocator,T);
 
 		inline pointer address(reference r) const noexcept {
 			pointer p = primary.address(r);
@@ -138,15 +142,18 @@ namespace sweet {
 		}
 	};
 
-	template<typename T, size_t BumpSize>
+	template<typename T, size_t BumpSize = 4096>
 	class BumpAllocator : public BaseAllocator<T> {
 	  private:
 		  T bump[BumpSize];
 		  size_t idx;
 	  public:
-		BASE_ALLOCATOR_TYPES(T);
+		BASE_ALLOCATOR_TYPES(BumpAllocator,T);
 
 		inline BumpAllocator() : idx(0) {}
+
+		template<typename U>
+		struct rebind {typedef BumpAllocator<U> other;};
 
 		inline pointer address(reference r) const noexcept {
 			return &r;
@@ -161,13 +168,73 @@ namespace sweet {
 				throw std::bad_alloc();
 			}
 
+			auto ret = &(this->bump[this->idx]);
+			this->idx += s;
+
+			return ret;
 		}
 
-		inline void deallocate(pointer, size_type) {
+		inline void deallocate(pointer p, size_type s) {
+			pointer a = p + s;
+			pointer b = &(this->bump[this->idx]);
+			if(a == b) {
+				this->idx -= s;
+			}
 		}
 
 		inline size_type max_size() const {
-			return 0u;
+			return BumpSize * sizeof(T);
+		}
+	};
+
+	template<typename T, typename Allocator>
+	class FreeVectorAllocator : public BaseAllocator<T> {
+	  public:
+		BASE_ALLOCATOR_TYPES(BumpAllocator,T);
+
+	  private:
+		template<typename U>
+		struct StoreNode {
+			U* ptr;
+			size_t size;
+
+			inline StoreNode(U* p, size_type s) : ptr(p), size(s) {}
+		};
+		std::deque<StoreNode<T>> store;
+		Allocator allocator;
+
+	  public:
+		inline pointer address(reference r) const noexcept {
+			return allocator.address(r);
+		}
+
+		inline const_pointer address(const_reference r) const noexcept {
+			return allocator.address(r);
+		}
+
+		inline pointer allocate(size_type size, const void* h=0) {
+			auto it = std::find_if(store.begin(), store.end(), 
+					[&](const typename std::deque<StoreNode<T>>::value_type& s) {
+				return s.size == size;
+			});
+
+			if(it != this->store.end()) {
+				pointer ptr = it->ptr;
+				this->store.erase(it);
+				return ptr;
+			} else {
+				return this->allocator.allocate(size, h);
+			}
+		}
+
+		inline void deallocate(pointer p, size_type s) {
+			for(size_type i = 0; i < s; ++i, p+=sizeof(T)) {
+				this->store.push_back(StoreNode<T>(p,s));
+			}
+		}
+
+		inline size_type max_size() const {
+			return this->allocator.max_size();
 		}
 	};
 }

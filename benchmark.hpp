@@ -260,6 +260,7 @@ public:
 }
 
 #define CONCAT_IMPL( x, y ) x##y
+#define CONCAT(x,y) CONCAT_IMPL(x,y)
 
 #ifdef SWEET_NO_BENCHMARK
 #define BENCH(name)
@@ -269,3 +270,6 @@ public:
 sweet::C CONCAT_IMPL(name, __COUNTER__)(& CONCAT_IMPL(name, fooBar_youCantGuessMe))
 #endif
 
+#define BENCHMARK(f) [&]() {sweet::Bench CONCAT(__secret,__LINE__); f; CONCAT(__secret,__LINE__).stop(); auto ret = CONCAT(__secret,__LINE__).milli(); return ret;}()
+
+#define BENCHMARK_CNT(COUNTER, f) [&]() {sweet::Bench CONCAT(__secret,__LINE__); for(int CONCAT(__ITER,__LINE__) = 0; CONCAT(__ITER,__LINE__) < COUNTER; ++CONCAT(__ITER,__LINE__)) {f;} CONCAT(__secret,__LINE__).stop(); auto ret = CONCAT(__secret,__LINE__).micro(); return ret/COUNTER;}()
