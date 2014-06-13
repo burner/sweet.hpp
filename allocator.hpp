@@ -4,6 +4,7 @@
 #include <stddef.h>
 #include <limits>
 #include <algorithm>
+#include <unordered_map>
 #include <deque>
 #include <memory>
 #include <stdexcept>
@@ -99,6 +100,9 @@ namespace sweet {
 
 	  public:
 		BASE_ALLOCATOR_TYPES(FallbackAllocator,T);
+	  private:
+		std::unordered_map<pointer,size_type> secMemory;
+	  public:
 
 		inline pointer address(reference r) const noexcept {
 			pointer p = primary.address(r);
@@ -112,14 +116,11 @@ namespace sweet {
 
 		inline pointer allocate(size_type n, const void* hint=0) {
 			pointer ptr;
-			try {
-				ptr = primary.allocate(n,hint);
-			} catch(...) {
-				ptr = nullptr;
-			}
+			ptr = primary.allocate(n,hint);
 
 			if(ptr == nullptr) {
 				ptr = secondary.allocate(n,hint);
+				secMemory.insert(std::make_pair(ptr,n));
 			}
 
 			if(ptr == nullptr) {
@@ -130,10 +131,12 @@ namespace sweet {
 		}
 
 		inline void deallocate(pointer ptr, size_type size) {
-			if(primary.address(*ptr) != nullptr) {
-				primary.deallocate(ptr, size);
+			auto it = this->secMemory.find(ptr);
+			if(it != this->secMemory.end()) {
+				this->secondary.deallocate(it->first, it->second);
+				this->secMemory.erase(it);
 			} else {
-				secondary.deallocate(ptr, size);
+				this->primary.deallocate(ptr, size);
 			}
 		}
 
@@ -165,7 +168,7 @@ namespace sweet {
 
 		inline pointer allocate(size_type s, const void* =0) {
 			if(this->idx + s >= BumpSize) {
-				throw std::bad_alloc();
+				return nullptr;
 			}
 
 			auto ret = &(this->bump[this->idx]);
@@ -177,6 +180,58 @@ namespace sweet {
 		inline void deallocate(pointer p, size_type s) {
 			pointer a = p + s;
 			pointer b = &(this->bump[this->idx]);
+			if(a == b) {
+				this->idx -= s;
+			}
+		}
+
+		inline size_type max_size() const {
+			return BumpSize * sizeof(T);
+		}
+	};
+
+	template<typename T, typename A, size_t BumpSize = 4096>
+	class SingleBlockAllocator : public BaseAllocator<T> {
+	  private:
+		  size_t idx;
+		  T* base;
+		  A allocator;
+	  public:
+		BASE_ALLOCATOR_TYPES(BumpAllocator,T);
+
+		inline SingleBlockAllocator() : idx(0), base(nullptr) {}
+		inline ~SingleBlockAllocator() {
+			this->allocator.deallocate(base, BumpSize);
+		}
+
+		template<typename U>
+		struct rebind {typedef SingleBlockAllocator<U,A,BumpSize> other;};
+
+		inline pointer address(reference r) const noexcept {
+			return &r;
+		}
+
+		inline const_pointer address(const_reference r) const noexcept {
+			return &r;
+		}
+
+		inline pointer allocate(size_type s, const void* =0) {
+			if(this->base == nullptr) {
+				this->base = allocator.allocate(BumpSize);
+			}
+			if(this->idx + s >= BumpSize) {
+				return nullptr;
+			}
+
+			auto ret = &(this->base[this->idx]);
+			this->idx += s;
+
+			return ret;
+		}
+
+		inline void deallocate(pointer p, size_type s) {
+			pointer a = p + s;
+			pointer b = &(this->base[this->idx]);
 			if(a == b) {
 				this->idx -= s;
 			}
@@ -204,6 +259,11 @@ namespace sweet {
 		Allocator allocator;
 
 	  public:
+		inline ~FreeVectorAllocator() {
+			std::for_each(this->store.begin(), this->store.end(), [&](const StoreNode<T>& n) {
+				this->allocator.deallocate(n.ptr, n.size);
+			});
+		}
 		inline pointer address(reference r) const noexcept {
 			return allocator.address(r);
 		}
@@ -228,9 +288,7 @@ namespace sweet {
 		}
 
 		inline void deallocate(pointer p, size_type s) {
-			for(size_type i = 0; i < s; ++i, p+=sizeof(T)) {
-				this->store.push_back(StoreNode<T>(p,s));
-			}
+			this->store.push_back(StoreNode<T>(p,s));
 		}
 
 		inline size_type max_size() const {

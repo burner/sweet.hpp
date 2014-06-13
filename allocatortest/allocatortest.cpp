@@ -44,7 +44,9 @@ UNITTEST(test4) {
 	> v1;
 	for(int i = 0; i < 1000; ++i) {
 		v1.push_back(i);
-		AS_EQ(v1.back(), i);
+		for(int j = 0; j < i; ++j) {
+			AS_EQ(v1[j], j);
+		}
 	}
 }
 
@@ -60,7 +62,9 @@ UNITTEST(test6) {
 	std::vector<int, sweet::BumpAllocator<int> > v1;
 	for(int i = 0; i < 1000; ++i) {
 		v1.push_back(i);
-		AS_EQ(v1.back(), i);
+		for(int j = 0; j < i; ++j) {
+			AS_EQ(v1[j], j);
+		}
 	}
 }
 
@@ -73,7 +77,9 @@ UNITTEST(test7) {
 	> v1;
 	for(int i = 0; i < 1000; ++i) {
 		v1.push_back(i);
-		AS_EQ(v1.back(), i);
+		for(int j = 0; j < i; ++j) {
+			AS_EQ(v1[j], j);
+		}
 	}
 }
 
@@ -85,7 +91,10 @@ void fillVectorDeque(size_t cnt) {
 	for(size_t j = step; j < cnt; j += step) {
 		for(size_t i = 0; i < j; ++i) {
 			v1.push_back(i);
-			ASSERT_EQ(v1.back(), i);
+			if(v1.back() != i) {
+				format(std::cout, "%u != %u", v1.back(), i);
+				throw std::exception();
+			}
 		}
 
 		for(size_t i = 0; i < j/2u; ++i) {
@@ -99,19 +108,31 @@ int main() {
 	std::cout<<worked <<" Number of Asserts "<<
 		sweet::Unit::getNumOfAsserts()<<std::endl;
 
-	std::vector<size_t> values {10,24,128,1024};
+	std::vector<size_t> values {10,24,32,64,128,1024};
 	for(size_t i : values) {
-		size_t a = BENCHMARK_CNT(5, (fillVectorDeque<std::vector<size_t,sweet::Mallocator<size_t>>>(i)));
+		size_t cnt = 5500;
+		size_t a = BENCHMARK_CNT(cnt, (fillVectorDeque<std::vector<size_t>>(i)));
+		size_t b = BENCHMARK_CNT(cnt, (fillVectorDeque<std::vector<size_t,sweet::Mallocator<size_t>>>(i)));
 
 		typedef std::vector<size_t, sweet::FallbackAllocator<size_t,
 				sweet::BumpAllocator<size_t, 2048>,
 				sweet::Mallocator<size_t>>
 			> FallVector;
-		size_t b = BENCHMARK_CNT(2500, fillVectorDeque<FallVector>(i));
+		size_t c = BENCHMARK_CNT(cnt, fillVectorDeque<FallVector>(i));
 
-		format(std::cout, "%10u: %5u %5u\n", i, a, b);
+		typedef std::vector<size_t, sweet::Mallocator<size_t>> VectorMalloc;
+		size_t d = BENCHMARK_CNT(cnt, fillVectorDeque<VectorMalloc>(i));
+
+		typedef std::vector<size_t, sweet::FallbackAllocator<size_t,
+				sweet::FreeVectorAllocator<size_t,
+					sweet::SingleBlockAllocator<size_t, sweet::Mallocator<size_t>, 2048>
+				>,
+				sweet::Mallocator<size_t>>
+			> FallMallocVector;
+		size_t e = BENCHMARK_CNT(cnt, fillVectorDeque<FallMallocVector>(i));
+
+		format(std::cout, "%10u: %5u %5u %5u %5u %5u\n", i, a, b, c, d, e);
 	}
-
 
 	return 0;
 }
