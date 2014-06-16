@@ -272,4 +272,4 @@ sweet::C CONCAT_IMPL(name, __COUNTER__)(& CONCAT_IMPL(name, fooBar_youCantGuessM
 
 #define BENCHMARK(f) [&]() {sweet::Bench CONCAT(__secret,__LINE__); f; CONCAT(__secret,__LINE__).stop(); auto ret = CONCAT(__secret,__LINE__).milli(); return ret;}()
 
-#define BENCHMARK_CNT(COUNTER, f) [&]() {sweet::Bench CONCAT(__secret,__LINE__); for(int CONCAT(__ITER,__LINE__) = 0; CONCAT(__ITER,__LINE__) < COUNTER; ++CONCAT(__ITER,__LINE__)) {f;} CONCAT(__secret,__LINE__).stop(); auto ret = CONCAT(__secret,__LINE__).micro(); return ret/COUNTER;}()
+#define BENCHMARK_CNT(COUNTER, f) [&]() {sweet::Bench CONCAT(__secret,__LINE__); for(int CONCAT(__ITER,__LINE__) = 0; CONCAT(__ITER,__LINE__) < COUNTER; ++CONCAT(__ITER,__LINE__)) {f;} CONCAT(__secret,__LINE__).stop(); auto ret = CONCAT(__secret,__LINE__).micro(); return ret/static_cast<double>(COUNTER);}()

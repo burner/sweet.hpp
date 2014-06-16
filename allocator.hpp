@@ -26,6 +26,8 @@ namespace sweet {
 	  public:
 		BASE_ALLOCATOR_TYPES(BaseAllocator,T);
 
+		inline BaseAllocator() {}
+
 		template<typename U, typename... Args>
 		void construct(U* p, Args&&... args) {
 			::new((void*)p) U(std::forward<Args>(args)...);
@@ -40,6 +42,11 @@ namespace sweet {
 	class Mallocator : public BaseAllocator<T> {
 	  public:
 		BASE_ALLOCATOR_TYPES(Mallocator,T);
+
+		inline Mallocator() {}
+
+		template<typename U>
+		struct rebind {typedef Mallocator<U> other;};
 
 		inline pointer address(reference r) const noexcept {
 			return &r;
@@ -72,6 +79,14 @@ namespace sweet {
 	  public:
 		BASE_ALLOCATOR_TYPES(FailAllocator,T);
 
+		inline FailAllocator() {}
+
+		template<typename U>
+		struct rebind {typedef FailAllocator<U> other;};
+
+		template<class Z>
+		using DefaultType = FailAllocator<Z>;
+
 		inline pointer address(reference) const noexcept {
 			return nullptr;
 		}
@@ -92,34 +107,37 @@ namespace sweet {
 		}
 	};
 
-	template<typename T, typename Primary, typename Secondary>
-	class FallbackAllocator : BaseAllocator<T> {
-	  private:
-		  Primary primary;
-		  Secondary secondary;
-
+	template<typename T, template<typename> class Primary, template<typename> class Secondary>
+	class FallbackAllocator : public Primary<T>, public Secondary<T> {
 	  public:
 		BASE_ALLOCATOR_TYPES(FallbackAllocator,T);
 	  private:
 		std::unordered_map<pointer,size_type> secMemory;
 	  public:
 
+		inline FallbackAllocator() {}
+
+		template<typename U>
+		struct rebind {
+			typedef FallbackAllocator<U,Primary,Secondary> other;
+		};
+
 		inline pointer address(reference r) const noexcept {
-			pointer p = primary.address(r);
-			return p != nullptr ? p : secondary.address(r);
+			pointer p = Primary<T>::address(r);
+			return p != nullptr ? p : Secondary<T>::address(r);
 		}
 
 		inline const_pointer address(const_reference r) const noexcept {
-			pointer p = primary.address(r);
-			return p != nullptr ? p : secondary.address(r);
+			pointer p = Primary<T>::address(r);
+			return p != nullptr ? p : Secondary<T>::address(r);
 		}
 
 		inline pointer allocate(size_type n, const void* hint=0) {
 			pointer ptr;
-			ptr = primary.allocate(n,hint);
+			ptr = Primary<T>::allocate(n,hint);
 
 			if(ptr == nullptr) {
-				ptr = secondary.allocate(n,hint);
+				ptr = Secondary<T>::allocate(n,hint);
 				secMemory.insert(std::make_pair(ptr,n));
 			}
 
@@ -133,17 +151,18 @@ namespace sweet {
 		inline void deallocate(pointer ptr, size_type size) {
 			auto it = this->secMemory.find(ptr);
 			if(it != this->secMemory.end()) {
-				this->secondary.deallocate(it->first, it->second);
+				Secondary<T>::deallocate(it->first, it->second);
 				this->secMemory.erase(it);
 			} else {
-				this->primary.deallocate(ptr, size);
+				Primary<T>::deallocate(ptr, size);
 			}
 		}
 
 		inline size_type max_size() const {
-			return std::max(primary.max_size(), secondary.max_size());
+			return std::max(Primary<T>::max_size(), Secondary<T>::max_size());
 		}
 	};
+
 
 	template<typename T, size_t BumpSize = 4096>
 	class BumpAllocator : public BaseAllocator<T> {
@@ -153,10 +172,13 @@ namespace sweet {
 	  public:
 		BASE_ALLOCATOR_TYPES(BumpAllocator,T);
 
+		template<class Z>
+		using DefaultType = BumpAllocator<Z>;
+
 		inline BumpAllocator() : idx(0) {}
 
 		template<typename U>
-		struct rebind {typedef BumpAllocator<U> other;};
+		struct rebind {typedef BumpAllocator<U,BumpSize> other;};
 
 		inline pointer address(reference r) const noexcept {
 			return &r;
@@ -204,8 +226,9 @@ namespace sweet {
 			this->allocator.deallocate(base, BumpSize);
 		}
 
-		template<typename U>
+		/*template<typename U>
 		struct rebind {typedef SingleBlockAllocator<U,A,BumpSize> other;};
+		*/
 
 		inline pointer address(reference r) const noexcept {
 			return &r;
@@ -259,11 +282,17 @@ namespace sweet {
 		Allocator allocator;
 
 	  public:
+		inline FreeVectorAllocator() {}
+
 		inline ~FreeVectorAllocator() {
 			std::for_each(this->store.begin(), this->store.end(), [&](const StoreNode<T>& n) {
-				this->allocator.deallocate(n.ptr, n.size);
+				allocator.deallocate(n.ptr, n.size);
 			});
 		}
+
+		template<typename U>
+		struct rebind {typedef FreeVectorAllocator<U, Allocator> other;};
+
 		inline pointer address(reference r) const noexcept {
 			return allocator.address(r);
 		}
