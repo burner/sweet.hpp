@@ -42,6 +42,7 @@ UNITTEST(test3) {
 }
 
 // FallbackAllocator
+/*
 UNITTEST(test4) {
 	typedef sweet::FallbackAllocator<int, sweet::FailAllocator, sweet::Mallocator> FA;
 	FA fa;
@@ -65,7 +66,8 @@ UNITTEST(test4) {
 			AS_EQ(v1[j], j);
 		}
 	}
-}
+}*/
+
 // BumpAllocator
 UNITTEST(test5) {
 	sweet::BumpAllocator<int,128> a;
@@ -154,7 +156,7 @@ int main() {
 		double b = BENCHMARK_CNT(cnt, (fillVectorDeque<std::vector<size_t,sweet::Mallocator<size_t>>>(i)));
 
 		typedef std::vector<size_t, sweet::FallbackAllocator<size_t,
-				sweet::BumpAllocator<size_t,4096>,
+				sweet::BumpAllocator,
 				sweet::Mallocator> 
 		> FallVector;
 		/*
