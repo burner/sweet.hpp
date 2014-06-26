@@ -1,4 +1,4 @@
 all:
 	g++ -Wall -Wextra --std=c++11 allocatortest.cpp -o allocatortest -pedantic\
-	 -O1 -I.. -ggdb
+	 -I.. -ggdb -O3
 	./allocatortest
