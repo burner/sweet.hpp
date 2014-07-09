@@ -24,6 +24,20 @@ namespace sweet {
 		inline Fector() : idx(0) {
 		}
 
+		inline Fector(const size_t cnt, const T& value) : Fector() {
+			this->resize(cnt, value);
+		}
+
+		inline void resize(const size_t cnt, const T& value) {
+			while(cnt < this->idx) {
+				this->pop_back();
+			}
+
+			while(cnt > this->idx) {
+				this->push_back(value);
+			}
+		}
+
 		//access
 		
 		inline T& operator[](const size_t i) {
@@ -109,6 +123,7 @@ namespace sweet {
 		}
 
 		inline void pop_back() {
+			this->data[this->idx - 1].~T();
 			--this->idx;
 		}
 
@@ -147,4 +162,27 @@ namespace sweet {
 			return &this->data[this->idx];
 		}
 	};
+}
+
+template<typename>
+struct is_sweet_Fector : std::false_type {};
+
+template<typename T, std::size_t N>
+struct is_sweet_Fector<sweet::Fector<T,N>> : std::true_type {};
+
+template<typename T, size_t S>
+std::ostream& operator<<(std::ostream& out, const sweet::Fector<T,S>& v) {
+	for(typename sweet::Fector<T,S>::const_pointer it = v.begin(); 
+			it != v.end(); ++it) 
+	{
+		typename sweet::Fector<T,S>::const_reference tmp = *it; 
+		if(is_sweet_Fector<typename sweet::Fector<T,S>::value_type>::value) {
+			format(out, "%s", tmp);
+		} else {
+			format(out, "%s ", tmp);
+		}
+	}
+	out<<std::endl;
+
+	return out;
 }

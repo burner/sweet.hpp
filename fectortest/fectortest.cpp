@@ -46,6 +46,28 @@ UNITTEST(insertT) {
 	AS_T(f.size() == 4);
 }
 
+UNITTEST(ctor) {
+	size_t cnt{8};
+	sweet::Fector<int,24> f(cnt, 1337);
+	AS_EQ(f.size(), cnt);
+	for(size_t i = 0; i < cnt; ++i) {
+		AS_EQ(f[i], 1337);
+	}
+
+	f.resize(14, 1337);
+	AS_EQ(f.size(), 14);
+	for(size_t i = 0; i < 14; ++i) {
+		AS_EQ(f[i], 1337);
+	}
+
+	f.resize(4, 1337);
+	AS_EQ(f.size(), 4);
+	for(size_t i = 0; i < 4; ++i) {
+		AS_EQ(f[i], 1337);
+	}
+}
+
+
 int z[128] = {102, 72, 44, 32, 120, 96, 103, 73, 126, 14, 116, 6, 53, 25, 36, 105, 
 	78, 90, 27, 101, 46, 77, 86, 1, 122, 75, 109, 20, 59, 31, 52, 23, 9, 16, 
 	74, 34, 81, 0, 13, 41, 17, 124, 121, 71, 108, 87, 93, 70, 67, 118, 83, 80, 
