@@ -11,12 +11,20 @@
 #include <memory>
 #include <sqlite3.h>
 
+enum class SweetqlFlags {
+	PrimaryKey = 1
+};
+
 typedef void(*del)(void*);
 
 template<typename T>
 class SqlAttribute {
 public:
 	SqlAttribute(unsigned char t) : type(t) {}
+	SqlAttribute(unsigned char t, SweetqlFlags p) : type(t) {
+		primaryKey = p;
+	}
+
 	virtual int64_t getInt(T&) const { 
 		throw std::logic_error("getInt not implemented"); 
 	}
@@ -48,13 +56,32 @@ public:
 		throw std::logic_error("setBlob not implemented"); 
 	}
 
+	std::string getType() const {
+		switch(this->type) {
+		case SQLITE_TEXT: return "varchar";
+		case SQLITE_INTEGER: return "integer";
+		case SQLITE_FLOAT: return "real";
+		default: 
+			throw std::logic_error(std::string("wroong type for getType"));
+		}
+	}
+
+	SweetqlFlags primaryKey;
 	unsigned char type;
 };
+
+bool isPrimaryKey(SweetqlFlags flags) {
+	return static_cast<int>(flags) & 
+		static_cast<int>(SweetqlFlags::PrimaryKey);
+}
 
 template<typename T>
 class SqlStringAttribute : public SqlAttribute<T> {
 public:
 	SqlStringAttribute(std::string T::* s) : SqlAttribute<T>(SQLITE_TEXT), str(s) {}
+
+	SqlStringAttribute(std::string T::* s, SweetqlFlags f) : 
+		SqlAttribute<T>(SQLITE_TEXT, f), str(s) {}
 	std::string getString(T& t) const { 
 		return t.*str;
 	}
@@ -69,6 +96,8 @@ template<typename T>
 class SqlIntAttribute : public SqlAttribute<T> {
 public:
 	SqlIntAttribute(int64_t T::* i) : SqlAttribute<T>(SQLITE_INTEGER), integer(i) {}
+	SqlIntAttribute(int64_t T::* i, SweetqlFlags f) : 
+		SqlAttribute<T>(SQLITE_INTEGER, f), integer(i) {}
 	int64_t getInt(T& t) const { 
 		return t.*integer;
 	}
@@ -83,6 +112,8 @@ template<typename T>
 class SqlFloatAttribute : public SqlAttribute<T> {
 public:
 	SqlFloatAttribute(double T::* i) : SqlAttribute<T>(SQLITE_FLOAT), fl(i) {}
+	SqlFloatAttribute(double T::* i, SweetqlFlags f) : 
+		SqlAttribute<T>(SQLITE_FLOAT, f), fl(i) {}
 	double getFloat(T& t) const { 
 		return t.*fl;
 	}
@@ -115,6 +146,32 @@ template<typename S, typename T>
 std::shared_ptr<SqlAttribute<T>> makeAttr(S T::* i,
 		size_t size, del d) {
 	return std::make_shared<SqlStringAttribute<T>>(i);
+}
+
+// With flags
+
+template<typename S, typename T>
+std::shared_ptr<SqlAttribute<T>> makeAttr(S T::* i, SweetqlFlags f,
+		typename std::enable_if<std::is_integral<S>::value, S>::type = 0) {
+	return std::make_shared<SqlIntAttribute<T>>(i, f);
+}
+
+template<typename S, typename T>
+std::shared_ptr<SqlAttribute<T>> makeAttr(S T::* i, SweetqlFlags f,
+		typename std::enable_if<std::is_floating_point<S>::value, S>::type = 0) {
+	return std::make_shared<SqlFloatAttribute<T>>(i, f);
+}
+
+template<typename S, typename T>
+std::shared_ptr<SqlAttribute<T>> makeAttr(S T::* i, SweetqlFlags f,
+		typename std::enable_if<std::is_same<S,std::string>::value, S>::type = "") {
+	return std::make_shared<SqlStringAttribute<T>>(i, f);
+}
+
+template<typename S, typename T>
+std::shared_ptr<SqlAttribute<T>> makeAttr(S T::* i, SweetqlFlags f,
+		size_t size, del d) {
+	return std::make_shared<SqlStringAttribute<T>>(i, f);
 }
 
 template<typename T>
@@ -398,6 +455,36 @@ public:
 		}
 		stmtStr<<';';
 		return makeIterator<S>(stmtStr.str());
+	}
+
+	template<typename S>
+	void createTable() {
+		std::stringstream stmtStr;
+		stmtStr<<"CREATE TABLE "<<S::table().name<<'(';
+		auto table(S::table());
+		const size_t size = table.column.size()-1;
+		for(size_t i = 0; i < size; ++i) {
+			stmtStr<<table.column[i].attrName<<' '
+				<<table.column[i].attr->getType();
+			stmtStr<<',';
+		}
+		stmtStr<<" PRIMARY KEY(";
+
+		bool first{true};
+		for(size_t i = 0; i < size; ++i) {
+			if(isPrimaryKey(table.column[i].attr->primaryKey)) {
+				if(first) {
+					first = false;
+				} else {
+					stmtStr<<", ";
+				}
+
+				stmtStr<<table.column[i].attrName;
+			}
+		}
+
+		stmtStr<<"));";
+		std::cout<<stmtStr.str()<<std::endl;
 	}
 
 private:

@@ -56,10 +56,14 @@ public:
 
 	static SqlTable<Person>& table() {
 		static SqlTable<Person> tab = SqlTable<Person>::sqlTable("Person",
-			SqlColumn<Person>("Firstname", 	makeAttr(&Person::firstname)),
-			SqlColumn<Person>("Lastname", 	makeAttr(&Person::lastname)),
-			SqlColumn<Person>("Company", 	makeAttr(&Person::company)),
-			SqlColumn<Person>("Address", 	makeAttr(&Person::address)),
+			SqlColumn<Person>("Firstname", 	makeAttr(&Person::firstname, 
+												SweetqlFlags::PrimaryKey)),
+			SqlColumn<Person>("Lastname", 	makeAttr(&Person::lastname, 
+												SweetqlFlags::PrimaryKey)),
+			SqlColumn<Person>("Company", 	makeAttr(&Person::company, 
+												SweetqlFlags::PrimaryKey)),
+			SqlColumn<Person>("Address", 	makeAttr(&Person::address, 
+												SweetqlFlags::PrimaryKey)),
 			SqlColumn<Person>("County", 	makeAttr(&Person::county)),
 			SqlColumn<Person>("City", 		makeAttr(&Person::city)),
 			SqlColumn<Person>("State", 		makeAttr(&Person::state)),
@@ -137,9 +141,9 @@ int main() {
 		<<" msec"<<std::endl;
 
 	sweet::Bench s;
-	auto sel(db.select<Person>("Firstname=\"Danny\" and Lastname=\"Zeckzer\""));
+	//auto sel(db.select<Person>("Firstname=\"Danny\" and Lastname=\"Zeckzer\""));
 	Person toDel;
-	//auto sel(db.select<Person>());
+	auto sel(db.select<Person>());
 	/*std::for_each(sel.first, sel.second, [&toDel](const Person& p) {
 		std::cout<<p.firstname<<' ';
 		std::cout<<p.lastname<<' ';
@@ -169,18 +173,19 @@ int main() {
 
 	std::cout<<"Selecting persons from the db took "<<s.micro()
 		<<" microsec"<<std::endl;
+	*/
 	
-	std::cout<<toDel.firstname<<' ';
-	std::cout<<toDel.lastname<<' ';
-	std::cout<<toDel.company<<' ';
-	std::cout<<toDel.address<<' ';
-	std::cout<<toDel.county<<' ';
-	std::cout<<toDel.zip<<' ';
-	std::cout<<toDel.state<<' ';
-	std::cout<<toDel.phoneWork<<' ';
-	std::cout<<toDel.phonePrivat<<' ';
-	std::cout<<toDel.mail<<' ';
-	std::cout<<toDel.www<<std::endl;
+	//std::cout<<toDel.firstname<<' ';
+	//std::cout<<toDel.lastname<<' ';
+	//std::cout<<toDel.company<<' ';
+	//std::cout<<toDel.address<<' ';
+	//std::cout<<toDel.county<<' ';
+	//std::cout<<toDel.zip<<' ';
+	//std::cout<<toDel.state<<' ';
+	//std::cout<<toDel.phoneWork<<' ';
+	//std::cout<<toDel.phonePrivat<<' ';
+	//std::cout<<toDel.mail<<' ';
+	//std::cout<<toDel.www<<std::endl;
 
 	db.remove(toDel);
 	sel = db.select<Person>("Firstname=\"Danny\" and Lastname=\"Zeckzer\"");
@@ -196,5 +201,7 @@ int main() {
 		std::cout<<p.phonePrivat<<' ';
 		std::cout<<p.mail<<' ';
 		std::cout<<p.www<<std::endl;
-	});*/
+	});
+	
+	db.createTable<Person>();
 }
