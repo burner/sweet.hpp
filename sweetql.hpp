@@ -462,7 +462,7 @@ public:
 		std::stringstream stmtStr;
 		stmtStr<<"CREATE TABLE "<<S::table().name<<'(';
 		auto table(S::table());
-		const size_t size = table.column.size()-1;
+		const size_t size = table.column.size();
 		for(size_t i = 0; i < size; ++i) {
 			stmtStr<<table.column[i].attrName<<' '
 				<<table.column[i].attr->getType();
@@ -484,7 +484,11 @@ public:
 		}
 
 		stmtStr<<"));";
-		std::cout<<stmtStr.str()<<std::endl;
+
+		sqlite3_stmt* stmt;
+		sqlite3_prepare_v2(db, stmtStr.str().c_str(), stmtStr.str().size(),
+			&stmt, NULL);
+		step(stmt, stmtStr.str());
 	}
 
 private:

@@ -9,24 +9,6 @@
 //#include <conv.hpp>
 #include <benchmark.hpp>
 
-    /*class Person {
-    public:
-    	Person() {} // dummy
-    
-    	static SqlTable<Person>& table() {
-    		static SqlTable<Person> tab = SqlTable<Person>::sqlTable( 
-    			"Person",
-    			SqlColumn<Reservation>("Firstname", makeAttr(&Reservation::firstname)),
-    			SqlColumn<Reservation>("Lastname", 	makeAttr(&Reservation::lastname)),
-    			SqlColumn<Reservation>("Age", 		makeAttr(&Reservation::age)),
-    		return tab;
-    	}
-	private:
-    	std::string firstname;
-    	std::string lastname;
-    	int age;
-    };*/
-
 class Person {
 public:
 	Person() {} // dummy
@@ -34,8 +16,8 @@ public:
 			const std::string& a, const std::string& a2,
 			const std::string& ci, const std::string& s, int z, 
 			const std::string& pw, const std::string& pp, const std::string& m, 
-			const std::string& w) :
-		firstname(f),	 lastname(l),	 company(c),
+			const std::string& w
+	) : firstname(f),	 lastname(l),	 company(c),
  		address(a),		 county(a2),	 city(ci),
  		state(s),		 phoneWork(pw),	 phonePrivat(pp),
  		mail(m),		 www(w),		 zip(z) {
@@ -125,7 +107,9 @@ PersonVec parsePersonFile(const std::string& fn) {
 }
 
 int main() {
-	SqliteDB db("testtable.db");
+	remove("testtable2.db");
+	SqliteDB db("testtable2.db");
+	db.createTable<Person>();
 
 	sweet::Bench in;
 	std::vector<Person> per = parsePersonFile("50000.csv");
@@ -134,61 +118,37 @@ int main() {
 
 	sweet::Bench insert;
 	db.insert<Person>(per.begin(), per.end());
-	//Reservation a("Danny", "Zeckzer", "Armsen", "02.04.2013");
-	//db.insert<Reservation>(a);
 	insert.stop();
 	std::cout<<"Writting the persons to the db took "<<insert.milli()
 		<<" msec"<<std::endl;
 
 	sweet::Bench s;
-	//auto sel(db.select<Person>("Firstname=\"Danny\" and Lastname=\"Zeckzer\""));
 	Person toDel;
 	auto sel(db.select<Person>());
-	/*std::for_each(sel.first, sel.second, [&toDel](const Person& p) {
-		std::cout<<p.firstname<<' ';
-		std::cout<<p.lastname<<' ';
-		std::cout<<p.company<<' ';
-		std::cout<<p.address<<' ';
-		std::cout<<p.county<<' ';
-		std::cout<<p.zip<<' ';
-		std::cout<<p.state<<' ';
-		std::cout<<p.phoneWork<<' ';
-		std::cout<<p.phonePrivat<<' ';
-		std::cout<<p.mail<<' ';
-		std::cout<<p.www;
-		std::cout<<std::endl;
-		toDel = p;
-	});*/
+	std::for_each(sel.first, sel.second, [&toDel](const Person& p) {
+		//std::cout<<p.firstname<<' ';
+		//std::cout<<p.lastname<<' ';
+		//std::cout<<p.company<<' ';
+		//std::cout<<p.address<<' ';
+		//std::cout<<p.county<<' ';
+		//std::cout<<p.zip<<' ';
+		//std::cout<<p.state<<' ';
+		//std::cout<<p.phoneWork<<' ';
+		//std::cout<<p.phonePrivat<<' ';
+		//std::cout<<p.mail<<' ';
+		//std::cout<<p.www;
+		//std::cout<<std::endl;
+		//toDel = p;
+	});
 	
 	s.stop();
+	std::cout<<"Iterating the persons of the db took "<<s.milli()
+		<<" msec"<<std::endl;
 
-	/*auto rpSel(db.join<ReservationPerson, Person, Reservation>());
-	std::for_each(rpSel.first, rpSel.second, [](const ReservationPerson& rp) {
-		std::cout<<rp.firstname<<' ';
-		std::cout<<rp.lastname<<' ';
-		std::cout<<rp.location<<' ';
-		std::cout<<rp.date<<' ';
-		std::cout<<rp.phonePrivat<<std::endl;
-	});
+	/*sel = db.select<Person>(
+		"Firstname=\"Danny\" and Lastname=\"Zeckzer\""
+	);
 
-	std::cout<<"Selecting persons from the db took "<<s.micro()
-		<<" microsec"<<std::endl;
-	*/
-	
-	//std::cout<<toDel.firstname<<' ';
-	//std::cout<<toDel.lastname<<' ';
-	//std::cout<<toDel.company<<' ';
-	//std::cout<<toDel.address<<' ';
-	//std::cout<<toDel.county<<' ';
-	//std::cout<<toDel.zip<<' ';
-	//std::cout<<toDel.state<<' ';
-	//std::cout<<toDel.phoneWork<<' ';
-	//std::cout<<toDel.phonePrivat<<' ';
-	//std::cout<<toDel.mail<<' ';
-	//std::cout<<toDel.www<<std::endl;
-
-	db.remove(toDel);
-	sel = db.select<Person>("Firstname=\"Danny\" and Lastname=\"Zeckzer\"");
 	std::for_each(sel.first, sel.second, [](const Person& p) {
 		std::cout<<p.firstname<<' ';
 		std::cout<<p.lastname<<' ';
@@ -201,7 +161,5 @@ int main() {
 		std::cout<<p.phonePrivat<<' ';
 		std::cout<<p.mail<<' ';
 		std::cout<<p.www<<std::endl;
-	});
-	
-	db.createTable<Person>();
+	});*/
 }
