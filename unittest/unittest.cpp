@@ -48,6 +48,22 @@ UNITTEST(bar) {
 	//throw std::logic_error("something went wrong");
 }
 
+int someAwesomeFunction(int a, int b, int c) {
+	return ((a + b) * (a + b)) % c;
+}
+
+UNITTEST(someAwesomeFunctionTest) {
+	RGen rgen(123 /* seed */);
+	auto gen(generator(rgen, sweet::Unit::intGen(), sweet::Unit::intGen(),
+			sweet::Unit::intGen()));
+	gen.run(
+		[&](int a, int b, int c) {
+			int rslt = someAwesomFunction(a, b, c);
+			AS_T(rslt <= c);
+		}
+	);
+}
+
 int main() {
 	unsigned c = 0;
 	if((c = sweet::Unit::runTests("TheNameOfTheFileWithTheBenchmarkResults"))) {
