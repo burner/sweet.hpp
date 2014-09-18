@@ -15,7 +15,7 @@ UNITTEST(fancyname) {
 	AS_EQ(42, 42);
 	AS_NEQ(42, 43);
 
-	int a;
+	int a = 123;
 
 	AS_T(true)
 	AS_T_MSG(true, format("foo %d", a))
@@ -53,15 +53,27 @@ int someAwesomeFunction(int a, int b, int c) {
 }
 
 UNITTEST(someAwesomeFunctionTest) {
-	RGen rgen(123 /* seed */);
-	auto gen(generator(rgen, sweet::Unit::intGen(), sweet::Unit::intGen(),
-			sweet::Unit::intGen()));
-	gen.run(
-		[&](int a, int b, int c) {
-			int rslt = someAwesomFunction(a, b, c);
-			AS_T(rslt <= c);
-		}
+	std::stringstream test;
+	test<<std::fixed<<std::setprecision(6);
+    std::mt19937 rgen(123);
+	auto gen = RANDOMIZED_TEST(
+		[&](int a, int b, float c) {
+			std::string rslt = format("%5d %8.5f %10d", a, c, b);
+			test.str("");
+			test<<a;
+			AS_NEQ_C(rslt.find(test.str()), std::string::npos,
+				[&]() { std::cout<<rslt<<" "<<test.str()<<std::endl; }
+			);
+			test.str("");
+			test<<b;
+			AS_NEQ_C(rslt.find(test.str()), std::string::npos,
+				[&]() { std::cout<<rslt<<" "<<test.str()<<std::endl; }
+			);
+		}, 
+		rgen, sweet::Unit::Gen<int>(-1024,1024), 
+		sweet::Unit::Gen<int>(1, 128), sweet::Unit::Gen<float>(-12, 12)
 	);
+	gen(1024*1024);
 }
 
 int main() {
@@ -79,9 +91,9 @@ int main() {
 	//LOG();
 	//WARN("Hello warnign");
 	//LOG("Hello warnign %s", std::string("foobar"));
-	ASSERT_T_C(false, [&]() {
-		std::cout<<"I should die here "<<c<<std::endl;
-	});
+	//ASSERT_T_C(false, [&]() {
+		//std::cout<<"I should die here "<<c<<std::endl;
+	//});
 	LOG("Hello warning %p", std::string("foobar"));
 	//LOG("Hello warnign %p", "barfoo");
 	return 0;

@@ -48,13 +48,54 @@ int main() {
 #include <type_traits>
 #include <limits>
 #include <iomanip>
+#include <random>
+
+
+// RANDOMIZED_TEST macros
+
+#define VA_NARGS_IMPL(_1,_2,_3,_4,_5,_6,_7,_8,N,...) N
+#define VA_NARGS(...) VA_NARGS_IMPL(__VA_ARGS__, 8, 7, 6, 5, 4, 3, 2, 1)
+#define SET_STATEGENERATE(name, sweetGen, count, ...)   \
+	[&](size_t numRuns) {							\
+		auto __funcToCall = name;						\
+		auto& __sweetGenerator = sweetGen;				\
+        DEC ## count (__VA_ARGS__)                      \
+		for(size_t cnt = 0; cnt < numRuns; ++cnt) {		\
+        	__funcToCall(REF ## count (__VA_ARGS__));   \
+		}												\
+	}
+
+#define SET_STATEP(name, sweetGen, count, ...) \
+	SET_STATEGENERATE(name, sweetGen, count, __VA_ARGS__) 
+
+#define RANDOMIZED_TEST(name, sweetGen, ...) \
+	SET_STATEP(name, sweetGen, VA_NARGS(__VA_ARGS__), __VA_ARGS__)
+
+/* args */
+#define DEC1(a) auto __sweet_value_A = a;
+#define DEC2(a,b) DEC1(a) auto __sweet_value_B = b;
+#define DEC3(a,b,c) DEC2(a, b) auto __sweet_value_C = c;
+#define DEC4(a,b,c,d) DEC3(a,b,c) auto __sweet_value_D = d;
+#define DEC5(a,b,c,d,e) DEC4(a,b,c,d) auto __sweet_value_E = e;
+#define DEC6(a,b,c,d,e,f) DEC5(a,b,c,d,e) auto __sweet_value_F = f;
+#define DEC7(a,b,c,d,e,f,g) DEC6(a,b,c,d,e,f) auto __sweet_value_G = g;
+#define DEC8(a,b,c,d,e,f,g,h) DEC7(a,b,c,d,e,f,g) auto __sweet_value_H = h;
+#define REF1(a) __sweet_value_A(__sweetGenerator)
+#define REF2(a,b) REF1(a), __sweet_value_B(__sweetGenerator)
+#define REF3(a,b,c) REF2(a,b), __sweet_value_C(__sweetGenerator)
+#define REF4(a,b,c,d) REF3(a,b,c), __sweet_value_D(__sweetGenerator)
+#define REF5(a,b,c,d,e) REF4(a,b,c,d), __sweet_value_E(__sweetGenerator)
+#define REF6(a,b,c,d,e,f) REF5(a,b,c,d,e), __sweet_value_F(__sweetGenerator)
+#define REF7(a,b,c,d,e,f,g) REF6(a,b,c,d,e,f), __sweet_value_G(__sweetGenerator)
+#define REF8(a,b,c,d,e,f,g, h) REF7(a,b,c,d,e,f,g), __sweet_value_H(__sweetGenerator)
+
+// RANDOMIZED_TEST macros END
 
 #define PP_HAS_ARGS_IMPL2(_1, _2, _3, N, ...) N
 #define PP_HAS_ARGS_SOURCE() MULTI, MULTI, ONE, ERROR
 #define PP_HAS_ARGS_IMPL(...) PP_HAS_ARGS_IMPL2(__VA_ARGS__)
 #define PP_HAS_ARGS(...)      PP_HAS_ARGS_IMPL(__VA_ARGS__, \
 PP_HAS_ARGS_SOURCE())
-
 
 #define __UTEST_NOTEST_ONE(test_name) \
 class test_name##_test_class : public sweet::Unit::Unittest { void nevercall(); \
@@ -141,6 +182,39 @@ sweet::Unit::Unittest::evaluates(compare, result, e1, e2, #e1, #e2,__FILE__, __L
 
 namespace sweet {
 namespace Unit {
+
+	template<typename T, class Enable = void>
+	struct Gen;
+
+	template<typename T>
+	struct Gen<T, typename std::enable_if<std::is_integral<T>::value>::type> {
+		T l, h;
+		std::uniform_int_distribution<T> distribution;
+
+		Gen(T l = std::numeric_limits<T>::min(), 
+			T h = std::numeric_limits<T>::max()) : l(l), h(h), distribution(l,h) 
+		{}
+
+		template<typename G>
+		T operator()(G& gen) {
+			return this->distribution(gen);
+		}
+	};
+
+	template<typename T>
+	struct Gen<T, typename std::enable_if<std::is_floating_point<T>::value >::type> {
+		T l, h;
+		std::uniform_real_distribution<T> distribution;
+
+		Gen(T l = std::numeric_limits<T>::min(), 
+			T h = std::numeric_limits<T>::max()) : l(l), h(h), distribution(l,h) 
+		{}
+
+		template<typename G>
+		T operator()(G& gen) {
+			return this->distribution(gen);
+		}
+	};
 
 	using namespace std;
 	static inline string sname(const string& str) {
