@@ -1,6 +1,8 @@
 #pragma once
 #include <cstddef>
 #include <stdexcept>
+#include <iostream>
+#include <new>
 
 namespace sweet {
 	template<typename T, size_t Capacity = 128>
@@ -116,6 +118,16 @@ namespace sweet {
 		inline void push_back(T&& value) {
 			if(idx <= Capacity) {
 				this->data[idx] = value;
+				++idx;
+			} else {
+				throw std::out_of_range("fector full can not push_back(&&)");
+			}
+		}
+
+		template<typename... Args>
+		inline void emplace(Args... args) {
+			if(idx <= Capacity) {
+				new (&this->data[idx]) T(args...);
 				++idx;
 			} else {
 				throw std::out_of_range("fector full can not push_back(&&)");

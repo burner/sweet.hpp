@@ -90,6 +90,13 @@ int sumVector() {
 		sum += store[i];
 	}
 
+	int sum2{0};
+	for(int i : store) {
+		sum2 += i;
+	}
+
+	ASSERT_EQ(sum, sum2);
+
 	return sum;
 }
 
@@ -113,6 +120,20 @@ UNITTEST(speed) {
 	for(int i = 0; i < 128*128; ++i) {
 		AS_EQ(sumVector(), sumFector());
 	}
+}
+
+struct At {
+	int a;
+	double b;
+	inline At() {}
+	inline At(int a, double b) : a(a), b(b) {}
+};
+
+UNITTEST(emplace) {
+	sweet::Fector<At,200> store;
+	store.emplace(1, 1.1);
+	AS_EQ(store[0].a, 1);
+	AS_EQ(store[0].b, 1.1);
 }
 
 int main() {
