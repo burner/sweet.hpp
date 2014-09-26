@@ -173,6 +173,22 @@ namespace sweet {
 		const T* end() const {
 			return &this->data[this->idx];
 		}
+
+		T* rbegin() {
+			return &this->data[this->idx-1u];
+		}
+
+		T* rend() {
+			return &this->data[0];
+		}
+
+		const T* rbegin() const {
+			return &this->data[this->idx-1u];
+		}
+
+		const T* rend() const {
+			return &this->data[0];
+		}
 	};
 }
 

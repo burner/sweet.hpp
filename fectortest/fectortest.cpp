@@ -36,6 +36,14 @@ UNITTEST(insertT) {
 	f.push_back(4);
 	AS_T(f.size() == 3);
 
+	auto rit(f.rbegin());
+	AS_EQ(*rit, 4);
+	--rit;
+	AS_EQ(*rit, 3);
+	--rit;
+	AS_EQ(*rit, 1);
+	AS_T(rit == f.rend());
+
 	auto it(f.begin());
 	++it;
 	AS_EQ(*it, 3);
@@ -117,7 +125,7 @@ int sumFector() {
 }
 
 UNITTEST(speed) {
-	for(int i = 0; i < 128*128; ++i) {
+	for(int i = 0; i < 128; ++i) {
 		AS_EQ(sumVector(), sumFector());
 	}
 }
