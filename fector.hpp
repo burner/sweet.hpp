@@ -26,6 +26,13 @@ namespace sweet {
 		inline Fector() : idx(0) {
 		}
 
+		/*inline Fector(const Fector& other) : idx(0) {
+			size_t otherSize = other.size();
+			for(size_t i = 0; i < otherSize; ++i) {
+				this->push_back(other[i]);
+			}
+		}*/
+
 		inline Fector(const size_t cnt, const T& value) : Fector() {
 			this->resize(cnt, value);
 		}

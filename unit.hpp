@@ -139,6 +139,8 @@ __VA_ARGS__)
 #define __UTEST(...) __UTEST_DISAMBIGUATE(PP_HAS_ARGS(__VA_ARGS__), __VA_ARGS__)
 
 
+
+
 #ifdef SWEET_NO_UNITTEST
 #define UNITTEST(...) __UTEST_NOTEST(__VA_ARGS__)
 #else
@@ -172,6 +174,31 @@ __VA_ARGS__)
 
 #define IF_BREAK(e)			if(!e) return;
 
+#define ENF_T(e) 					UNIT_COMPARED_DIE(false,true,e,true,"",[](){},false)
+#define ENF_F(e) 					UNIT_COMPARED_DIE(false,false,e,false,"",[](){},false)
+#define ENF_EQ(e,e2) 				UNIT_COMPARED_DIE(true,true,e,e2,"",[](){},false)
+#define ENF_NEQ(e,e2) 				UNIT_COMPARED_DIE(true,false,e,e2,"",[](){},false)
+#define ENF_T_MSG(e,msg) 			UNIT_COMPARED_DIE(false,true,e,true,msg,[](){},false)
+#define ENF_F_MSG(e,msg) 			UNIT_COMPARED_DIE(false,false,e,false,msg,[](){},false)
+#define ENF_EQ_MSG(e,e2,msg) 		UNIT_COMPARED_DIE(true,true,e,e2,msg,[](){},false)
+#define ENF_NEQ_MSG(e,e2,msg) 		UNIT_COMPARED_DIE(true,false,e,e2,msg,[](){},false)
+#define ENF_T_C(e,c) 				UNIT_COMPARED_DIE(false,true,e,true,"",c,false)
+#define ENF_F_C(e,c) 				UNIT_COMPARED_DIE(false,false,e,false,"",c,false)
+#define ENF_EQ_C(e,e2,c) 			UNIT_COMPARED_DIE(true,true,e,e2,"",c,false)
+#define ENF_NEQ_C(e,e2,c) 			UNIT_COMPARED_DIE(true,false,e,e2,"",c,false)
+#define ENFR_T(e) 					if(!UNIT_COMPARED_DIE(false,true,e,true,"",[](){},false)) return false;
+#define ENFR_F(e) 					if(!UNIT_COMPARED_DIE(false,false,e,false,"",[](){},false)) return false;
+#define ENFR_EQ(e,e2) 				if(!UNIT_COMPARED_DIE(true,true,e,e2,"",[](){},false)) return false;
+#define ENFR_NEQ(e,e2) 				if(!UNIT_COMPARED_DIE(true,false,e,e2,"",[](){},false)) return false;
+#define ENFR_T_MSG(e,msg) 			if(!UNIT_COMPARED_DIE(false,true,e,true,msg,[](){},false)) return false;
+#define ENFR_F_MSG(e,msg) 			if(!UNIT_COMPARED_DIE(false,false,e,false,msg,[](){},false)) return false;
+#define ENFR_EQ_MSG(e,e2,msg) 		if(!UNIT_COMPARED_DIE(true,true,e,e2,msg,[](){},false)) return false;
+#define ENFR_NEQ_MSG(e,e2,msg) 		if(!UNIT_COMPARED_DIE(true,false,e,e2,msg,[](){},false)) return false;
+#define ENFR_T_C(e,c) 				if(!UNIT_COMPARED_DIE(false,true,e,true,"",c,false)) return false;
+#define ENFR_F_C(e,c) 				if(!UNIT_COMPARED_DIE(false,false,e,false,"",c,false)) return false;
+#define ENFR_EQ_C(e,e2,c) 			if(!UNIT_COMPARED_DIE(true,true,e,e2,"",c,false)) return false;
+#define ENFR_NEQ_C(e,e2,c) 			if(!UNIT_COMPARED_DIE(true,false,e,e2,"",c,false)) return false;
+
 #define UNIT_COMPARE(compare,result,e1,e2,msg,c); this->increNumAsserts(); \
 IF_BREAK (sweet::Unit::Unittest::evaluate(compare,result, e1, e2, #e1, #e2,\
 __FILE__, __LINE__ ,msg,c))
@@ -179,6 +206,10 @@ __FILE__, __LINE__ ,msg,c))
 #define UNIT_COMPARED(compare,result,e1,e2,msg,c) \
 sweet::Unit::Unittest::evaluates(compare, result, e1, e2, #e1, #e2,__FILE__, __LINE__,\
 &std::cout, "", true, msg, c)
+
+#define UNIT_COMPARED_DIE(compare,result,e1,e2,msg,c,die) \
+sweet::Unit::Unittest::evaluates(compare, result, e1, e2, #e1, #e2,__FILE__, __LINE__,\
+&std::cout, "", die, msg, c)
 
 namespace sweet {
 namespace Unit {

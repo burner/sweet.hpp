@@ -76,11 +76,21 @@ UNITTEST(someAwesomeFunctionTest) {
 	gen(1024*1024);
 }
 
+bool retFalse() {
+	ENFR_F(true);
+	return false;
+}
+
 int main() {
 	unsigned c = 0;
 	if((c = sweet::Unit::runTests("TheNameOfTheFileWithTheBenchmarkResults"))) {
 		WARN("%u errors occured", c);
 	}
+	if(!ENF_T(false)) {
+		LOG("you should read this");
+	}
+	ASSERT_F(retFalse());
+	LOG("%b", retFalse());
 	//formatToStream(std::cout, "hello print world %10d\n", 10);
 	//format(std::cout, "%18.2E %s\n", 10.123, "hello world");
 	//format(std::cout, "Helo\n");
