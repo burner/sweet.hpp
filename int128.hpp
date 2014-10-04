@@ -70,6 +70,22 @@ struct int128 {
 		return low;
 	}
 
+	inline operator short () {
+		return to<short>(low);
+	}
+
+	inline operator char () {
+		return to<char>(low);
+	}
+
+	inline operator unsigned short () {
+		return to<unsigned short>(low);
+	}
+
+	inline operator unsigned char () {
+		return to<unsigned char>(low);
+	}
+
 	inline operator double () {
 		double result;
 
@@ -209,7 +225,7 @@ struct int128 {
 
 	inline size_t digits() const {
 		size_t l(log10(this->low));
-		size_t h(log10(abs(this->high)));
+		size_t h(log10(std::abs(this->high)));
 		return l+h;
 	}
 };
@@ -761,3 +777,9 @@ inline int128 operator /= ( int128 & lhs, const int64_t & rhs )  {
 	lhs = lhs / ((int128) rhs);
 	return lhs;
 }
+
+template<typename>
+struct is_sweet_int128 : std::false_type {};
+
+template<typename T>
+struct is_sweet_int128<int128> : std::true_type {};

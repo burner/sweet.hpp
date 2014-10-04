@@ -8,6 +8,7 @@
 #include <stdexcept>
 
 #include <format.hpp>
+#include <int128.hpp>
 
 template<typename T, typename F>
 bool convIsOk(const F f, typename std::enable_if<
@@ -36,6 +37,20 @@ bool convIsOk(const F f, typename std::enable_if<
 			std::is_unsigned<T>::value && std::is_unsigned<F>::value
 		>::type* = 0) {
 	return f <= std::numeric_limits<T>::max();
+}
+
+template<typename T, typename F>
+bool convIsOk(const F f, typename std::enable_if<
+			is_sweet_int128<F>::value && std::is_unsigned<T>::value>::type* = 0)
+{
+	return f >= 0 && f <= std::numeric_limits<T>::max();
+}
+
+template<typename T, typename F>
+bool convIsOk(const F f, typename std::enable_if<
+			is_sweet_int128<F>::value && std::is_signed<T>::value>::type* = 0)
+{
+	return f >= std::numeric_limits<T>::min() && f <= std::numeric_limits<T>::max();
 }
 
 template<typename T>
