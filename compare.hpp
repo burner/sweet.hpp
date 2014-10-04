@@ -1,6 +1,7 @@
 #pragma once
 
 #include <type_traits>
+#include <int128.hpp>
 
 namespace sweet {
 	template<typename T, typename S, typename E = void>
@@ -43,6 +44,37 @@ namespace sweet {
 			|| (std::is_signed<T>::value && std::is_signed<S>::value)>
 		::type> : ComperatorSameSign<T,S>
 	{};
+
+	template<typename T, typename S>
+	struct Comperator<T,S,
+		typename std::enable_if<
+			is_sweet_int128<T>::value || is_sweet_int128<S>::value>
+		::type>
+	{
+		static bool less(T t, S s) {
+			return int128(t) < int128(s);
+		}
+
+		static bool lessEqual(T t, S s) {
+			return int128(t) <= int128(s);
+		}
+
+		static bool equal(T t, S s) {
+			return int128(t) == int128(s);
+		}
+
+		static bool notEqual(T t, S s) {
+			return int128(t) != int128(s);
+		}
+
+		static bool greater(T t, S s) {
+			return int128(t) > int128(s);
+		}
+
+		static bool greaterEqual(T t, S s) {
+			return int128(t) >= int128(s);
+		}
+	};
 
 	template<typename T, typename S>
 	struct Comperator<T,S,

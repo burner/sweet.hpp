@@ -71,19 +71,19 @@ struct int128 {
 	}
 
 	inline operator short () {
-		return to<short>(low);
+		return static_cast<short>(low);
 	}
 
 	inline operator char () {
-		return to<char>(low);
+		return static_cast<char>(low);
 	}
 
 	inline operator unsigned short () {
-		return to<unsigned short>(low);
+		return static_cast<unsigned short>(low);
 	}
 
 	inline operator unsigned char () {
-		return to<unsigned char>(low);
+		return static_cast<unsigned char>(low);
 	}
 
 	inline operator double () {
@@ -778,8 +778,8 @@ inline int128 operator /= ( int128 & lhs, const int64_t & rhs )  {
 	return lhs;
 }
 
-template<typename>
+template<typename T>
 struct is_sweet_int128 : std::false_type {};
 
-template<typename T>
+template<>
 struct is_sweet_int128<int128> : std::true_type {};
