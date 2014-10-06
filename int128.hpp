@@ -52,41 +52,44 @@ struct int128 {
 		return *this;
 	}
 
-	inline operator int () {
-		int result;
+	explicit inline operator unsigned char() const {
+		return this->low;
+	}
 
-		result = low & LO_WORD;
+	explicit inline operator char() const {
+		return this->low | (this->high & HIGHBIT);
+	}
+
+	explicit inline operator unsigned short() const {
+		return this->low;
+	}
+
+	explicit inline operator short() const {
+		return this->low | (this->high & HIGHBIT);
+	}
+
+	explicit inline operator unsigned int() const {
+		return this->low;
+	}
+
+	explicit inline operator int() const {
+		int32_t result;
+
+		result = (low & LO_WORD) | (high & HIGHBIT);
 		return result;
 	}
 
-	inline operator unsigned long long () {
-		long long result;
+	explicit inline operator uint64_t() const {
+		return low;
+	}
 
+	explicit inline operator int64_t() const {
+		int64_t result;
 		result = (low & BITS62_0) | (high & HIGHBIT);
 		return result;
 	}
 
-	inline operator long long () {
-		return low;
-	}
-
-	inline operator short () {
-		return static_cast<short>(low);
-	}
-
-	inline operator char () {
-		return static_cast<char>(low);
-	}
-
-	inline operator unsigned short () {
-		return static_cast<unsigned short>(low);
-	}
-
-	inline operator unsigned char () {
-		return static_cast<unsigned char>(low);
-	}
-
-	inline operator double () {
+	explicit inline operator double () const {
 		double result;
 
 		if(high >= 0) {
@@ -783,3 +786,19 @@ struct is_sweet_int128 : std::false_type {};
 
 template<>
 struct is_sweet_int128<int128> : std::true_type {};
+
+namespace std { 
+
+template<>        // define your specialization
+class numeric_limits<int128> {
+  public:
+	static unsigned long long max() {
+		return ULLONG_MAX;
+	}
+
+	static long long min() {
+		return LLONG_MIN;
+	}
+};
+
+}
