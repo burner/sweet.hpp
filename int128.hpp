@@ -12,6 +12,7 @@ Author: Robert "burner" Schadek rburners@gmail.com License: LGPL 3 or higher
 #include <stdio.h>
 #include <stdint.h>
 #include <ostream>
+#include <cstdint>
 
 // Assignment and Assignment-Conversion operators
 // Infix addition
@@ -793,11 +794,11 @@ template<>        // define your specialization
 class numeric_limits<int128> {
   public:
 	static unsigned long long max() {
-		return ULLONG_MAX;
+		return std::numeric_limits<uint64_t>::max();
 	}
 
 	static long long min() {
-		return LLONG_MIN;
+		return std::numeric_limits<int64_t>::max();
 	}
 };
 
