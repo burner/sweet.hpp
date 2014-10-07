@@ -3,6 +3,7 @@
 #include <stdexcept>
 #include <iostream>
 #include <new>
+#include <format.hpp>
 
 namespace sweet {
 	template<typename T, size_t Capacity = 128>
@@ -61,7 +62,9 @@ namespace sweet {
 			if(i < this->idx) {
 				return this->data[i];
 			} else {
-				throw std::out_of_range("at index out of range");
+				throw std::out_of_range(format("at index(%u) out of range size(%u)",
+					i, this->size())
+				);
 			}
 		}
 
@@ -69,7 +72,9 @@ namespace sweet {
 			if(i < this->idx) {
 				return this->data[i];
 			} else {
-				throw std::out_of_range("at index out of range");
+				throw std::out_of_range(format("at index(%u) out of range size(%u)",
+					i, this->size())
+				);
 			}
 		}
 

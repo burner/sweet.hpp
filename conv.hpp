@@ -23,7 +23,8 @@ template<typename T, typename F>
 bool convIsOk(const F f, typename std::enable_if<
 			std::is_unsigned<T>::value && std::is_signed<F>::value
 		>::type* = 0) {
-	return f >= 0 && static_cast<uint64_t>(f) <= std::numeric_limits<T>::max();
+	return f >= 0 
+		&& static_cast<uint64_t>(f) <= std::numeric_limits<T>::max();
 }
 
 template<typename T, typename F>
@@ -41,7 +42,8 @@ bool convIsOk(const F f, typename std::enable_if<
 }
 
 template<typename T, typename F>
-bool convIsOk(const F f, typename is_sweet_int128<F>::type* = 0)
+bool convIsOk(const F f, typename std::enable_if<
+		is_sweet_int128<F>::value>::type* = 0)
 {
 	return sweet::greaterEqual(f, std::numeric_limits<T>::min()) &&
 		sweet::lessEqual(f, std::numeric_limits<T>::max());
@@ -52,7 +54,8 @@ class NumberConv {
 public:
 	template<typename F>
 	T operator()(const F f, 
-			typename std::enable_if<std::is_fundamental<F>::value, F>::type* = 0) const 
+			typename std::enable_if<std::is_fundamental<F>::value, F>
+			::type* = 0) const 
 	{
 		if(convIsOk<T,F>(f)) {
 			return static_cast<T>(f);

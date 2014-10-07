@@ -55,9 +55,8 @@ int main() {
 
 #define VA_NARGS_IMPL(_1,_2,_3,_4,_5,_6,_7,_8,N,...) N
 #define VA_NARGS(...) VA_NARGS_IMPL(__VA_ARGS__, 8, 7, 6, 5, 4, 3, 2, 1)
-#define SET_STATEGENERATE(name, sweetGen, count, ...)   \
-	[&](size_t numRuns) {							\
-		auto __funcToCall = name;						\
+#define SET_STATEGENERATE(sweetGen, count, ...)   \
+	[&](auto __funcToCall, size_t numRuns) {			\
 		auto& __sweetGenerator = sweetGen;				\
         DEC ## count (__VA_ARGS__)                      \
 		for(size_t cnt = 0; cnt < numRuns; ++cnt) {		\
@@ -65,11 +64,11 @@ int main() {
 		}												\
 	}
 
-#define SET_STATEP(name, sweetGen, count, ...) \
-	SET_STATEGENERATE(name, sweetGen, count, __VA_ARGS__) 
+#define SET_STATEP(sweetGen, count, ...) \
+	SET_STATEGENERATE(sweetGen, count, __VA_ARGS__) 
 
-#define RANDOMIZED_TEST(name, sweetGen, ...) \
-	SET_STATEP(name, sweetGen, VA_NARGS(__VA_ARGS__), __VA_ARGS__)
+#define RANDOMIZED_TEST(sweetGen, ...) \
+	SET_STATEP(sweetGen, VA_NARGS(__VA_ARGS__), __VA_ARGS__)
 
 /* args */
 #define DEC1(a) auto __sweet_value_A = a;
