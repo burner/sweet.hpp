@@ -1388,10 +1388,31 @@ void RecurDec::createDotPostfix() {
 	format(out.langGraph, "}");
 }
 
+void RecurDec::createParserUnittest() {
+	// Source
+	format(out.genS, "#include <parserunittest.hpp>\n");
+
+	format(out.genS, "void genIdentifier(std::stringstream&, int);\n");
+	format(out.genS, "void genString(std::stringstream&, int);\n");
+	format(out.genS, "void genInt(std::stringstream&, int);\n");
+	format(out.genS, "void genFloat(std::stringstream&, int);\n");
+	format(out.genS, "void genEqualOp(std::stringstream&, int);\n");
+	format(out.genS, "void genEqualOp(std::stringstream&, int);\n");
+
+	// Header
+	format(out.genH, "#pragma once\n\n");
+	format(out.genH, "#include <parser.hpp>\n");
+	format(out.genH, "#include <ast.hpp>\n\n");
+
+	for(auto& it : this->store2) {
+	}
+}
+
 void RecurDec::gen() {
 	this->createDotPrefix();
 	this->genAstForwardDecl();
 	this->genRules();
 	this->writeErrorStuff();
 	this->createDotPostfix();
+	this->createParserUnittest();
 }

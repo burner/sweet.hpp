@@ -32,6 +32,8 @@ int main(int argc, char** argv) {
 	std::string outLamS("lambdavisitor.cpp");
 	std::string outH("visitorinclude");
 	std::string langGraph("languageGraph.dot");
+	std::string outParH("parserunittest.hpp");
+	std::string outParS("parserunittest.cpp");
 	std::string outPrefix;
 	sweet::Options opts(argc, argv);
 	opts.get("-i", "--inputFile", "The grammar file to parse", inputFile);
@@ -71,6 +73,10 @@ int main(int argc, char** argv) {
 		"Visitor method declarations", outH);
 	opts.get("-lg", "--languageGraph", 
 		"A graph of the language in .dot", langGraph);
+	opts.get("-uh", "--parserunittestheader", 
+		"Output file for parser unittest header", outParH);
+	opts.get("-us", "--parserunittestsource", 
+		"Output file for parser unittest source", outParS);
 	opts.finalize();
 
 	if(!outPrefix.empty()) {
@@ -92,6 +98,8 @@ int main(int argc, char** argv) {
 		outLamH = outPrefix + outLamH;
 		outH = outPrefix + outH;
 		langGraph = outPrefix + langGraph;
+		outParS = outPrefix + outParS;
+		outParH = outPrefix + outParH;
 	}
 
 	if(inputFile.empty()) {
@@ -120,8 +128,10 @@ int main(int argc, char** argv) {
 	std::ofstream lamS(outLamS);
 	std::ofstream inH(outH);
 	std::ofstream langGraphD(langGraph);
+	std::ofstream parH(outParH);
+	std::ofstream parS(outParS);
 	Output out(prsS,prsH,astS,astH,errS,errH,visS,visH,ovisH,ovisS,dvisH,dvisS,
-		mvisH,mvisS,lamS,lamH,inH,langGraphD
+		mvisH,mvisS,lamS,lamH,inH,langGraphD,parH,parS
 	);
 	RecurDec rd(store, out);
 	rd.computeFirstSet();

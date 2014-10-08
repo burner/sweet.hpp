@@ -65,6 +65,7 @@ class RecurDec {
 	void genVisitor(const std::map<std::string,std::vector<RulePart>>&);
 	void createDotPrefix();
 	void createDotPostfix();
+	void createParserUnittest();
 
 public:
 	RuleStore& rs;
