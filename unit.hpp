@@ -56,12 +56,12 @@ int main() {
 #define VA_NARGS_IMPL(_1,_2,_3,_4,_5,_6,_7,_8,N,...) N
 #define VA_NARGS(...) VA_NARGS_IMPL(__VA_ARGS__, 8, 7, 6, 5, 4, 3, 2, 1)
 #define SET_STATEGENERATE(sweetGen, count, ...)   \
-	[&](auto __funcToCall, size_t numRuns) {			\
-		auto& __sweetGenerator = sweetGen;				\
-        DEC ## count (__VA_ARGS__)                      \
-		for(size_t cnt = 0; cnt < numRuns; ++cnt) {		\
-        	__funcToCall(REF ## count (__VA_ARGS__));   \
-		}												\
+	[&](auto __funcToCall, size_t numRuns) {				\
+		auto& __sweetGenerator = sweetGen;					\
+        DEC ## count (__VA_ARGS__)                      	\
+		for(size_t cnt = 0; cnt < numRuns; ++cnt) {			\
+        	__funcToCall(REF ## count (__VA_ARGS__)); 	 	\
+		}													\
 	}
 
 #define SET_STATEP(sweetGen, count, ...) \
@@ -171,7 +171,8 @@ __VA_ARGS__)
 #define ASSERT_T_MSG(e,msg)			UNIT_COMPARED(false,true,e,true,msg,[](){})
 #define ASSERT_F_MSG(e,msg)			UNIT_COMPARED(false,true,e,false,msg,[](){})
 
-#define IF_BREAK(e)			if(!e) return;
+//#define IF_BREAK(e)			if(!e) return;
+#define IF_BREAK(e)			if(!e) throw sweet::Unit::UnitEx();
 
 #define ENF_T(e) 					UNIT_COMPARED_DIE(false,true,e,true,"",[](){},false)
 #define ENF_F(e) 					UNIT_COMPARED_DIE(false,false,e,false,"",[](){},false)
@@ -212,6 +213,8 @@ sweet::Unit::Unittest::evaluates(compare, result, e1, e2, #e1, #e2,__FILE__, __L
 
 namespace sweet {
 namespace Unit {
+	class UnitEx : public std::exception {
+	};
 
 	template<typename T, class Enable = void>
 	struct Gen;
@@ -415,6 +418,8 @@ namespace Unit {
 					bool tmp = (*it)->run();
 					rs += tmp;
 				}
+			} catch(UnitEx&) {
+				++rs;
 			} catch(std::exception& e) {
 				std::cerr<<(*it)->file<<":"<<(*it)->line<<" Unittest"<<
 					(*it)->name_<<" has thrown an "<< "uncaught exception "<<
