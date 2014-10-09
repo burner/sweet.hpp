@@ -45,13 +45,19 @@ UNITTEST(insertT) {
 	AS_T(rit == f.rend());
 
 	auto it(f.begin());
+	AS_EQ(*it, 1)
 	++it;
 	AS_EQ(*it, 3);
 	it = f.insert(it, 2);
 	AS_EQ(*it, 2);
+	AS_EQ(*f.begin(), 1);
 	++it;
 	AS_EQ(*it, 3);
 	AS_T(f.size() == 4);
+
+	for(size_t i = 1; i <= 4; ++i) {
+		AS_EQ(f[i-1], i);
+	}
 }
 
 UNITTEST(ctor) {
