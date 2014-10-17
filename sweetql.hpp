@@ -144,7 +144,7 @@ std::shared_ptr<SqlAttribute<T>> makeAttr(S T::* i,
 
 template<typename S, typename T>
 std::shared_ptr<SqlAttribute<T>> makeAttr(S T::* i,
-		size_t size, del d) {
+		size_t /*size*/, del /*d*/) {
 	return std::make_shared<SqlStringAttribute<T>>(i);
 }
 
@@ -170,7 +170,7 @@ std::shared_ptr<SqlAttribute<T>> makeAttr(S T::* i, SweetqlFlags f,
 
 template<typename S, typename T>
 std::shared_ptr<SqlAttribute<T>> makeAttr(S T::* i, SweetqlFlags f,
-		size_t size, del d) {
+		size_t /*size*/, del /*d*/) {
 	return std::make_shared<SqlStringAttribute<T>>(i, f);
 }
 
