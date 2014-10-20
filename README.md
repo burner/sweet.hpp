@@ -9,26 +9,24 @@ Usage
 -----
 To use the header, just make the sweet.hpp folder an include for your compiler.
 
-Example
-------
-Usually there is a folder called HEADERNAMEtest that holds an example. 
-
-Contributions
---------
-Always welcome!
-
-Header
---------
 
 Sweet cpp header that help in daily life
 
 unit.hpp
 --------
- extremely small unit testing framework 
+Extremely small unit testing framework with a lot of nice unit testing
+features. All assert macros also have a non unit test version usable in
+"normal" code. Also includes QuickCheck like functionality.
 
 ```C++
 UNITTEST(InformativTestName) {
 	// your test here
+	AS_T(boolValue);
+	AS_T_M(boolValue, "some msg");
+	AS_T_C(boolValue, [&]() { /* your code here */ });
+	AS_EQ(1, 54);
+	AS_NEQ(1, 54);
+	AS_NEQ_C(1, 54, [&](/* your code here */ ) { });
 }
 
 int main() {
@@ -39,15 +37,27 @@ int main() {
 }
 ```
 
+More examples in: [here](unittest/unittest.cpp)
+
  format.hpp
 ------------
 
- variadic template printf string formatting 
+Variadic template type safe printf string formatting functions. Internally it
+uses std::stream operation, so custom types can be used by creating custom
+opertor<<(std::ostream&, CustomType); functions.
+
+```C++
+std::string s = format("Hello %s", "World");
+format(someOutputStream, "Hello %s", "World");
+```
+
+More examples in: [here](formattest/formattest.cpp)
 
 logger.hpp 
 ------------ 
 
-easy to use logger
+Easy to use logger.
+
 ```C++
 void someRandomFunction() {
 	LOG();
@@ -56,10 +66,12 @@ void someRandomFunction() {
 }
 ```
 
+More examples in: [here](loggertest/loggertest.cpp)
+
 dbc.hpp
 ---------
 
-We have unittest maybe some Design by Contract might also.
+We have unittest maybe some Design by Contract might also help.
 
 ```C++
 struct SomeStupidClass {
@@ -92,7 +104,8 @@ void caller() {
 	ssc.changeMethod();
 }
 ```
-For a more in depth example take a look into the dbctest folder.
+
+More examples in: [here](dbctest/dbctest.cpp)
 
 
 benchmark.hpp
@@ -100,6 +113,7 @@ benchmark.hpp
 
 Benchmark structs that limits typing work, a Bench struct that stops time and
 a macro that stops time in a Compound Statement in a thread save manner.
+
 ```C++
 #include <benchmark.hpp>
 
@@ -117,10 +131,13 @@ int main() {
 }
 ```
 
+More examples in: [here](benchmarktest/benchmarktest.cpp)
+
 sjson.hpp
 ---------
 
-single header json parser
+Single header json parser with some bonus features like comments and multiline
+strings.
 
 sweetql.hpp
 ---------
@@ -129,17 +146,71 @@ single header sqlite3 wrapper that makes the conversion from sql table to
 class and back again extremely simple with minimal typing and speed overhead.
 Has an iterator interface that makes integration easy.
 
+```C++
+class ReservationPerson {
+public:
+	ReservationPerson() {}
+
+	static SqlTable<ReservationPerson>& table() {
+		static SqlTable<ReservationPerson> tab = 
+			SqlTable<ReservationPerson>::sqlTable("ReservationPerson",
+			SqlColumn<ReservationPerson>("Firstname", makeAttr(&ReservationPerson::firstname))
+			SqlColumn<ReservationPerson>("age", makeAttr(&ReservationPerson::age))
+		);
+
+		return tab;
+	};
+
+	std::string firstname;
+	long age;
+};
+
+...
+
+	SqliteDB db("dbfilename");
+
+	auto sel(db.select<ReservationPerson>());
+	std::for_each(sel.first, sel.second, [&toDel](const ReservationPerson& p) {
+	});
+```
+
+More examples in: [here](sweetqltest/sweetqltest.cpp)
+
 options.hpp
 ---------
 
-single header cmd line option parser. With automatic type conversation, short
+A single header cmd line option parser. With automatic type conversation, short
 and long option names and pretty help printing.
+
+Examples in: [here](optiontest/optiontest.cpp)
+
+
+compare.hpp
+-----------
+
+With this header you can make type safe comparisions without taking care of
+the types of the values compared.
+
+```C++
+bool eq = sweet::equal(1337u,1337)
+bool neq = sweet::notEqual(1337u,1337)
+```
+
+Examples in: [here](comparetest/comparetest.cpp)
 
 conv.hpp
 ---------
 
-write `to<std::string>(variable)` and get a string. convenience wrapper around
-stream operator
+A D like "to" function thats safely converts single value types to another
+value type.
+
+```C++
+
+int a = to<int>("some int value as string");
+std::string a = to<std::string>(a);
+```
+
+More examples in: [here](convtest/convtest.cpp)
 
 sweetcpp.py
 ---------
@@ -158,3 +229,8 @@ trie.hpp
 ---------
 
 A trie implementation that is ""not yet"" stl quality but does work.
+
+Contributions
+--------
+Always welcome!
+
