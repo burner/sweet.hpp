@@ -379,6 +379,31 @@ public:
 		}
 	}
 
+	inline void beginTransaction() {
+		char* errorMessage;
+		sqlite3_exec(db, "BEGIN TRANSACTION", NULL, NULL, &errorMessage);
+	}
+
+	inline void endTransaction() {
+		char* errorMessage;
+		sqlite3_exec(db, "COMMIT TRANSACTION", NULL, NULL, &errorMessage);
+		/*if(sqlite3_finalize(stmt) != SQLITE_OK) {
+			throw std::logic_error(std::string("Insert Statment:\"") +
+					stmtStr + "\" failed with error:\"" +
+					sqlite3_errmsg(db) + "\"");
+		}*/
+	}
+
+	template<typename S>
+	inline bool emplace(S& t) {
+		SqlTable<S>& tab = S::table();
+		const std::string stmtStr(prepareStatment<S>());
+		sqlite3_stmt* stmt;
+		sqlite3_prepare_v2(db, stmtStr.c_str(), stmtStr.size(), &stmt, NULL);
+		addParameter(t, tab, stmt);
+		step(stmt, stmtStr);
+	}
+
 	template<typename S>
 	inline bool insert(S& t) {
 		SqlTable<S>& tab = S::table();
