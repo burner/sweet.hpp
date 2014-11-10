@@ -395,7 +395,7 @@ public:
 	}
 
 	template<typename S>
-	inline bool emplace(S& t) {
+	inline void emplace(S& t) {
 		SqlTable<S>& tab = S::table();
 		const std::string stmtStr(prepareStatment<S>());
 		sqlite3_stmt* stmt;
