@@ -168,37 +168,46 @@ namespace sweet {
 			}
 		}
 
+		inline void erase(iterator it) {
+			auto itCopy = it;
+			for(; it+1 != this->end(); ++it) {
+				*it = *(it+1);
+			}
+
+			--this->idx;
+		}
+
 		// iterator
 		
-		T* begin() {
+		inline T* begin() {
 			return &this->data[0];
 		}
 
-		T* end() {
+		inline T* end() {
 			return &this->data[this->idx];
 		}
 
-		const T* begin() const {
+		inline const T* begin() const {
 			return &this->data[0];
 		}
 
-		const T* end() const {
+		inline const T* end() const {
 			return &this->data[this->idx];
 		}
 
-		T* rbegin() {
+		inline T* rbegin() {
 			return &this->data[this->idx-1u];
 		}
 
-		T* rend() {
+		inline T* rend() {
 			return &this->data[0];
 		}
 
-		const T* rbegin() const {
+		inline const T* rbegin() const {
 			return &this->data[this->idx-1u];
 		}
 
-		const T* rend() const {
+		inline const T* rend() const {
 			return &this->data[0];
 		}
 	};

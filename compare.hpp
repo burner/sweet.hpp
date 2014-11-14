@@ -83,27 +83,27 @@ namespace sweet {
 		::type>
 	{
 		static bool less(T t, S s) {
-			return (t < 0) ? true : static_cast<int64_t>(t) < static_cast<int64_t>(s);
+			return (t < 0) ? true : static_cast<uint64_t>(t) < static_cast<uint64_t>(s);
 		}
 
 		static bool lessEqual(T t, S s) {
-			return (t < 0) ? true : static_cast<int64_t>(t) <= static_cast<int64_t>(s);
+			return (t < 0) ? true : static_cast<uint64_t>(t) <= static_cast<uint64_t>(s);
 		}
 
 		static bool equal(T t, S s) {
-			return (t < 0) ? false : static_cast<int64_t>(t) == static_cast<int64_t>(s);
+			return (t < 0) ? false : static_cast<uint64_t>(t) == static_cast<uint64_t>(s);
 		}
 
 		static bool notEqual(T t, S s) {
-			return (t < 0) ? true : static_cast<int64_t>(t) != static_cast<int64_t>(s);
+			return (t < 0) ? true : static_cast<uint64_t>(t) != static_cast<uint64_t>(s);
 		}
 
 		static bool greater(T t, S s) {
-			return (t < 0) ? false : static_cast<int64_t>(t) > static_cast<int64_t>(s);
+			return (t < 0) ? false : static_cast<uint64_t>(t) > static_cast<uint64_t>(s);
 		}
 
 		static bool greaterEqual(T t, S s) {
-			return (t < 0) ? false : static_cast<int64_t>(t) >= static_cast<int64_t>(s);
+			return (t < 0) ? false : static_cast<uint64_t>(t) >= static_cast<uint64_t>(s);
 		}
 	};
 
@@ -114,27 +114,27 @@ namespace sweet {
 		::type>
 	{
 		static bool less(T t, S s) {
-			return (s < 0) ? false : static_cast<int64_t>(t) < static_cast<int64_t>(s);
+			return (s < 0) ? false : static_cast<uint64_t>(t) < static_cast<uint64_t>(s);
 		}
 
 		static bool lessEqual(T t, S s) {
-			return (s < 0) ? false : static_cast<int64_t>(t) <= static_cast<int64_t>(s);
+			return (s < 0) ? false : static_cast<uint64_t>(t) <= static_cast<uint64_t>(s);
 		}
 
 		static bool equal(T t, S s) {
-			return (s < 0) ? false : static_cast<int64_t>(t) == static_cast<int64_t>(s);
+			return (s < 0) ? false : static_cast<uint64_t>(t) == static_cast<uint64_t>(s);
 		}
 
 		static bool notEqual(T t, S s) {
-			return (s < 0) ? true : static_cast<int64_t>(t) != static_cast<int64_t>(s);
+			return (s < 0) ? true : static_cast<uint64_t>(t) != static_cast<uint64_t>(s);
 		}
 
 		static bool greater(T t, S s) {
-			return (s < 0) ? true : static_cast<int64_t>(t) > static_cast<int64_t>(s);
+			return (s < 0) ? true : static_cast<uint64_t>(t) > static_cast<uint64_t>(s);
 		}
 
 		static bool greaterEqual(T t, S s) {
-			return (s < 0) ? true : static_cast<int64_t>(t) >= static_cast<int64_t>(s);
+			return (s < 0) ? true : static_cast<uint64_t>(t) >= static_cast<uint64_t>(s);
 		}
 	};
 
