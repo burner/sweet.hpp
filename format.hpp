@@ -1,6 +1,6 @@
 // LGPL 3 or higher Robert Burner Schadek rburners@gmail.com
-#ifndef SWEET_FORMAT
-#define SWEET_FORMAT
+#pragma once
+
 #include <stdexcept>
 #include <algorithm>
 #include <iostream>
@@ -130,4 +130,3 @@ template<typename... Args>
 inline void format(std::ostream& out, const std::string& str, Args... args) {
 	formImpl(out, str,0, args...);
 }
-#endif
