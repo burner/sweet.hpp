@@ -1,3 +1,4 @@
+// LGPL3  Robert burner Schadek rburners@gmail.com
 #pragma once
 
 #include <limits>
