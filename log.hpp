@@ -75,13 +75,13 @@ namespace sweet {
 			writerThread.join();
 		}
 
-		void setOutput(std::unique_ptr<std::ostream> out) {
+		inline void setOutput(std::unique_ptr<std::ostream> out) {
 			outputPtr = std::move(out);
 			output = outputPtr.get();
 		}
 
 
-		void endLogger() {
+		inline void endLogger() {
 			terminate = true;
 		}
 
@@ -155,7 +155,7 @@ namespace sweet {
 			return *this;
 		}
 
-		LoggerSource& operator<<(std::ostream&(*f)(std::ostream&) ) {
+		inline LoggerSource& operator<<(std::ostream&(*f)(std::ostream&) ) {
 			if(f == static_cast<
 				std::basic_ostream<char>& (*)(std::basic_ostream<char>&)>(std::endl))
 			{
