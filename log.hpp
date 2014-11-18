@@ -83,6 +83,7 @@ namespace sweet {
 
 		inline void endLogger() {
 			terminate = true;
+			consumerSem.notify();
 		}
 
 		inline void log(std::unique_ptr<LoggerPayload> payload) {
@@ -95,14 +96,20 @@ namespace sweet {
 			while(true) {
 				consumerSem.wait();
 				dequeMutex.lock();
-				std::unique_ptr<LoggerPayload> p(std::move(payloads.front()));
+				if(terminate && payloads.size() == 0u) {
+					break;
+				}
 
+				std::unique_ptr<LoggerPayload> p(std::move(payloads.front()));
 				payloads.pop_front();
+
 				if(terminate && payloads.size() == 0u) {
 					dequeMutex.unlock();
-					func(*output, *p);
-					if(alwaysFlush) {
-						(*output)<<std::endl;
+					if(p->logLevel >= this->logLevel) {
+						func(*output, *p);
+						if(alwaysFlush) {
+							output->flush();
+						}
 					}
 					break;
 				}
@@ -110,6 +117,9 @@ namespace sweet {
 
 				if(p->logLevel >= this->logLevel) {
 					func(*output, *p);
+					if(alwaysFlush) {
+						output->flush();
+					}
 				}
 			}
 		}
