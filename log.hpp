@@ -159,6 +159,10 @@ namespace sweet {
 			return *this;
 		}
 
+		LoggerSource& operator()() {
+			return *this;
+		}
+
 		template<typename T>
 		LoggerSource& operator<<(const T& arg) {
 			payload->str<<arg;
