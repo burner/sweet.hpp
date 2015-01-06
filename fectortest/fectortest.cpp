@@ -14,7 +14,7 @@ UNITTEST(inistan) {
 	AS_T(f.empty());
 	f.push_back(1);
 	AS_F(f.empty());
-	AS_EQ(f.size(), 1);
+	AS_EQ(f.size(), 1u);
 
 	AS_EQ(f.front(), f.back());
 
@@ -55,8 +55,36 @@ UNITTEST(insertT) {
 	AS_EQ(*it, 3);
 	AS_T(f.size() == 4);
 
-	for(size_t i = 1; i <= 4; ++i) {
+	for(int i = 1; i <= 4; ++i) {
 		AS_EQ(f[i-1], i);
+	}
+}
+
+UNITTEST(eraseT1) {
+	sweet::Fector<int,32> f;
+	for(int i = 0; i < 32; ++i) f.push_back(i);
+
+	f.erase(f.begin());
+	AS_EQ(f.size(), 31u);
+	for(int i = 0; i < 31; ++i) {
+		AS_EQ(f[i], i+1);
+	}
+	f.erase(f.end());
+	AS_EQ(f.size(), 30u);
+	for(int i = 0; i < 30; ++i) {
+		AS_EQ(f[i], i+1);
+	}
+
+	f.erase(f.begin()+3);
+	AS_EQ(f.size(), 29u);
+	int v = 1;
+	for(int i = 0; i < 29; ++i) {
+		if(i != 3) {
+			AS_EQ(f[i], v);
+			++v;
+		} else {
+			v+=2;
+		}
 	}
 }
 
@@ -69,13 +97,13 @@ UNITTEST(ctor) {
 	}
 
 	f.resize(14, 1337);
-	AS_EQ(f.size(), 14);
+	AS_EQ(f.size(), 14u);
 	for(size_t i = 0; i < 14; ++i) {
 		AS_EQ(f[i], 1337);
 	}
 
 	f.resize(4, 1337);
-	AS_EQ(f.size(), 4);
+	AS_EQ(f.size(), 4u);
 	for(size_t i = 0; i < 4; ++i) {
 		AS_EQ(f[i], 1337);
 	}
@@ -130,11 +158,13 @@ int sumFector() {
 	return sum;
 }
 
+/*
 UNITTEST(speed) {
 	for(int i = 0; i < 128; ++i) {
 		AS_EQ(sumVector(), sumFector());
 	}
 }
+*/
 
 struct At {
 	int a;

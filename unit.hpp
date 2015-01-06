@@ -39,6 +39,7 @@ int main() {
 #pragma once
 #include <sstream>
 #include <string>
+#include <string.h>
 #include <vector>
 #include <iostream>
 #include <fstream>
@@ -213,6 +214,17 @@ sweet::Unit::Unittest::evaluates(compare, result, e1, e2, #e1, #e2,__FILE__, __L
 
 namespace sweet {
 namespace Unit {
+
+	using namespace std;
+	static inline string sname(const string& str) {
+		size_t idx(str.rfind('/'));
+		if(idx != string::npos) {
+			string ret(str);
+			ret.erase(0, idx+1);	
+			return ret;
+		} else
+			return string(str);
+	}
 	class UnitEx : public std::exception {
 	};
 
@@ -249,17 +261,6 @@ namespace Unit {
 		}
 	};
 
-	using namespace std;
-	static inline string sname(const string& str) {
-		size_t idx(str.rfind('/'));
-		if(idx != string::npos) {
-			string ret(str);
-			ret.erase(0, idx+1);	
-			return ret;
-		} else
-			return string(str);
-	}
-
 	template<bool>
 	struct comp_sel {
 		template<typename T, typename S>
@@ -294,8 +295,8 @@ namespace Unit {
 
 	class Unittest {
 	public:
-		Unittest(const string& name, std::string f, int l, int count = 1,
-				std::string more = "") : file(sname(f)),
+		Unittest(const char* name, const char* f, int l, int count = 1,
+				const char* more = "") : file(f),
 				line(l), name_(name),  info(more), numRounds(count), 
 				errors_(0), out_(&cerr) 
 		{
@@ -307,19 +308,19 @@ namespace Unit {
 		}
 
 #ifdef SWEET_NO_ASSERTS
-		template<typename E1, typename E2, typename C> 
+		template<typename E1, typename E2, typename C, typename S> 
 		static bool evaluates(bool , bool , const E1& , 
 				const E2& , const char* , const char* , 
-				const char* , int , ostream* , const string& , 
-				bool , const string& , C ) {
+				const char* , int , ostream* , const char* , 
+				bool , S, C ) {
 			return true;
 		}
 #else
-		template<typename E1, typename E2, typename C> 
+		template<typename E1, typename E2, typename C, typename S> 
 		static bool evaluates(bool compare, bool result, const E1& e1, 
 				const E2& e2, const char* str1, const char* str2, 
-				const char* file, int line, ostream* out, const string& name, 
-				bool die, const string& msg, C c) 
+				const char* file, int line, ostream* out, const char* name, 
+				bool die, S msg, C c) 
 		{
 
 			if(result ? 
@@ -329,7 +330,8 @@ namespace Unit {
 				return true;
 			}
 
-			if(name != "") {
+			//if(name != "") {
+			if(strlen(name) > 0) {
 				*out<<sname(file)<< ":"<<line<<" in "<<"Unittest("<<name<<
 					") Assert Failed: ";
 			} else {
@@ -360,10 +362,10 @@ namespace Unit {
 		}
 #endif
 
-		template<typename E1, typename E2, typename C> 
+		template<typename E1, typename E2, typename C, typename S> 
 		bool evaluate(bool compare, bool result, const E1& e1, const E2& e2, 
 			const char* str1, const char* str2, const char* file, int line, 
-			const string& msg, C c) 
+			S msg, C c) 
 		{
 			bool rlst = Unittest::evaluates<E1,E2,C>(compare, result, e1, e2,
 					str1, str2, file, line, out_, name_, false, msg, c);
@@ -390,10 +392,10 @@ namespace Unit {
 			out_ = o;
 		}
 
-		std::string file;
+		const char* file;
 		int line;
-		std::string name_;
-		std::string info;
+		const char* name_;
+		const char* info;
 		int numRounds;
 
 	private:
@@ -421,12 +423,12 @@ namespace Unit {
 			} catch(UnitEx&) {
 				++rs;
 			} catch(std::exception& e) {
-				std::cerr<<(*it)->file<<":"<<(*it)->line<<" Unittest"<<
+				std::cerr<<sname((*it)->file)<<":"<<(*it)->line<<" Unittest"<<
 					(*it)->name_<<" has thrown an "<< "uncaught exception "<<
 					" with message "<<e.what()<<std::endl;
 				++rs;
 			} catch(...) {
-				std::cerr<<(*it)->file<<":"<<(*it)->line<<" Unittest"<<
+				std::cerr<<sname((*it)->file)<<":"<<(*it)->line<<" Unittest"<<
 					(*it)->name_<<" has thrown an "<< "uncaught exception "
 					<<std::endl;
 				++rs;
@@ -436,8 +438,9 @@ namespace Unit {
 
 			if((*it)->numRounds > 1) {
 				std::ofstream o(benmarkrslt, std::ios::app);	
-				o<<(*it)->name_<<':'<<(*it)->line<<':'<<(*it)->file<<' '<<
-					timeStr<<' '<<((*it)->info == "" ? "" : (*it)->info + " ")<<
+				o<<(*it)->name_<<':'<<(*it)->line<<':'<<sname((*it)->file)<<' '<<
+					timeStr<<' '<<(strcmp((*it)->info, "") ? "" : 
+						std::string((*it)->info) + " ")<<
 				   	std::chrono::duration_cast<std::chrono::milliseconds>(
 						stp-strt
 					).count()<<std::endl;

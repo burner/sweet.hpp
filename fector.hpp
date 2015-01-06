@@ -27,7 +27,15 @@ namespace sweet {
 		inline Fector() : idx(0) {
 		}
 
-		/*inline Fector(const Fector& other) : idx(0) {
+		/*
+		inline Fector(const Fector& other) : idx(0) {
+			size_t otherSize = other.size();
+			for(size_t i = 0; i < otherSize; ++i) {
+				this->push_back(other[i]);
+			}
+		}
+
+		inline Fector(Fector&& other) : idx(0) {
 			size_t otherSize = other.size();
 			for(size_t i = 0; i < otherSize; ++i) {
 				this->push_back(other[i]);
@@ -168,46 +176,52 @@ namespace sweet {
 			}
 		}
 
-		inline void erase(iterator it) {
-			auto itCopy = it;
-			for(; it+1 != this->end(); ++it) {
-				*it = *(it+1);
+		inline iterator erase(iterator pos) {
+			const_iterator e = this->end();
+			auto ret = pos;
+			auto next = pos + 1u;
+			while(next < e) {
+				*pos = *next;
+				++pos;
+				++next;
 			}
 
-			--this->idx;
+			this->pop_back();
+
+			return ret;
 		}
 
 		// iterator
 		
-		inline T* begin() {
+		iterator begin() {
 			return &this->data[0];
 		}
 
-		inline T* end() {
+		iterator end() {
 			return &this->data[this->idx];
 		}
 
-		inline const T* begin() const {
+		const_iterator begin() const {
 			return &this->data[0];
 		}
 
-		inline const T* end() const {
+		const_iterator end() const {
 			return &this->data[this->idx];
 		}
 
-		inline T* rbegin() {
+		iterator rbegin() {
 			return &this->data[this->idx-1u];
 		}
 
-		inline T* rend() {
+		iterator rend() {
 			return &this->data[0];
 		}
 
-		inline const T* rbegin() const {
+		const_iterator rbegin() const {
 			return &this->data[this->idx-1u];
 		}
 
-		inline const T* rend() const {
+		const_iterator rend() const {
 			return &this->data[0];
 		}
 	};

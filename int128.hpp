@@ -13,6 +13,8 @@ Author: Robert "burner" Schadek rburners@gmail.com License: LGPL 3 or higher
 #include <stdint.h>
 #include <ostream>
 #include <cstdint>
+#include <limits>
+#include <math.h>
 
 // Assignment and Assignment-Conversion operators
 // Infix addition
@@ -27,17 +29,51 @@ Author: Robert "burner" Schadek rburners@gmail.com License: LGPL 3 or higher
 #define HI_WORD 0xFFFFFFFF00000000LL
 #define LO_WORD 0x00000000FFFFFFFFLL
 
+struct int128;
+
+int128 operator * ( const int128 & lhs, const int128 & rhs );
+int128 operator * ( const int128 & lhs, uint64_t rhs );
+int128 operator * ( const int128 & lhs, int32_t rhs );
+int128 operator + ( const int128 & lhs, const int128 & rhs );
+int128 operator + ( const int128 & lhs, uint64_t rhs );
+int128 operator + ( const int128 & lhs, int32_t rhs );
+int128 operator - ( const int128 & lhs, const int128 & rhs );
+int128 operator - ( const int128 & lhs, uint64_t rhs );
+int128 operator - ( const int128 & lhs, int32_t rhs );
+int128 operator / ( const int128 & x, const int128 & d );
+int128 operator / ( const int128 & x, uint64_t d );
+int128 operator / ( const int128 & x, int32_t d );
+int128 operator += ( int128 & lhs, const int128 & rhs ) ;
+int128 operator += ( int128 & lhs, const int64_t & rhs ) ;
+int128 operator -= ( int128 & lhs, const int128 & rhs ) ;
+int128 operator -= ( int128 & lhs, const int64_t & rhs ) ;
+int128 operator *= ( int128 & lhs, const int128 & rhs ) ;
+int128 operator *= ( int128 & lhs, const int64_t & rhs ) ;
+int128 operator /= ( int128 & lhs, const int128 & rhs ) ;
+int128 operator /= ( int128 & lhs, const int64_t & rhs ) ;
 
 struct int128 {
 	int64_t high;
 	uint64_t low;
 
 	inline int128(): high(0), low(0) { }
+	inline int128(int64_t h, uint64_t l) : high(h), low(l) {}
 	inline int128(uint8_t x): high(0), low(x) { }
 	inline int128(uint16_t x): high(0), low(x) { }
 	inline int128(uint32_t x): high(0), low(x) { }
 	inline int128(uint64_t x): high(0), low(x) { }
-	inline int128(const int128& x): high(x.high), low(x.low) { }
+	//inline int128(const int128& x): high(x.high), low(x.low) { }
+
+	inline int128(const std::string& str) : high(0), low(0) {
+		int128 t;
+		for(const auto& c : str) {
+			t = t * static_cast<uint64_t>(10);
+			t = t + static_cast<int32_t>(c + '0');
+		}
+
+		this->low = t.low;
+		this->high = t.high;
+	}
 
 	template<typename T>
 	void set(T t,
