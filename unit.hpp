@@ -98,17 +98,17 @@ int main() {
 PP_HAS_ARGS_SOURCE())
 
 #define __UTEST_NOTEST_ONE(test_name) \
-class test_name##_test_class : public sweet::Unit::Unittest { void nevercall(); \
+class test_name##_test_class : public sweet::Unit::Unittest { virtual void nevercall(); \
 public: \
 test_name##_test_class() : sweet::Unit::Unittest(#test_name,__FILE__,__LINE__) {} \
-} test_name##_test_class_impl; \
+} static test_name##_test_class_impl; \
 void test_name##_test_class::nevercall()
 
 #define __UTEST_NOTEST_MULTI(test_name,...) \
-class test_name##_test_class : public sweet::Unit::Unittest { void nevercall(); \
+class test_name##_test_class : public sweet::Unit::Unittest { virtual void nevercall(); \
 public: \
 test_name##_test_class() : sweet::Unit::Unittest(#test_name,__FILE__,__LINE__,\
-__VA_ARGS__) {}  } test_name##_test_class_impl; \
+__VA_ARGS__) {}  } static test_name##_test_class_impl; \
 void test_name##_test_class::nevercall()
 
 #define __UTEST_NOTEST_DISAMBIGUATE2(has_args, ...) __UTEST_NOTEST_ \
@@ -120,25 +120,23 @@ __VA_ARGS__), __VA_ARGS__)
 
 
 #define __UTEST_ONE(test_name) \
-class test_name##_test_class : public sweet::Unit::Unittest { void run_impl(); \
+class test_name##_test_class : public sweet::Unit::Unittest { virtual void run_impl(); \
 public: \
 test_name##_test_class() : sweet::Unit::Unittest(#test_name,__FILE__,__LINE__) {} \
-} test_name##_test_class_impl; \
+} static test_name##_test_class_impl; \
 void test_name##_test_class::run_impl()
 
 #define __UTEST_MULTI(test_name,...) \
-class test_name##_test_class : public sweet::Unit::Unittest { void run_impl(); \
+class test_name##_test_class : public sweet::Unit::Unittest { virtual void run_impl(); \
 public: \
 test_name##_test_class() : sweet::Unit::Unittest(#test_name,__FILE__,__LINE__,\
-__VA_ARGS__) {} } test_name##_test_class_impl; \
+__VA_ARGS__) {} } static test_name##_test_class_impl; \
 void test_name##_test_class::run_impl()
 
 #define __UTEST_DISAMBIGUATE2(has_args, ...) __UTEST_ ## has_args (__VA_ARGS__)
 #define __UTEST_DISAMBIGUATE(has_args, ...) __UTEST_DISAMBIGUATE2(has_args, \
 __VA_ARGS__)
 #define __UTEST(...) __UTEST_DISAMBIGUATE(PP_HAS_ARGS(__VA_ARGS__), __VA_ARGS__)
-
-
 
 
 #ifdef SWEET_NO_UNITTEST
@@ -236,8 +234,8 @@ namespace Unit {
 		T l, h;
 		std::uniform_int_distribution<T> distribution;
 
-		Gen(T l = std::numeric_limits<T>::min(), 
-			T h = std::numeric_limits<T>::max()) : l(l), h(h), distribution(l,h) 
+		Gen(T ln = std::numeric_limits<T>::min(), 
+			T hn = std::numeric_limits<T>::max()) : l(ln), h(hn), distribution(ln,hn) 
 		{}
 
 		template<typename G>
@@ -251,8 +249,8 @@ namespace Unit {
 		T l, h;
 		std::uniform_real_distribution<T> distribution;
 
-		Gen(T l = std::numeric_limits<T>::min(), 
-			T h = std::numeric_limits<T>::max()) : l(l), h(h), distribution(l,h) 
+		Gen(T ln = std::numeric_limits<T>::min(), 
+			T hn = std::numeric_limits<T>::max()) : l(ln), h(hn), distribution(ln,hn) 
 		{}
 
 		template<typename G>
@@ -295,13 +293,15 @@ namespace Unit {
 
 	class Unittest {
 	public:
-		Unittest(const char* name, const char* f, int l, int count = 1,
+		inline Unittest(const char* name, const char* f, int l, int count = 1,
 				const char* more = "") : file(f),
 				line(l), name_(name),  info(more), numRounds(count), 
 				errors_(0), out_(&cerr) 
 		{
 			getTests().push_back(this);
 		}
+
+		virtual inline ~Unittest() {}
 
 		inline void increNumAsserts() {
 			getNumOfAsserts()++;
@@ -319,7 +319,7 @@ namespace Unit {
 		template<typename E1, typename E2, typename C, typename S> 
 		static bool evaluates(bool compare, bool result, const E1& e1, 
 				const E2& e2, const char* str1, const char* str2, 
-				const char* file, int line, ostream* out, const char* name, 
+				const char* evalfile, int evalline, ostream* out, const char* name, 
 				bool die, S msg, C c) 
 		{
 
@@ -332,10 +332,10 @@ namespace Unit {
 
 			//if(name != "") {
 			if(strlen(name) > 0) {
-				*out<<sname(file)<< ":"<<line<<" in "<<"Unittest("<<name<<
+				*out<<sname(evalfile)<< ":"<<evalline<<" in "<<"Unittest("<<name<<
 					") Assert Failed: ";
 			} else {
-				*out<<sname(file)<< ":"<<line<<" Assert Failed: ";
+				*out<<sname(evalfile)<< ":"<<evalline<<" Assert Failed: ";
 			}
 			stringstream s2;
 			s2<<std::fixed<<std::setprecision(9)<<boolalpha<<(e2);
@@ -364,11 +364,11 @@ namespace Unit {
 
 		template<typename E1, typename E2, typename C, typename S> 
 		bool evaluate(bool compare, bool result, const E1& e1, const E2& e2, 
-			const char* str1, const char* str2, const char* file, int line, 
+			const char* str1, const char* str2, const char* evalfile, int evalline, 
 			S msg, C c) 
 		{
 			bool rlst = Unittest::evaluates<E1,E2,C>(compare, result, e1, e2,
-					str1, str2, file, line, out_, name_, false, msg, c);
+					str1, str2, evalfile, evalline, out_, name_, false, msg, c);
 			if(!rlst) {
 				++errors_;
 			}
@@ -377,18 +377,18 @@ namespace Unit {
 		}
 
 #ifdef SWEET_NO_UNITTEST
-		void run_impl() {}
+		virtual void run_impl() {}
 		virtual void nevercall() = 0;
 #else
 		virtual void run_impl() = 0;
 #endif
 
-		bool run() {
+		inline bool run() {
 			run_impl();
 			return errors_;
 		}
 
-		void setOutputStream(ostream* o) {
+		inline void setOutputStream(ostream* o) {
 			out_ = o;
 		}
 

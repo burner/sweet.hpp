@@ -140,9 +140,9 @@ public:
 		Benchmark::getBenchClasses().push_back(this);
 	}
 
-	inline void saveTimeAndIncCounter(unsigned long time, int128 tick) { 
+	inline void saveTimeAndIncCounter(unsigned long timen, int128 tick) { 
 		__sync_add_and_fetch(&this->cnt, static_cast<unsigned long>(1));
-		__sync_add_and_fetch(&this->time, time);
+		__sync_add_and_fetch(&this->time, timen);
 		std::lock_guard<std::mutex> lock(*tickMutex.get());
 		ticks += tick;
 	}

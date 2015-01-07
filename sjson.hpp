@@ -81,7 +81,7 @@ static bool convertsToInt(const std::string& s) {
 	if(size > 0 && (s[0] == '+' || s[0] == '-')) {
 		i = 1;
 	}
-	for(i = i; i < size; ++i) {
+	for(; i < size; ++i) {
 		if(!isdigit(s[i])) {
 			return false;
 		}

@@ -7,6 +7,7 @@ Author: Robert "burner" Schadek rburners@gmail.com License: LGPL 3 or higher
 #pragma GCC diagnostic ignored "-Wunused-function"
 #pragma GCC diagnostic ignored "-Wsign-compare"
 #pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma GCC diagnostic ignored "-Wsign-conversion"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -130,8 +131,8 @@ struct int128 {
 		double result;
 
 		if(high >= 0) {
-			result = (((double) high) * ((double) 18446744073709551616.0)) + 
-				((double) low);
+			result = static_cast<double>(high) * (static_cast<double>(18446744073709551616.0)) + 
+				static_cast<double>(low);
 		} else {
 			int64_t h; 
 		uint64_t l;
@@ -143,8 +144,8 @@ struct int128 {
 			if(l == 0) {
 				h += 1;
 			}
-			result = -((((double) h) * ((double) 18446744073709551616.0)) + 
-				((double) l));
+			result = -static_cast<double>(h) * (static_cast<double>(18446744073709551616.0)) + 
+				(static_cast<double>(l));
 		}
 
 		return result;
@@ -216,7 +217,7 @@ struct int128 {
 			// take the 54 mantissa bits and shift into position
 			//DoubleUint64 di;
 			//di.d = x;
-			t = *((uint64_t *) &x);
+			t = *(reinterpret_cast<uint64_t *>(&x));
 			m = (t & BITS51_0) | BIT_52;
 			t = (t & BITS62_0) >> 52;
 			//t = *(reinterpret_cast<uint64_t*>(reinterpret_cast<char*>(&x)));
@@ -235,11 +236,11 @@ struct int128 {
 			this->high = ~h;
 		} else if(x < 9.2233720368547e18) {
 			// it will fit in a uint64_t
-			this->low = ((uint64_t) x);
+			this->low = static_cast<uint64_t>(x);
 			this->high = ((x<0) ? -1 : 0);
 		} else if(x < 1.7014118346046e38) {
 			// take the 54 mantissa bits and shift into position
-			t = *((uint64_t *) &x);
+			t = *(reinterpret_cast<uint64_t *>(&x));
 			//DoubleUint64 di;
 			//di.d = x;
 			//t = *(reinterpret_cast<uint64_t*>(reinterpret_cast<char*>(&x)));
@@ -633,21 +634,22 @@ static int128 div1(int128 x, int128 d, int128 *r) {
 	}
 
 	s = 1;
-	if(x < ((int128) 0)) {
+	if(x < 0) {
 		// notice that MININT will be unchanged, this is used below.
 		s = - s;
 		x = - x;
 	}
-	if(d < ((int128) 0)) {
+	if(d < 0) {
 		s = - s;
 		d = - d;
 	}
 
-	if(d == ((int128) 1)) {
+	if(d == 1) {
 		/* This includes the overflow case MININT/-1 */
 		rv = x;
 		x = 0;
-	} else if(x < ((int128) d)) {
+	//} else if(x < ((int128) d)) {
+	} else if(x < d) {
 		/* x < d, so quotient is 0 and x is remainder */
 		rv = 0;
 	} else {
@@ -663,7 +665,7 @@ static int128 div1(int128 x, int128 d, int128 *r) {
 		}
 		x = x + d1;
 
-		while(p2 != ((int128) 0)) {
+		while(p2 != 0) {
 //printf("x %.16llX %016llX d1 %.16llX %016llX\n", x.high, x.low, d1.high, d1.low);
 			if(x >= d1) {
 				x = x - d1;
@@ -728,11 +730,13 @@ static void int128_str(int128 x, char *s) {
 	int d, nd, going;
 	int128 t, p10;
 
-	if(x < ((int128) 0)) {
+	//if(x < ((int128) 0)) {
+	if(x < 0) {
 		*s = '-'; s++;
 		x = - x;
 	}
-	if(x == ((int128) 0)) {
+	//if(x == ((int128) 0)) {
+	if(x == 0) {
 		*s = '0'; s++;
 		*s = 0; return;
 	}
@@ -740,11 +744,15 @@ static void int128_str(int128 x, char *s) {
 	// Count number of digits in x
 	p10 = 1; nd = 0; going = 1;
 	while((p10 <= x) && (going)) {
-		p10 = p10 + p10; if(p10 < ((int128) 0)) { going = 0; }
+		//p10 = p10 + p10; if(p10 < ((int128) 0)) { going = 0; }
+		p10 = p10 + p10; if(p10 < 0) { going = 0; }
 		t = p10;
-		p10 = p10 + p10; if(p10 < ((int128) 0)) { going = 0; }
-		p10 = p10 + p10; if(p10 < ((int128) 0)) { going = 0; }
-		p10 = p10 + t; if(p10 < ((int128) 0)) { going = 0; }
+		//p10 = p10 + p10; if(p10 < ((int128) 0)) { going = 0; }
+		//p10 = p10 + p10; if(p10 < ((int128) 0)) { going = 0; }
+		//p10 = p10 + t; if(p10 < ((int128) 0)) { going = 0; }
+		p10 = p10 + p10; if(p10 < 0) { going = 0; }
+		p10 = p10 + p10; if(p10 < 0) { going = 0; }
+		p10 = p10 + t; if(p10 < 0) { going = 0; }
 		nd++;
 	}
 
@@ -794,7 +802,7 @@ inline int128 operator -= ( int128 & lhs, const int128 & rhs )  {
 }
 
 inline int128 operator -= ( int128 & lhs, const int64_t & rhs )  {
-	lhs = lhs - ((int128)rhs);
+	lhs = lhs - int128(rhs);
 	return lhs;
 }
 
@@ -804,7 +812,7 @@ inline int128 operator *= ( int128 & lhs, const int128 & rhs )  {
 }
 
 inline int128 operator *= ( int128 & lhs, const int64_t & rhs )  {
-	lhs = lhs * ((int128) rhs);
+	lhs = lhs * int128(rhs);
 	return lhs;
 }
 
@@ -814,7 +822,7 @@ inline int128 operator /= ( int128 & lhs, const int128 & rhs )  {
 }
 
 inline int128 operator /= ( int128 & lhs, const int64_t & rhs )  {
-	lhs = lhs / ((int128) rhs);
+	lhs = lhs / int128(rhs);
 	return lhs;
 }
 
