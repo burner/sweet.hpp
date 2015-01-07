@@ -130,6 +130,8 @@ struct FileSystemFilterIncrement {
 						goto inc;
 					}
 					break;
+				default:
+					return File::iterator();
 			}
 
 			if(this->regexStr.empty() || std::regex_match((*cur).path, this->regex)) {

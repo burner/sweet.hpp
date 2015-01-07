@@ -11,7 +11,7 @@ public:
 
 public:
 	static bool _bittest(unsigned int base, unsigned int offset) {
-		return base & (1 << offset);
+		return base & (1u << offset);
     }
 
 	inline bool operator[](const size_t idx) const {
@@ -27,10 +27,10 @@ public:
 	}
 
 	inline void set(const size_t idx) {
-		if(idx < 32) {
-			threeTwo |= (1<<idx);
+		if(idx < 32u) {
+			threeTwo |= (1u<<idx);
 		} else {
-			const size_t nIdx = idx-32;
+			const size_t nIdx = idx-32u;
 			if(nIdx >= rest.size()) {
 				rest.resize(nIdx+1, false);
 			}
@@ -39,19 +39,19 @@ public:
 	}
 	
 	inline void unset(const size_t idx) {
-		if(idx < 32) {
-			threeTwo &= ~(1<<idx);
+		if(idx < 32u) {
+			threeTwo &= ~(1u<<idx);
 		} else {
-			const size_t nIdx = idx-32;
+			const size_t nIdx = idx-32u;
 			if(nIdx >= rest.size()) {
-				rest.resize(nIdx+1, false);
+				rest.resize(nIdx+1u, false);
 			}
-			rest[nIdx-32] = false;
+			rest[nIdx-32u] = false;
 		}
 	}
 
 public:
-	inline BitVector(int b = 0) : threeTwo(b) {}
+	inline BitVector(unsigned int b = 0) : threeTwo(b) {}
 };
 
 #endif
