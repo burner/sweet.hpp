@@ -402,6 +402,29 @@ public:
 		sqlite3_prepare_v2(db, stmtStr.c_str(), stmtStr.size(), &stmt, NULL);
 		addParameter(t, tab, stmt);
 		step(stmt, stmtStr);
+		if(sqlite3_finalize(stmt) != SQLITE_OK) {
+			throw std::logic_error(std::string("Insert Statment:\"") +
+					stmtStr + "\" failed with error:\"" +
+					sqlite3_errmsg(db) + "\"");
+		}
+	}
+
+	template<typename S, typename It>
+	inline void emplace(It be, It en) {
+		SqlTable<S>& tab = S::table();
+		const std::string stmtStr(prepareStatment<S>());
+		sqlite3_stmt* stmt;
+		sqlite3_prepare_v2(db, stmtStr.c_str(), stmtStr.size(), &stmt, NULL);
+		std::for_each(be, en, [this,&stmt,&stmtStr,&tab] (S& it) {
+			addParameter(it,tab, stmt);						
+			step(stmt, stmtStr);
+			sqlite3_reset(stmt);
+		});
+		if(sqlite3_finalize(stmt) != SQLITE_OK) {
+			throw std::logic_error(std::string("Insert Statment:\"") +
+					stmtStr + "\" failed with error:\"" +
+					sqlite3_errmsg(db) + "\"");
+		}
 	}
 
 	template<typename S>
@@ -412,6 +435,11 @@ public:
 		sqlite3_prepare_v2(db, stmtStr.c_str(), stmtStr.size(), &stmt, NULL);
 		addParameter(t, tab, stmt);
 		step(stmt, stmtStr);
+		if(sqlite3_finalize(stmt) != SQLITE_OK) {
+			throw std::logic_error(std::string("Insert Statment:\"") +
+					stmtStr + "\" failed with error:\"" +
+					sqlite3_errmsg(db) + "\"");
+		}
 
 		return true;
 	}
