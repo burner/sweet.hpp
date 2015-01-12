@@ -9,6 +9,12 @@
 //#include <conv.hpp>
 #include <benchmark.hpp>
 
+#include <Wt/Dbo/Dbo>
+#include <Wt/Dbo/backend/Sqlite3>
+#include <Wt/Dbo/Session>
+
+namespace dbo = Wt::Dbo;
+
 class Person {
 public:
 	Person() {} // dummy
@@ -35,6 +41,22 @@ public:
 	std::string mail;
 	std::string www;
 	int64_t zip;
+
+	template<class Action>
+	void persist(Action& a) {
+		dbo::field(a, firstname, "firstname");
+		dbo::field(a, lastname, "lastname");
+		dbo::field(a, company, "company");
+		dbo::field(a, address, "address");
+		dbo::field(a, county, "county");
+		dbo::field(a, city, "city");
+		dbo::field(a, state, "state");
+		dbo::field(a, phoneWork, "phonework");
+		dbo::field(a, phonePrivat, "phoneprivate");
+		dbo::field(a, mail, "mail");
+		dbo::field(a, www, "www");
+		dbo::field(a, zip, "zip");
+	}
 
 	static SqlTable<Person>& table() {
 		static SqlTable<Person> tab = SqlTable<Person>::sqlTable("Person",
@@ -138,12 +160,57 @@ int main() {
 		//std::cout<<p.mail<<' ';
 		//std::cout<<p.www;
 		//std::cout<<std::endl;
-		//toDel = p;
+		toDel = p;
 	});
 	
 	s.stop();
 	std::cout<<"Iterating the persons of the db took "<<s.milli()
 		<<" msec"<<std::endl;
+
+	remove("testtable2_odb.db");
+	dbo::backend::Sqlite3 sqlite3("testtable2_odb.db");
+	dbo::Session session;
+	session.setConnection(sqlite3);
+	session.mapClass<Person>("person");
+	session.createTables();
+
+	sweet::Bench in2;
+	dbo::Transaction transaction(session);
+	for(auto& it : per) {
+		auto p(dbo::ptr<Person>(new Person(it)));
+		session.add(p);
+	}
+	transaction.commit();
+	in2.stop();
+	std::cout<<"Writting the persons to the db took "<<in2.milli()
+		<<" msec"<<std::endl;
+
+	sweet::Bench s2;
+	dbo::Transaction transaction2(session);
+
+	dbo::ptr<Person> toDel2;
+	typedef Wt::Dbo::collection< Wt::Dbo::ptr<Person> > Persons;
+	Persons ps = session.find<Person>();
+	for(auto& p : ps) {
+		//std::cout<<p.firstname<<' ';
+		//std::cout<<p.lastname<<' ';
+		//std::cout<<p.company<<' ';
+		//std::cout<<p.address<<' ';
+		//std::cout<<p.county<<' ';
+		//std::cout<<p.zip<<' ';
+		//std::cout<<p.state<<' ';
+		//std::cout<<p.phoneWork<<' ';
+		//std::cout<<p.phonePrivat<<' ';
+		//std::cout<<p.mail<<' ';
+		//std::cout<<p.www;
+		//std::cout<<std::endl;
+		toDel2 = p;
+	};
+	
+	s2.stop();
+	std::cout<<"Iterating the persons of the db took "<<s2.milli()
+		<<" msec"<<std::endl;
+
 
 	/*sel = db.select<Person>(
 		"Firstname=\"Danny\" and Lastname=\"Zeckzer\""
