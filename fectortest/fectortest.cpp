@@ -109,6 +109,21 @@ UNITTEST(ctor) {
 	}
 }
 
+UNITTEST(push_back_test1) {
+	sweet::Fector<int,4> f;
+	f.push_back(0);
+	f.push_back(1);
+	f.push_back(2);
+	f.push_back(3);
+
+	bool t = false;
+	try {
+		f.push_back(4);
+	} catch(std::out_of_range& e) {
+		t = true;
+	}
+	AS_T(t);
+}
 
 int z[128] = {102, 72, 44, 32, 120, 96, 103, 73, 126, 14, 116, 6, 53, 25, 36, 105, 
 	78, 90, 27, 101, 46, 77, 86, 1, 122, 75, 109, 20, 59, 31, 52, 23, 9, 16, 

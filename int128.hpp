@@ -44,6 +44,9 @@ int128 operator - ( const int128 & lhs, int32_t rhs );
 int128 operator / ( const int128 & x, const int128 & d );
 int128 operator / ( const int128 & x, uint64_t d );
 int128 operator / ( const int128 & x, int32_t d );
+int128 operator % ( const int128 & x, const int128 & d );
+int128 operator % ( const int128 & x, uint64_t d );
+int128 operator % ( const int128 & x, int32_t d );
 int128 operator += ( int128 & lhs, const int128 & rhs ) ;
 int128 operator += ( int128 & lhs, const int64_t & rhs ) ;
 int128 operator -= ( int128 & lhs, const int128 & rhs ) ;
@@ -149,6 +152,16 @@ struct int128 {
 		}
 
 		return result;
+	}
+
+	inline int128& operator++() {
+		*this += 1;
+		return *this;	
+	}
+
+	inline int128& operator--() {
+		*this -= 1;
+		return *this;	
 	}
 
 	inline int128(int8_t x) {
@@ -708,6 +721,25 @@ inline int128 operator / ( const int128 & x, uint64_t d ) {
 	rv = div1(x, t, 0);
 
 	return rv;
+}
+
+// Modulo operator
+
+inline int128 operator % ( const int128 & x, const int128 & d) {
+	int128 rv;
+
+	//rv = rv - (rv / ( d * d));
+	rv = x - (d * (x / d));
+
+	return rv;
+}
+
+inline int128 operator % ( const int128 & x, uint64_t d ) {
+	return x % int128(d);
+}
+
+inline int128 operator % ( const int128 & x, int32_t d ) {
+	return x % int128(d);
 }
 
 // Comparison operators

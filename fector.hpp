@@ -127,7 +127,7 @@ namespace sweet {
 		}
 
 		inline void push_back(const T& value) {
-			if(idx <= Capacity) {
+			if(idx < Capacity) {
 				this->data[idx] = value;
 				++idx;
 			} else {
@@ -136,7 +136,7 @@ namespace sweet {
 		}
 
 		inline void push_back(T&& value) {
-			if(idx <= Capacity) {
+			if(idx < Capacity) {
 				this->data[idx] = value;
 				++idx;
 			} else {
@@ -146,7 +146,7 @@ namespace sweet {
 
 		template<typename... Args>
 		inline void emplace(Args... args) {
-			if(idx <= Capacity) {
+			if(idx < Capacity) {
 				new (&this->data[idx]) T(args...);
 				++idx;
 			} else {
