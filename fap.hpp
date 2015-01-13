@@ -114,35 +114,35 @@ public:
 
 	// iterator
 
-	inline iterator begin() noexcept {
+	inline iterator begin() {
 		return iteratorCast(this->map.begin());
 	}
 
-	inline iterator end() noexcept {
+	inline iterator end() {
 		return iteratorCast(this->map.end());
 	}
 
-	inline const_iterator begin() const noexcept {
+	inline const_iterator begin() const {
 		return iteratorCast(this->map.begin());
 	}
 
-	inline const_iterator end() const noexcept {
+	inline const_iterator end() const {
 		return iteratorCast(this->map.end());
 	}
 
-	inline iterator rbegin() noexcept {
+	inline iterator rbegin() {
 		return iteratorCast(this->map.rbegin());
 	}
 
-	inline iterator rend() noexcept {
+	inline iterator rend() {
 		return iteratorCast(this->map.rend());
 	}
 
-	inline const_iterator rbegin() const noexcept {
+	inline const_iterator rbegin() const {
 		return iteratorCast(this->map.rbegin());
 	}
 
-	inline const_iterator rend() const noexcept {
+	inline const_iterator rend() const {
 		return iteratorCast(this->map.rend());
 	}
 

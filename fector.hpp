@@ -128,19 +128,19 @@ namespace sweet {
 
 		// capacity
 
-		inline bool empty() const {
+		inline bool empty() const noexcept {
 			return this->idx == 0;
 		}
 
-		inline size_t size() const {
+		inline size_t size() const noexcept {
 			return this->idx;
 		}
 
-		inline constexpr size_t max_size() const {
+		inline constexpr size_t max_size() const noexcept {
 			return Capacity;
 		}
 
-		inline constexpr size_t capacity() const {
+		inline constexpr size_t capacity() const noexcept {
 			return Capacity;
 		}
 
