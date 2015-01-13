@@ -9,6 +9,7 @@
 #include <benchmark.hpp>
 
 UNITTEST(insert) {
+	BENCH(insertBen);
 	enum {NumElem = 128};
 
 	std::random_device rd;
@@ -16,21 +17,29 @@ UNITTEST(insert) {
 	std::mt19937 gen(NumElem);
 	std::uniform_int_distribution<> dis(0, NumElem);
 
-	std::bitset<200> t;
+	for(size_t j = 1; j < NumElem; ++j) {
+		std::bitset<200> t;
+		sweet::Fap<int,size_t,200> store;
+		for(size_t i = 0; i < j; ++i) {
+			int v = dis(gen);
+			auto it(store.insert(std::make_pair(v,i)));
 
-	sweet::Fap<int,size_t,200> store;
-	for(size_t i = 0; i < NumElem; ++i) {
-		int v = dis(gen);
-		auto it(store.insert(std::make_pair(v,i)));
-
-		if(t[v]) {
-			AS_F(it.second);
-		} else {
-			AS_T(it.second);
-			AS_EQ(it.first->first, v);
-			AS_EQ(it.first->second, i);
-			t.set(v);
+			if(t[v]) {
+				AS_F(it.second);
+			} else {
+				AS_T(it.second);
+				AS_EQ(it.first->first, v);
+				AS_EQ(it.first->second, i);
+				t.set(v);
+			}
 		}
+		AS_T(store.size() > 0);
+
+		for(typename sweet::Fap<int,size_t,200>::const_iterator it = store.begin(); it != store.end();) {
+			it = store.erase(it);
+		}
+
+		AS_EQ(store.size(), 0u);
 	}
 }
 
@@ -89,6 +98,10 @@ UNITTEST(simple) {
 
 	auto jt = store.find(12);
 	AS_T(jt != store.end());
+
+	const auto store2 = store;
+	auto jt2 = store2.find(12);
+	AS_T(jt2 != store2.end());
 }
 
 int main() {

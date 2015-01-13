@@ -24,6 +24,7 @@ namespace sweet {
 			T dataT[Capacity];
 
 			inline Data() {}
+			inline Data(const Data&) {}
 			inline ~Data() {}
 		};
 
@@ -50,13 +51,13 @@ namespace sweet {
 			}
 		}
 
-		/*
 		inline Fector(const Fector& other) : idx(0) {
 			size_t otherSize = other.size();
 			for(size_t i = 0; i < otherSize; ++i) {
 				this->push_back(other[i]);
 			}
 		}
+		/*
 
 		inline Fector(Fector&& other) : idx(0) {
 			size_t otherSize = other.size();
@@ -151,6 +152,7 @@ namespace sweet {
 
 		inline void push_back(const T& value) {
 			if(idx < Capacity) {
+				new (&this->data.dataT[idx]) T();
 				this->data.dataT[idx] = value;
 				++idx;
 			} else {
@@ -160,6 +162,7 @@ namespace sweet {
 
 		inline void push_back(T&& value) {
 			if(idx < Capacity) {
+				new (&this->data.dataT[idx]) T();
 				this->data.dataT[idx] = std::move(value);
 				++idx;
 			} else {
