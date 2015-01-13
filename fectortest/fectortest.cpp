@@ -88,6 +88,37 @@ UNITTEST(eraseT1) {
 	}
 }
 
+sweet::Fector<int,32> getFector(int i) {
+	sweet::Fector<int,32> ret;
+	for(int j = 0; j < i; ++j) {
+		ret.push_back(j);
+	}
+	return ret;
+}
+
+UNITTEST(eraseT2) {
+	BENCH(eraseT2);
+	for(int i = 0; i < 32; ++i) {
+		for(int j = 0; j < i; ++j) {
+			auto fec = getFector(i);
+			auto oldSize = fec.size();
+			fec.erase(fec.begin()+j);
+			AS_EQ(oldSize, fec.size()+1);
+
+			int idx(0);
+			for(int k = 0; k < i-1;) {
+				if(idx == j) {
+					++k;
+				} else {
+					AS_EQ(fec[idx], k);
+					++k;
+					++idx;
+				}
+			}
+		}
+	}
+}
+
 UNITTEST(ctor) {
 	size_t cnt{8};
 	sweet::Fector<int,24> f(cnt, 1337);

@@ -18,31 +18,33 @@ public:
 
 private:
 	Compare less;
-	auto iteratorCast(typename Fector<value_type>::iterator it) {
+	iterator iteratorCast(typename Fector<value_type>::iterator it) {
 		return reinterpret_cast<iterator>(it);
 	}
 
-	auto iteratorCast(typename Fector<value_type>::const_iterator it) {
+	const_iterator iteratorCast(typename Fector<value_type>::const_iterator it) {
 		return reinterpret_cast<const_iterator>(it);
 	}
 
-	auto pointerCast(typename Fector<value_type>::pointer it) {
+	pointer pointerCast(typename Fector<value_type>::pointer it) {
 		return reinterpret_cast<pointer>(it);
 	}
 
-	auto pointerCast(typename Fector<value_type>::const_pointer it) {
+	const_pointer pointerCast(typename Fector<value_type>::const_pointer it) {
 		return reinterpret_cast<const_pointer>(it);
 	}
 
-	auto referenceCast(typename Fector<value_type>::reference it) {
+	reference referenceCast(typename Fector<value_type>::reference it) {
 		return reinterpret_cast<reference>(it);
 	}
 
-	auto referenceCast(typename Fector<value_type>::const_reference it) {
+	const_reference referenceCast(typename Fector<value_type>::const_reference it) {
 		return reinterpret_cast<const_reference>(it);
 	}
 
 public:
+
+	// insert
 
 	inline std::pair<iterator,bool> insert(const value_type& v) {
 		auto it = std::lower_bound(map.begin(), map.end(), v, [&](auto a, auto b) {
@@ -76,37 +78,53 @@ public:
 		}
 	}
 
+	// erase
+	
+	size_t erase(const K& key) {
+		auto it = this->find(key);
+		if(it != this->end()) {
+			this->map.erase(it);
+			return 1u;
+		} else {
+			return 0u;
+		}
+	}
+
+	iterator erase(const_iterator it) {
+		return this->map.erase(it);
+	}
+
 	// iterator
 
-	iterator begin() {
+	iterator begin() noexcept {
 		return iteratorCast(this->map.begin());
 	}
 
-	iterator end() {
+	iterator end() noexcept {
 		return iteratorCast(this->map.end());
 	}
 
-	const_iterator begin() const {
+	const_iterator begin() const noexcept {
 		return iteratorCast(this->map.begin());
 	}
 
-	const_iterator end() const {
+	const_iterator end() const noexcept {
 		return iteratorCast(this->map.end());
 	}
 
-	iterator rbegin() {
+	iterator rbegin() noexcept {
 		return iteratorCast(this->map.rbegin());
 	}
 
-	iterator rend() {
+	iterator rend() noexcept {
 		return iteratorCast(this->map.rend());
 	}
 
-	const_iterator rbegin() const {
+	const_iterator rbegin() const noexcept {
 		return iteratorCast(this->map.rbegin());
 	}
 
-	const_iterator rend() const {
+	const_iterator rend() const noexcept {
 		return iteratorCast(this->map.rend());
 	}
 

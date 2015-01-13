@@ -19,12 +19,35 @@ namespace sweet {
 		typedef const T* const_iterator;
 
 	private:
-		T data[Capacity+1];
+		union Data {
+			char data[sizeof(T)*Capacity];
+			T dataT[Capacity];
+
+			inline Data() {}
+			inline ~Data() {}
+		};
+
+		Data data;
+
 		size_t idx; 
+
+		/*T* dataT() {
+			return reinterpret_cast<T*>(this->data);
+		}
+
+		const T* dataT() const {
+			return reinterpret_cast<const T*>(this->data);
+		}*/
 
 	public:
 		// constructor
 		inline Fector() : idx(0) {
+		}
+
+		inline ~Fector() {
+			while(this->size()) {
+				this->pop_back();
+			}
 		}
 
 		/*
@@ -59,16 +82,16 @@ namespace sweet {
 		//access
 		
 		inline T& operator[](const size_t i) {
-			return this->data[i];
+			return this->data.dataT[i];
 		}
 
 		inline const T& operator[](const size_t i) const {
-			return this->data[i];
+			return this->data.dataT[i];
 		}
 
 		inline T& at(const size_t i) {
 			if(i < this->idx) {
-				return this->data[i];
+				return this->data.dataT[i];
 			} else {
 				throw std::out_of_range(format("at index(%u) out of range size(%u)",
 					i, this->size())
@@ -78,7 +101,7 @@ namespace sweet {
 
 		inline const T& at(const size_t i) const {
 			if(i < this->idx) {
-				return this->data[i];
+				return this->data.dataT[i];
 			} else {
 				throw std::out_of_range(format("at index(%u) out of range size(%u)",
 					i, this->size())
@@ -87,19 +110,19 @@ namespace sweet {
 		}
 
 		inline T& front() {
-			return this->data[0u];
+			return this->data.dataT[0u];
 		}
 
 		inline const T& front() const {
-			return this->data[0u];
+			return this->data.dataT[0u];
 		}
 
 		inline T& back() {
-			return this->data[idx-1];
+			return this->data.dataT[idx-1];
 		}
 
 		inline const T& back() const {
-			return this->data[idx-1];
+			return this->data.dataT[idx-1];
 		}
 
 		// capacity
@@ -128,7 +151,7 @@ namespace sweet {
 
 		inline void push_back(const T& value) {
 			if(idx < Capacity) {
-				this->data[idx] = value;
+				this->data.dataT[idx] = value;
 				++idx;
 			} else {
 				throw std::out_of_range("fector full can not push_back");
@@ -137,7 +160,7 @@ namespace sweet {
 
 		inline void push_back(T&& value) {
 			if(idx < Capacity) {
-				this->data[idx] = value;
+				this->data.dataT[idx] = std::move(value);
 				++idx;
 			} else {
 				throw std::out_of_range("fector full can not push_back(&&)");
@@ -147,7 +170,7 @@ namespace sweet {
 		template<typename... Args>
 		inline void emplace(Args... args) {
 			if(idx < Capacity) {
-				new (&this->data[idx]) T(args...);
+				new (&this->data.dataT[idx]) T(args...);
 				++idx;
 			} else {
 				throw std::out_of_range("fector full can not push_back(&&)");
@@ -155,7 +178,7 @@ namespace sweet {
 		}
 
 		inline void pop_back() {
-			this->data[this->idx - 1].~T();
+			this->data.dataT[this->idx - 1].~T();
 			--this->idx;
 		}
 
@@ -194,35 +217,35 @@ namespace sweet {
 		// iterator
 		
 		iterator begin() {
-			return &this->data[0];
+			return &this->data.dataT[0];
 		}
 
 		iterator end() {
-			return &this->data[this->idx];
+			return &this->data.dataT[this->idx];
 		}
 
 		const_iterator begin() const {
-			return &this->data[0];
+			return &this->data.dataT[0];
 		}
 
 		const_iterator end() const {
-			return &this->data[this->idx];
+			return &this->data.dataT[this->idx];
 		}
 
 		iterator rbegin() {
-			return &this->data[this->idx-1u];
+			return &this->data.dataT[this->idx-1u];
 		}
 
 		iterator rend() {
-			return &this->data[0];
+			return &this->data.dataT[0];
 		}
 
 		const_iterator rbegin() const {
-			return &this->data[this->idx-1u];
+			return &this->data.dataT[this->idx-1u];
 		}
 
 		const_iterator rend() const {
-			return &this->data[0];
+			return &this->data.dataT[0];
 		}
 	};
 }

@@ -65,7 +65,7 @@ auto getMap(int seed, std::map<int,size_t>& store) {
 }
 
 UNITTEST(speed) {
-	for(int i = 0; i < 1024*32; ++i) {
+	for(int i = 0; i < 1024*1; ++i) {
 		//AS_EQ(getFap(i), getMap(i));
 		std::map<int,size_t> map;
 		sweet::Fap<int,size_t,1024> fap;
