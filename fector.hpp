@@ -3,6 +3,7 @@
 #include <stdexcept>
 #include <iostream>
 #include <new>
+#include <type_traits>
 #include <format.hpp>
 
 namespace sweet {
@@ -46,8 +47,10 @@ namespace sweet {
 		}
 
 		inline ~Fector() {
-			while(this->size()) {
-				this->pop_back();
+			if(std::is_class<T>::value) {
+				while(this->size()) {
+					this->pop_back();
+				}
 			}
 		}
 
@@ -234,6 +237,15 @@ namespace sweet {
 		const_iterator end() const {
 			return &this->data.dataT[this->idx];
 		}
+
+		const_iterator cbegin() const {
+			return &this->data.dataT[0];
+		}
+
+		const_iterator cend() const {
+			return &this->data.dataT[this->idx];
+		}
+
 
 		iterator rbegin() {
 			return &this->data.dataT[this->idx-1u];

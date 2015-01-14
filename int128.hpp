@@ -46,7 +46,9 @@ int128 operator / ( const int128 & x, uint64_t d );
 int128 operator / ( const int128 & x, int32_t d );
 int128 operator % ( const int128 & x, const int128 & d );
 int128 operator % ( const int128 & x, uint64_t d );
+int128 operator % ( const int128 & x, int64_t d );
 int128 operator % ( const int128 & x, int32_t d );
+int128 operator % ( const int128 & x, uint32_t d );
 int128 operator += ( int128 & lhs, const int128 & rhs ) ;
 int128 operator += ( int128 & lhs, const int64_t & rhs ) ;
 int128 operator -= ( int128 & lhs, const int128 & rhs ) ;
@@ -55,6 +57,17 @@ int128 operator *= ( int128 & lhs, const int128 & rhs ) ;
 int128 operator *= ( int128 & lhs, const int64_t & rhs ) ;
 int128 operator /= ( int128 & lhs, const int128 & rhs ) ;
 int128 operator /= ( int128 & lhs, const int64_t & rhs ) ;
+int operator < ( const int128 & lhs, const int128 & rhs );
+inline int operator < ( const int128 & lhs, int32_t rhs );
+inline int operator <= ( const int128 & lhs, const int128 & rhs );
+inline int operator <= ( const int128 & lhs, int32_t rhs );
+inline int operator == ( const int128 & lhs, const int128 & rhs );
+inline int operator == ( const int128 & lhs, int32_t rhs );
+inline int operator != ( const int128 & lhs, const int128 & rhs );
+inline int operator != ( const int128 & lhs, int32_t rhs );
+inline int operator > ( const int128 & lhs, const int128 & rhs );
+inline int operator > ( const int128 & lhs, int32_t rhs );
+inline int operator >= ( const int128 & lhs, const int128 & rhs );
 
 struct int128 {
 	int64_t high;
@@ -281,6 +294,29 @@ struct int128 {
 		size_t l(log10(this->low));
 		size_t h(log10(std::abs(this->high)));
 		return l+h;
+	}
+
+	template<typename T>
+	inline int128 pow(const T& t) const {
+		bool pos(true);
+		int128 r(*this);
+		int128 ti(t);
+
+		if(r < 0) {
+			r = r * -1;
+			pos = false;
+		}
+
+		while(ti > 1) {
+			r *= *this;
+			--ti;
+		}
+
+		if(!pos) {
+			return r * -1;
+		} else {
+			return r;
+		}
 	}
 };
 
@@ -739,6 +775,14 @@ inline int128 operator % ( const int128 & x, uint64_t d ) {
 }
 
 inline int128 operator % ( const int128 & x, int32_t d ) {
+	return x % int128(d);
+}
+
+inline int128 operator % ( const int128 & x, int64_t d ) {
+	return x % int128(d);
+}
+
+inline int128 operator % ( const int128 & x, uint32_t d ) {
 	return x % int128(d);
 }
 

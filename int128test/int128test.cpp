@@ -4,12 +4,25 @@
 #include <conv.hpp>
 
 UNITTEST(modTest) {
-	for(int i = 1; i < 1<<24; ++i) {
-		for(int j = 1; j < 1<<24; ++j) {
+	for(int i = 1; i < 1<<10; ++i) {
+		for(int j = 1; j < 1<<10; ++j) {
 			auto r(int128(i) % int128(j));
 			AS_EQ_C(r, i % j, [&]() {
 				format(std::cout, "%u %u int128(%s) int(%u)\n", i, j, r, i%j);
 			});
+		}
+	}
+}
+
+UNITTEST(pow) {
+	for(int i = 1; i < 5; ++i) {
+		for(int j = 1; j < 5; ++j) {
+			int128 ii(i);
+			int128 ji(j);
+			int128 r1 = ii.pow(j);
+			int128 r2 = ii.pow(ji);
+			AS_EQ(r1, pow(i,j));
+			AS_EQ(r2, pow(i,j));
 		}
 	}
 }
