@@ -20,8 +20,20 @@ int fun2_5(int in) {
 	return in * 127 % 32;
 }
 
+void findTest() {
+	std::vector<int> a;
+	for(int i = 0; i < 128*128; ++i) {
+		a.push_back(i);
+	}
+
+	auto i = sweet::find(a.begin(), a.end(), 1337, 1);
+	if(*i != 1337) {
+		std::cout<<"Found something wrong "<<*i<<std::endl;
+	}
+}
+
 int main() {
-	std::vector<int> v(1, 1);
+	/*std::vector<int> v(1, 1);
 
 	Bench a;
 	sweet::for_each(v.begin(), v.end(), [](int& a) {
@@ -49,7 +61,9 @@ int main() {
 
 		LOG("sweet::map_reduce took %u milliseconds", b.milli());
 		LOG("transform took %u milliseconds", c.milli());
-	}
+	}*/
+
+	findTest();
 
 	//LOG("v.size(%u) rslt.size(%u)", v.size(), rslt.size());
 

@@ -1,12 +1,12 @@
 // LGPL 3 or higher Robert Burner Schadek rburners@gmail.com
-#ifndef SWEET_PARALLEL
-#define SWEET_PARALLEL
+#pragma once
 
 #include <algorithm>
 #include <vector>
 #include <thread>
 #include <iterator>
 #include <mutex>
+#include <atomic>
 #include <unistd.h>
 
 namespace sweet {
@@ -156,6 +156,44 @@ OIterator mapReduce(Iterator first, Iterator second, OIterator out,
 	return out;
 }
 
-} // namespace css
+template<typename Iterator, typename T>
+Iterator find(Iterator begin, Iterator end, const T& value, 
+		size_t numThreads = getNumberOfCores()) 
+{
+	size_t curSize = std::distance(begin, end);
+	size_t advanceSize = curSize/numThreads;
+	if(advanceSize == 0) {
+		++advanceSize;
+	}
 
-#endif
+	std::atomic_bool die(false);
+	std::vector<std::thread> jobs;
+	jobs.reserve(numThreads);
+
+	Iterator cur = begin;
+	Iterator found = end;
+
+	for(size_t i = 0; i < numThreads && cur != end; ++i) {
+		Iterator next = cur;
+		std::advance(next, advanceSize);
+
+		jobs.push_back(std::thread([&](Iterator be, Iterator en) {
+			for(; be != en && !die; ++be) {
+				if(*be == value) {
+					found = be;
+					die = true;
+					break;
+				}
+			}
+		}, cur, next));
+		cur = next;
+	}
+
+	for(auto& it : jobs) {
+		it.join();
+	}
+
+	return found;
+}
+
+} // namespace sweet
