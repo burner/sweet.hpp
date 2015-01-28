@@ -189,7 +189,10 @@ namespace sweet {
 		}
 
 		inline iterator insert(iterator it, const T& value) {
-			if(idx <= Capacity) {
+			if(this->empty()) {
+				this->push_back(value);
+				return this->begin();
+			} else if(idx <= Capacity) {
 				auto en(this->end());
 				do {
 					auto enm = en;

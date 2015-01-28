@@ -60,6 +60,34 @@ UNITTEST(insertT) {
 	}
 }
 
+UNITTEST(insertT2) {
+	sweet::Fector<short,20> f;
+	f.insert(f.begin(), 1);
+	AS_EQ(f[0], 1);
+	AS_EQ(*f.begin(), 1);
+
+	auto it = std::lower_bound(f.begin(), f.end(), 0);
+	f.insert(it, 0);
+	AS_EQ(f[0], 0);
+	AS_EQ(*f.begin(), 0);
+	AS_EQ(f[1], 1);
+	AS_EQ(*(f.begin()+1), 1);
+}
+
+UNITTEST(insertT3) {
+	sweet::Fector<short,20> f;
+	f.insert(f.end(), 1);
+	AS_EQ(f[0], 1);
+	AS_EQ(*f.begin(), 1);
+
+	auto it = std::lower_bound(f.begin(), f.end(), 0);
+	f.insert(it, 0);
+	AS_EQ(f[0], 0);
+	AS_EQ(*f.begin(), 0);
+	AS_EQ(f[1], 1);
+	AS_EQ(*(f.end()-1), 1);
+}
+
 UNITTEST(eraseT1) {
 	sweet::Fector<int,32> f;
 	for(int i = 0; i < 32; ++i) f.push_back(i);

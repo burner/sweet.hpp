@@ -156,8 +156,24 @@ OIterator mapReduce(Iterator first, Iterator second, OIterator out,
 	return out;
 }
 
+template<typename T>
+struct FindEqual {
+	const T& value;
+	inline FindEqual(const T& v) : value(v) {}
+	inline bool operator()(const T& other) {
+		return this->value == other;
+	}
+};
+
 template<typename Iterator, typename T>
 Iterator find(Iterator begin, Iterator end, const T& value, 
+		size_t numThreads = getNumberOfCores()) 
+{
+	return find_if(begin, end, FindEqual<T>(value), numThreads);
+}
+
+template<typename Iterator, typename Unary>
+Iterator find_if(Iterator begin, Iterator end, Unary& pred, 
 		size_t numThreads = getNumberOfCores()) 
 {
 	size_t curSize = std::distance(begin, end);
@@ -179,7 +195,7 @@ Iterator find(Iterator begin, Iterator end, const T& value,
 
 		jobs.push_back(std::thread([&](Iterator be, Iterator en) {
 			for(; be != en && !die; ++be) {
-				if(*be == value) {
+				if(pred(*be)) {
 					found = be;
 					die = true;
 					break;
