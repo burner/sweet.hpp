@@ -43,7 +43,7 @@ UNITTEST(insert) {
 	}
 }
 
-auto getFap(int seed, sweet::Fap<int,size_t,1024>& store) {
+sweet::Fap<int,size_t,1024> getFap(int seed, sweet::Fap<int,size_t,1024>& store) {
 	BENCH(benchFap);
 	enum {NumElem = 1023};
     std::mt19937 rgen(seed);
@@ -58,7 +58,7 @@ auto getFap(int seed, sweet::Fap<int,size_t,1024>& store) {
 	return store;
 }
 
-auto getMap(int seed, std::map<int,size_t>& store) {
+std::map<int,size_t> getMap(int seed, std::map<int,size_t>& store) {
 	BENCH(benchMap);
 	enum {NumElem = 1023};
     std::mt19937 rgen(seed);
@@ -81,8 +81,11 @@ UNITTEST(speed) {
 		getFap(i,fap);
 		getMap(i,map);
 
-		AS_T(std::equal(fap.begin(), fap.end(), map.begin(), map.end(), 
-			[](const auto& a, const auto& b) {
+		//AS_T(std::equal(fap.begin(), fap.end(), map.begin(), map.end(), 
+		AS_T(std::equal(fap.begin(), fap.end(), map.begin(),
+			[](const std::pair<const int,size_t>& a, 
+				const std::pair<const int,size_t>& b) 
+			{
 				return a.first == b.first;
 			}
 		));

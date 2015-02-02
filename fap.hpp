@@ -47,9 +47,11 @@ public:
 	// insert
 
 	inline std::pair<iterator,bool> insert(const value_type& v) {
-		auto it = std::lower_bound(map.begin(), map.end(), v, [&](auto a, auto b) {
-			return less(a.first,b.first);
-		});
+		auto it = std::lower_bound(map.begin(), map.end(), v, 
+			[&](const std::pair<K,V>& a, const std::pair<K,V>& b) {
+				return less(a.first,b.first);
+			}
+		);
 
 		if(it == this->map.end()) {
 			this->map.push_back(v);
@@ -65,9 +67,11 @@ public:
 	// search
 	
 	inline iterator find(const K& key) {
-		auto it = std::lower_bound(map.begin(), map.end(), key, [&](auto a, auto b) {
-			return less(a.first,b);
-		});
+		auto it = std::lower_bound(map.begin(), map.end(), key, 
+			[&](const std::pair<const K,V>& a, const K& b) {
+				return less(a.first,b);
+			}
+		);
 
 		if(it == this->map.end()) {
 			return iteratorCast(it);
@@ -79,9 +83,11 @@ public:
 	}
 
 	inline const_iterator find(const K& key) const {
-		auto it = std::lower_bound(map.begin(), map.end(), key, [&](auto a, auto b) {
-			return less(a.first,b);
-		});
+		auto it = std::lower_bound(map.begin(), map.end(), key, 
+			[&](const std::pair<K,V>& a, const K& b) {
+				return less(a.first,b);
+			}
+		);
 
 		if(it == this->map.end()) {
 			return iteratorCast(it);
