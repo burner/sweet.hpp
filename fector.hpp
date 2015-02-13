@@ -173,6 +173,18 @@ namespace sweet {
 			}
 		}
 
+		inline void push_backUnsafe(const T& value) {
+			new (&this->data.dataT[idx]) T();
+			this->data.dataT[idx] = value;
+			++idx;
+		}
+
+		inline void push_backUnsafe(T&& value) {
+			new (&this->data.dataT[idx]) T();
+			this->data.dataT[idx] = std::move(value);
+			++idx;
+		}
+
 		template<typename... Args>
 		inline void emplace(Args... args) {
 			if(idx < Capacity) {

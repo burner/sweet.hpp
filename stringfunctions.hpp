@@ -8,6 +8,8 @@ Author: Robert "burner" Schadek rburners@gmail.com License: LGPL 3 or higher
 #include <sstream>
 #include <iostream>
 #include <vector>
+#include <emmintrin.h>
+#include <immintrin.h>
 
 #include <conv.hpp>
 
@@ -50,6 +52,64 @@ inline std::string &rtrim(std::string &s) {
 // trim from both ends
 inline std::string &trim(std::string &s) {
 	return ltrim(rtrim(s));
+}
+
+}
+
+namespace sweet {
+
+inline bool stringCmpNaive(const std::string& a, const std::string& b) {
+	const size_t aLen = a.size();
+	const size_t bLen = b.size();
+
+	if(aLen != bLen) {
+		return false;
+	}
+
+	for(size_t i = 0; i < aLen; ++i) {
+		if(a[i] != b[i]) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
+inline bool stringCmpSSE(const std::string& a, const std::string& b) {
+	const size_t aLen = a.size();
+	const size_t bLen = b.size();
+
+	if(aLen != bLen) {
+		return false;
+	}
+
+	const char* aPtr = a.c_str();
+	const char* bPtr = b.c_str();
+
+	// _mm_cmpeq_epi8
+	// _mm_lddqu_si128
+	
+	size_t i = 0;
+	for(; aLen - i > 16; i += 16u) {
+		__m128i a16 = _mm_lddqu_si128(reinterpret_cast<const __m128i*>(aPtr));
+		__m128i b16 = _mm_lddqu_si128(reinterpret_cast<const __m128i*>(bPtr));
+		__m128i rslt = _mm_cmpeq_epi8(a16, b16);
+		const auto vmask = _mm_movemask_epi8(rslt);
+		if(vmask != 0xFFFF) {
+			return false;
+		}
+
+		aPtr += 16;
+		bPtr += 16;
+	}
+
+	for(; i < aLen; ++i) {
+		if(a[i] != b[i]) {
+			return false;
+		}
+	}
+
+	return true;
 }
 
 }
