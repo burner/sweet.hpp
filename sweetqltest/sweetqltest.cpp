@@ -142,7 +142,7 @@ int main() {
 	db.insert<Person>(per.begin(), per.end());
 	insert.stop();
 	std::cout<<"Writting the persons to the db took "<<insert.milli()
-		<<" msec"<<std::endl;
+		<<" msec SWEETQL"<<std::endl;
 
 	sweet::Bench s;
 	Person toDel;
@@ -165,7 +165,7 @@ int main() {
 	
 	s.stop();
 	std::cout<<"Iterating the persons of the db took "<<s.milli()
-		<<" msec"<<std::endl;
+		<<" msec SWEETQL"<<std::endl;
 
 	remove("testtable2_odb.db");
 	dbo::backend::Sqlite3 sqlite3("testtable2_odb.db");
@@ -183,7 +183,7 @@ int main() {
 	transaction.commit();
 	in2.stop();
 	std::cout<<"Writting the persons to the db took "<<in2.milli()
-		<<" msec"<<std::endl;
+		<<" msec WT::DBO"<<std::endl;
 
 	sweet::Bench s2;
 	dbo::Transaction transaction2(session);
@@ -209,7 +209,7 @@ int main() {
 	
 	s2.stop();
 	std::cout<<"Iterating the persons of the db took "<<s2.milli()
-		<<" msec"<<std::endl;
+		<<" msec WT::DBO"<<std::endl;
 
 
 	/*sel = db.select<Person>(
