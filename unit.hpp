@@ -98,18 +98,21 @@ int main() {
 PP_HAS_ARGS_SOURCE())
 
 #define __UTEST_NOTEST_ONE(test_name) \
-class test_name##_test_class : public sweet::Unit::Unittest { virtual void nevercall(); \
+class test_name##_test_class : public sweet::Unit::Unittest { \
+	virtual void nevercall(const size_t, size_t&); \
 public: \
-test_name##_test_class() : sweet::Unit::Unittest(#test_name,__FILE__,__LINE__) {} \
+	test_name##_test_class() : sweet::Unit::Unittest(#test_name,__FILE__,__LINE__) {} \
 } static test_name##_test_class_impl; \
-void test_name##_test_class::nevercall()
+void test_name##_test_class::nevercall(const size_t __cnt, size_t& __localCnt)
 
 #define __UTEST_NOTEST_MULTI(test_name,...) \
-class test_name##_test_class : public sweet::Unit::Unittest { virtual void nevercall(); \
+class test_name##_test_class : public sweet::Unit::Unittest { \
+	virtual void nevercall(const size_t __cnt, size_t& __localCnt); \
 public: \
 test_name##_test_class() : sweet::Unit::Unittest(#test_name,__FILE__,__LINE__,\
-__VA_ARGS__) {}  } static test_name##_test_class_impl; \
-void test_name##_test_class::nevercall()
+	__VA_ARGS__) {} \
+} static test_name##_test_class_impl; \
+void test_name##_test_class::nevercall(const size_t __cnt, size_t& __localCnt)
 
 #define __UTEST_NOTEST_DISAMBIGUATE2(has_args, ...) __UTEST_NOTEST_ \
 ## has_args (__VA_ARGS__)
@@ -120,24 +123,29 @@ __VA_ARGS__), __VA_ARGS__)
 
 
 #define __UTEST_ONE(test_name) \
-class test_name##_test_class : public sweet::Unit::Unittest { virtual void run_impl(); \
+class test_name##_test_class : public sweet::Unit::Unittest { \
+   	virtual void run_impl(const size_t __cnt, size_t& __localCnt); \
 public: \
-test_name##_test_class() : sweet::Unit::Unittest(#test_name,__FILE__,__LINE__) {} \
+	test_name##_test_class() : sweet::Unit::Unittest(#test_name,__FILE__,__LINE__) {} \
 } static test_name##_test_class_impl; \
-void test_name##_test_class::run_impl()
+void test_name##_test_class::run_impl(const size_t __cnt, size_t& __localCnt)
 
 #define __UTEST_MULTI(test_name,...) \
-class test_name##_test_class : public sweet::Unit::Unittest { virtual void run_impl(); \
+class test_name##_test_class : public sweet::Unit::Unittest { \
+	virtual void run_impl(const size_t __cnt, size_t& __localCnt); \
 public: \
-test_name##_test_class() : sweet::Unit::Unittest(#test_name,__FILE__,__LINE__,\
-__VA_ARGS__) {} } static test_name##_test_class_impl; \
-void test_name##_test_class::run_impl()
+	test_name##_test_class() : \
+		sweet::Unit::Unittest(#test_name,__FILE__,__LINE__, __VA_ARGS__) { \
+	} \
+} static test_name##_test_class_impl; \
+void test_name##_test_class::run_impl(const size_t __cnt, size_t& __localCnt)
+
+#define SECTION(sectionName) {}
 
 #define __UTEST_DISAMBIGUATE2(has_args, ...) __UTEST_ ## has_args (__VA_ARGS__)
 #define __UTEST_DISAMBIGUATE(has_args, ...) __UTEST_DISAMBIGUATE2(has_args, \
 __VA_ARGS__)
 #define __UTEST(...) __UTEST_DISAMBIGUATE(PP_HAS_ARGS(__VA_ARGS__), __VA_ARGS__)
-
 
 #ifdef SWEET_NO_UNITTEST
 #define UNITTEST(...) __UTEST_NOTEST(__VA_ARGS__)
@@ -377,14 +385,28 @@ namespace Unit {
 		}
 
 #ifdef SWEET_NO_UNITTEST
-		virtual void run_impl() {}
-		virtual void nevercall() = 0;
+		virtual void run_impl(const size_t,size_t&) {}
+		virtual void nevercall(const size_t,size_t&) = 0;
 #else
-		virtual void run_impl() = 0;
+		virtual void run_impl(const size_t,size_t&) = 0;
 #endif
 
 		inline bool run() {
-			run_impl();
+			size_t localCnt = 0;
+			run_impl(0, localCnt);
+
+			if(errors_) {
+				return errors_;
+			}
+
+			const size_t numSections = localCnt+1;
+			for(size_t i = 1; i < numSections; ++i) {
+				run_impl(i, localCnt);
+
+				if(errors_) {
+					return errors_;
+				}
+			}
 			return errors_;
 		}
 
