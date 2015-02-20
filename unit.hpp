@@ -143,7 +143,7 @@ void test_name##_test_class::run_impl(const size_t __cnt, size_t& __localCnt)
 // Section
 
 #define SECTION(secNameUnit) ++__localCnt; this->sectionName = secNameUnit; \
-if(__cnt == this->sectionsCnt)
+if(__localCnt == this->sectionsCnt)
 
 // Section End
 
