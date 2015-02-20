@@ -38,6 +38,10 @@ UNITTEST(magic) {
 
 UNITTEST(foo, 66) {
 	AS_T(4==4);
+
+	SECTION("someSection") {
+		std::cout<<"\tInside section 1"<<std::endl;
+	}
 }
 
 UNITTEST(foon, 66666, "-O3") {

@@ -140,7 +140,12 @@ public: \
 } static test_name##_test_class_impl; \
 void test_name##_test_class::run_impl(const size_t __cnt, size_t& __localCnt)
 
-#define SECTION(sectionName) {}
+// Section
+
+#define SECTION(secNameUnit) ++__localCnt; this->sectionName = secNameUnit; \
+if(__cnt == this->sectionsCnt)
+
+// Section End
 
 #define __UTEST_DISAMBIGUATE2(has_args, ...) __UTEST_ ## has_args (__VA_ARGS__)
 #define __UTEST_DISAMBIGUATE(has_args, ...) __UTEST_DISAMBIGUATE2(has_args, \
@@ -393,6 +398,7 @@ namespace Unit {
 
 		inline bool run() {
 			size_t localCnt = 0;
+			this->sectionsCnt = 0;
 			run_impl(0, localCnt);
 
 			if(errors_) {
@@ -401,6 +407,8 @@ namespace Unit {
 
 			const size_t numSections = localCnt+1;
 			for(size_t i = 1; i < numSections; ++i) {
+				localCnt = 0;
+				this->sectionsCnt = i;
 				run_impl(i, localCnt);
 
 				if(errors_) {
@@ -419,6 +427,8 @@ namespace Unit {
 		const char* name_;
 		const char* info;
 		int numRounds;
+		size_t sectionsCnt;
+		std::string sectionName;
 
 	private:
 		int errors_;
