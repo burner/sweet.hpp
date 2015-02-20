@@ -20,8 +20,17 @@ UNITTEST(fancyname) {
 	AS_T(true)
 	AS_T_MSG(true, format("foo %d", a))
 	LOG("Hello");
-	AS_T(false)
 	LOG();
+
+	// unittests with sections are executed |sections|+1 times
+	// every run a new section will be executed
+	SECTION("someSection") {
+		std::cout<<"\tInside section 1"<<std::endl;
+	}
+
+	SECTION("someOtherSection") {
+		std::cout<<"\tInside section 2"<<std::endl;
+	}
 }
 
 UNITTEST(magic) {
@@ -38,10 +47,6 @@ UNITTEST(magic) {
 
 UNITTEST(foo, 66) {
 	AS_T(4==4);
-
-	SECTION("someSection") {
-		std::cout<<"\tInside section 1"<<std::endl;
-	}
 }
 
 UNITTEST(foon, 66666, "-O3") {

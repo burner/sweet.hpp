@@ -18,6 +18,16 @@ UNITTEST(fancyname) {
 	if(AS_T(true)) {
 		// do a test that is only possible if the previous test passed
 	}
+
+	// unittests with sections are executed |sections|+1 times
+	// every run a new section will be executed
+	SECTION("someSection") {
+		std::cout<<"\tInside section 1"<<std::endl;
+	}
+
+	SECTION("someOtherSection") {
+		std::cout<<"\tInside section 2"<<std::endl;
+	}
 }
 
 UNITTEST(foo, 66) {
@@ -87,7 +97,7 @@ int main() {
 #define REF5(a,b,c,d,e) REF4(a,b,c,d), __sweet_value_E(__sweetGenerator)
 #define REF6(a,b,c,d,e,f) REF5(a,b,c,d,e), __sweet_value_F(__sweetGenerator)
 #define REF7(a,b,c,d,e,f,g) REF6(a,b,c,d,e,f), __sweet_value_G(__sweetGenerator)
-#define REF8(a,b,c,d,e,f,g, h) REF7(a,b,c,d,e,f,g), __sweet_value_H(__sweetGenerator)
+#define REF8(a,b,c,d,e,f,g,h) REF7(a,b,c,d,e,f,g), __sweet_value_H(__sweetGenerator)
 
 // RANDOMIZED_TEST macros END
 
