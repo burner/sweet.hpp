@@ -134,21 +134,25 @@ __VA_ARGS__), __VA_ARGS__)
 
 #define __UTEST_ONE(test_name) \
 class test_name##_test_class : public sweet::Unit::Unittest { \
-   	virtual void run_impl(const size_t __cnt __attribute__((unused)), size_t& __localCnt __attribute__((unused))); \
+   	virtual void run_impl(const size_t __cnt __attribute__((unused)), \
+		size_t& __localCnt __attribute__((unused))); \
 public: \
 	test_name##_test_class() : sweet::Unit::Unittest(#test_name,__FILE__,__LINE__) {} \
 } static test_name##_test_class_impl; \
-void test_name##_test_class::run_impl(const size_t __cnt __attribute__((unused)), size_t& __localCnt __attribute__((unused)))
+void test_name##_test_class::run_impl(const size_t __cnt __attribute__((unused)), \
+	size_t& __localCnt __attribute__((unused)))
 
 #define __UTEST_MULTI(test_name,...) \
 class test_name##_test_class : public sweet::Unit::Unittest { \
-	virtual void run_impl(const size_t __cnt __attribute__((unused)), size_t& __localCnt __attribute__((unused))); \
+	virtual void run_impl(const size_t __cnt __attribute__((unused)), \
+		size_t& __localCnt __attribute__((unused))); \
 public: \
 	test_name##_test_class() : \
 		sweet::Unit::Unittest(#test_name,__FILE__,__LINE__, __VA_ARGS__) { \
 	} \
 } static test_name##_test_class_impl; \
-void test_name##_test_class::run_impl(const size_t __cnt __attribute__((unused)), size_t& __localCnt __attribute__((unused)))
+void test_name##_test_class::run_impl(const size_t __cnt __attribute__((unused)), \
+	size_t& __localCnt __attribute__((unused)))
 
 // Section
 
