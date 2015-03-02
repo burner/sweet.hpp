@@ -3,7 +3,7 @@
 #include <ifstream>
 
 namespace sweet {
-int checkErrorBits(ifstream& f) {
+inline int checkErrorBits(ifstream& f) {
 	int stop = 0;
 	if (f.eof()) {
 		perror("stream eofbit. error state");
