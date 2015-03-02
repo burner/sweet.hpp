@@ -88,8 +88,10 @@ inline bool stringCmpSSE(const std::string& a, const std::string& b) {
 
 	// _mm_cmpeq_epi8
 	// _mm_lddqu_si128
-	
+	//
 	size_t i = 0;
+
+#ifdef __SSE3__
 	for(; aLen - i > 16; i += 16u) {
 		__m128i a16 = _mm_lddqu_si128(reinterpret_cast<const __m128i*>(aPtr));
 		__m128i b16 = _mm_lddqu_si128(reinterpret_cast<const __m128i*>(bPtr));
@@ -102,6 +104,7 @@ inline bool stringCmpSSE(const std::string& a, const std::string& b) {
 		aPtr += 16;
 		bPtr += 16;
 	}
+#endif
 
 	for(; i < aLen; ++i) {
 		if(a[i] != b[i]) {
