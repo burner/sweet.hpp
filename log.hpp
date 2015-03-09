@@ -38,9 +38,9 @@ namespace sweet {
 
 		unsigned destructorCount;
 
-		inline LoggerPayload(const unsigned logLevel, const int line, 
-				const char* filename, const char* prettyFunc) : logLevel(logLevel),
-				line(line), filename(filename), prettyFunc(prettyFunc),
+		inline LoggerPayload(const unsigned logLevel_, const int line_, 
+				const char* filename_, const char* prettyFunc_) : logLevel(logLevel_),
+				line(line_), filename(filename_), prettyFunc(prettyFunc_),
 				time(std::chrono::system_clock::now())
 		{
 		}

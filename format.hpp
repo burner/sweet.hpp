@@ -13,6 +13,7 @@
 // yes I know
 #pragma GCC diagnostic ignored "-Wstrict-aliasing"
 #pragma GCC diagnostic ignored "-Wcast-align"
+#pragma GCC diagnostic ignored "-Wold-style-cast"
 
 static inline void setStreamFormat(std::ostream& out, const std::string& form, 
 		size_t s, size_t e) {
@@ -103,7 +104,8 @@ static inline void formImpl(std::ostream& out, const std::string& s,
 				setStreamFormat(out, s, pos+1, next);
 				if(s[next] == 'p') {
 					//printPointer(out, value);
-					out<<*reinterpret_cast<const void**>(&value);
+					//out<<*reinterpret_cast<const void**>(&value);
+					out<<*(const void**)(&value);
 				} else {
 					out<<value;
 				}
