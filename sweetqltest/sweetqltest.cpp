@@ -130,7 +130,8 @@ PersonVec parsePersonFile(const std::string& fn) {
 
 int main() {
 	remove("testtable2.db");
-	SqliteDB db("testtable2.db");
+	Sqlite3 dbImpl("testtable2.db");
+	SweetQL<Sqlite3> db(dbImpl);
 	db.createTable<Person>();
 
 	sweet::Bench in;
@@ -167,14 +168,14 @@ int main() {
 	std::cout<<"Iterating the persons of the db took "<<s.milli()
 		<<" msec SWEETQL"<<std::endl;
 
-	remove("testtable2_odb.db");
+	/*remove("testtable2_odb.db");
 	dbo::backend::Sqlite3 sqlite3("testtable2_odb.db");
 	dbo::Session session;
 	session.setConnection(sqlite3);
 	session.mapClass<Person>("person");
 	session.createTables();
 
-	sweet::Bench in2;
+	sweet::Bench in1;
 	dbo::Transaction transaction(session);
 	for(auto& it : per) {
 		auto p(dbo::ptr<Person>(new Person(it)));
@@ -210,6 +211,8 @@ int main() {
 	s2.stop();
 	std::cout<<"Iterating the persons of the db took "<<s2.milli()
 		<<" msec WT::DBO"<<std::endl;
+
+	*/
 
 
 	/*sel = db.select<Person>(
