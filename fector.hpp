@@ -237,6 +237,9 @@ namespace sweet {
 		}
 
 		inline iterator erase(iterator pos, const size_t size = 1u) {
+			if(size == 0u) {
+				return pos;
+			}
 			const_iterator e = this->end();
 			auto ret = pos;
 			auto next = pos + size;
@@ -246,7 +249,7 @@ namespace sweet {
 				++next;
 			}
 
-			this->pop_back();
+			this->pop_back(size);
 
 			return ret;
 		}
