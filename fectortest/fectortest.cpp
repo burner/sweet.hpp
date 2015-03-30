@@ -27,6 +27,24 @@ UNITTEST(inistan) {
 	AS_EQ(*it, 1);		
 }
 
+UNITTEST(popFront) {
+	sweet::Fector<int,32> f;
+	for(int i = 0; i < 32; ++i) {
+		f.push_back(i);	
+	}
+	
+	for(int i = 0; i < 32; ++i) {
+		sweet::Fector<int,32> g = f;
+		g.pop_front(i);
+		
+		int v = i;
+		for(int j = 0; j < 32-i; ++j) {
+			AS_EQ(g[j], v);
+			++v;
+		}	
+	}
+}
+
 UNITTEST(insertT) {
 	sweet::Fector<int,4> f;
 	f.push_back(1);

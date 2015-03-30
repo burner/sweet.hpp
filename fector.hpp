@@ -200,6 +200,22 @@ namespace sweet {
 			--this->idx;
 		}
 
+		inline void pop_back(const size_t size) {
+			for(size_t i = 1; i <= size; ++i) {
+				this->data.dataT[this->idx - i].~T();
+			}
+
+			this->idx -= size;
+		}
+
+		inline void pop_front() {
+			this->erase(this->begin());
+		}
+
+		inline void pop_front(const size_t size) {
+			this->erase(this->begin(), size);
+		}
+
 		inline iterator insert(iterator it, const T& value) {
 			if(this->empty()) {
 				this->push_back(value);
@@ -220,10 +236,10 @@ namespace sweet {
 			}
 		}
 
-		inline iterator erase(iterator pos) {
+		inline iterator erase(iterator pos, const size_t size = 1u) {
 			const_iterator e = this->end();
 			auto ret = pos;
-			auto next = pos + 1u;
+			auto next = pos + size;
 			while(next < e) {
 				*pos = *next;
 				++pos;
