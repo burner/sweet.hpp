@@ -83,27 +83,100 @@ public:
 
 typedef std::vector<Person> PersonVec;
 
+class Reservation {
+public:
+	std::string firstname;
+	std::string lastname;
+	std::string restaurant;
+	std::string location;
+	int64_t date;
+	int64_t tablemem;
+
+	inline Reservation() {}
+
+	static SqlTable<Reservation>& table() {
+		static SqlTable<Reservation> tab = 
+			SqlTable<Reservation>::sqlTable("Reservation",
+				SqlColumn<Reservation>("Firstname", makeAttr(&Reservation::firstname,
+					SweetqlFlags::PrimaryKey)),
+				SqlColumn<Reservation>("Lastname", makeAttr(&Reservation::lastname,
+					SweetqlFlags::PrimaryKey)),
+				SqlColumn<Reservation>("Restaurant", makeAttr(&Reservation::restaurant,
+					SweetqlFlags::PrimaryKey)),
+				SqlColumn<Reservation>("Location", makeAttr(&Reservation::location,
+					SweetqlFlags::PrimaryKey)),
+				SqlColumn<Reservation>("Date", makeAttr(&Reservation::date,
+					SweetqlFlags::PrimaryKey)),
+				SqlColumn<Reservation>("Tablem", makeAttr(&Reservation::tablemem,
+					SweetqlFlags::PrimaryKey))
+			);
+
+		return tab;
+	}
+};
+
 class ReservationPerson {
 public:
+	std::string firstname;
+	std::string lastname;
+	std::string company;
+	std::string address;
+	std::string county;
+	std::string city;
+	std::string state;
+	std::string phoneWork;
+	std::string phonePrivat;
+	std::string mail;
+	std::string www;
+	int64_t zip;
+	std::string restaurant;
+	std::string location;
+	int64_t date;
+	int64_t tablemem;
 	ReservationPerson() {}
 
 	static SqlTable<ReservationPerson>& table() {
 		static SqlTable<ReservationPerson> tab = 
 			SqlTable<ReservationPerson>::sqlTable("ReservationPerson",
-		SqlColumn<ReservationPerson>("Firstname", makeAttr(&ReservationPerson::firstname)),
-		SqlColumn<ReservationPerson>("Lastname", makeAttr(&ReservationPerson::lastname)),
-		SqlColumn<ReservationPerson>("Location", makeAttr(&ReservationPerson::location)),
-		SqlColumn<ReservationPerson>("Date", makeAttr(&ReservationPerson::date)),
-		SqlColumn<ReservationPerson>("PhonePrivat", makeAttr(&ReservationPerson::phonePrivat))
+			SqlColumn<ReservationPerson>("Firstname", 	
+					makeAttr(&ReservationPerson::firstname, 
+					SweetqlFlags::PrimaryKey)),
+			SqlColumn<ReservationPerson>("Lastname", 	
+					makeAttr(&ReservationPerson::lastname, 
+					SweetqlFlags::PrimaryKey)),
+			SqlColumn<ReservationPerson>("Company", 	
+					makeAttr(&ReservationPerson::company, 
+					SweetqlFlags::PrimaryKey)),
+			SqlColumn<ReservationPerson>("Address", 	
+					makeAttr(&ReservationPerson::address, 
+					SweetqlFlags::PrimaryKey)),
+			SqlColumn<ReservationPerson>("County", 		
+					makeAttr(&ReservationPerson::county)),
+			SqlColumn<ReservationPerson>("City", 		
+					makeAttr(&ReservationPerson::city)),
+			SqlColumn<ReservationPerson>("State", 		
+					makeAttr(&ReservationPerson::state)),
+			SqlColumn<ReservationPerson>("PhoneWork", 	
+					makeAttr(&ReservationPerson::phoneWork)),
+			SqlColumn<ReservationPerson>("PhonePrivat", 
+					makeAttr(&ReservationPerson::phonePrivat)),
+			SqlColumn<ReservationPerson>("Mail", 		
+					makeAttr(&ReservationPerson::mail)),
+			SqlColumn<ReservationPerson>("Www", 		
+					makeAttr(&ReservationPerson::www)),
+			SqlColumn<ReservationPerson>("Zip", 		
+					makeAttr(&ReservationPerson::zip)),
+			SqlColumn<ReservationPerson>("Restaurant", 	
+					makeAttr(&ReservationPerson::restaurant)),
+			SqlColumn<ReservationPerson>("Location", 	
+					makeAttr(&ReservationPerson::location)),
+			SqlColumn<ReservationPerson>("Date", 		
+					makeAttr(&ReservationPerson::date)),
+			SqlColumn<ReservationPerson>("Tablem", 		
+					makeAttr(&ReservationPerson::tablemem))
 		);
 		return tab;
 	}
-
-	std::string firstname;
-	std::string lastname;
-	std::string location;
-	std::string date;
-	std::string phonePrivat;
 };
 
 PersonVec parsePersonFile(const std::string& fn) {
@@ -133,6 +206,7 @@ int main() {
 	Sqlite3 dbImpl("testtable2.db");
 	SweetQL<Sqlite3> db(dbImpl);
 	db.createTable<Person>();
+	db.createTable<Reservation>();
 
 	sweet::Bench in;
 	std::vector<Person> per = parsePersonFile("50000.csv");
@@ -144,6 +218,14 @@ int main() {
 	insert.stop();
 	std::cout<<"Writting the persons to the db took "<<insert.milli()
 		<<" msec SWEETQL"<<std::endl;
+
+	Reservation r;
+	r.firstname = per.front().firstname;
+	r.lastname = per.front().lastname;
+	r.tablemem = 1338;
+	r.location = "China";
+	r.date = 3482938498;
+	db.insert(r);
 
 	sweet::Bench s;
 	Person toDel;
@@ -167,6 +249,22 @@ int main() {
 	s.stop();
 	std::cout<<"Iterating the persons of the db took "<<s.milli()
 		<<" msec SWEETQL"<<std::endl;
+
+	auto h = db.join<ReservationPerson,Person,Reservation>();
+	for(auto it = h.first; it != h.second; ++it) {
+		std::cout<<it->firstname<<' ';
+		std::cout<<it->lastname<<' ';
+		std::cout<<it->company<<' ';
+		std::cout<<it->address<<' ';
+		std::cout<<it->county<<' ';
+		std::cout<<it->zip<<' ';
+		std::cout<<it->state<<' ';
+		std::cout<<it->phoneWork<<' ';
+		std::cout<<it->phonePrivat<<' ';
+		std::cout<<it->mail<<' ';
+		std::cout<<it->www;
+		std::cout<<std::endl;
+	}
 
 	/*remove("testtable2_odb.db");
 	dbo::backend::Sqlite3 sqlite3("testtable2_odb.db");
