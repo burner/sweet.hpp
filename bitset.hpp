@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <type_traits>
 #include <limits>
+#include <stdexcept>
 #include <string>
 
 namespace sweet {
