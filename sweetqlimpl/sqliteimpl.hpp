@@ -106,12 +106,12 @@ public:
 				}
 
 				// if the column entries are different the it is different
-				for(int it = 0; it < tCnt; ++it) {
+				for(int jt = 0; jt < tCnt; ++jt) {
 					std::string tc = reinterpret_cast<const char*>(
-						sqlite3_column_text(stmt, it)
+						sqlite3_column_text(stmt, jt)
 					);
 					std::string oc = reinterpret_cast<const char*>(
-						sqlite3_column_text(rhs.stmt, it)
+						sqlite3_column_text(rhs.stmt, jt)
 					);
 					if(tc != oc) {
 						return false;
@@ -335,7 +335,7 @@ private:
 	}
 
 	template<typename S>
-	inline SqlTable<S> keyColumn() {
+	SqlTable<S> keyColumn() {
 		SqlTable<S> ret;
 		SqlTable<S>& tab = S::table();
 		std::for_each(tab.column.begin(), tab.column.end(), [this,&ret,&tab]
@@ -355,7 +355,7 @@ private:
 	}
 
 	template<typename S>
-	inline std::pair<Sqlite3::Iterator<S>,Sqlite3::Iterator<S>> makeIterator(
+	std::pair<Sqlite3::Iterator<S>,Sqlite3::Iterator<S>> makeIterator(
 			const std::string& stmtStr) {
 		sqlite3_stmt* stmt;
  		int rsltCode = sqlite3_prepare(db, stmtStr.c_str(), -1, 

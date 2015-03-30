@@ -16,7 +16,7 @@ enum class SweetqlTypes {
 	Blob
 };
 
-std::ostream& operator<<(std::ostream& out, const SweetqlTypes& t) {
+inline std::ostream& operator<<(std::ostream& out, const SweetqlTypes& t) {
 	switch(t) {
 		case SweetqlTypes::Int: out<<"Int"; break;
 		case SweetqlTypes::Float: out<<"Float"; break;
@@ -33,46 +33,46 @@ typedef void(*del)(void*);
 template<typename T>
 class SqlAttribute {
 public:
-	SqlAttribute(SweetqlTypes t) : type(t) {}
-	SqlAttribute(SweetqlTypes t, SweetqlFlags p) : type(t) {
+	inline SqlAttribute(SweetqlTypes t) : type(t) {}
+	inline SqlAttribute(SweetqlTypes t, SweetqlFlags p) : type(t) {
 		primaryKey = p;
 	}
 
-	virtual int64_t getInt(T&) const { 
+	inline virtual int64_t getInt(T&) const { 
 		throw std::logic_error("getInt not implemented"); 
 	}
-	virtual double getFloat(T&) const { 
+	inline virtual double getFloat(T&) const { 
 		throw std::logic_error("getFloat not implemented"); 
 	}
-	virtual std::string getString(T&) const { 
+	inline virtual std::string getString(T&) const { 
 		throw std::logic_error("getString not implemented"); 
 	}
-	virtual void* getBlob(T&) const { 
+	inline virtual void* getBlob(T&) const { 
 		throw std::logic_error("getBlob not implemented"); 
 	}
-	virtual size_t getBlobSize(T&) const { 
+	inline virtual size_t getBlobSize(T&) const { 
 		throw std::logic_error("getBlobSize not implemented"); 
 	}
-	virtual del getBlobDel(T&) const { 
+	inline virtual del getBlobDel(T&) const { 
 		throw std::logic_error("getBlobSize not implemented"); 
 	}
-	virtual void setInt(T&,int64_t) {
+	inline virtual void setInt(T&,int64_t) {
 		throw std::logic_error("setInt not implemented"); 
 	}
-	virtual void setFloat(T&,double) {
+	inline virtual void setFloat(T&,double) {
 		throw std::logic_error("setFloat not implemented"); 
 	}
-	virtual void setString(T&,const std::string&) {
+	inline virtual void setString(T&,const std::string&) {
 		throw std::logic_error("setString not implemented"); 
 	}
-	virtual void setString(T&,const char*) {
+	inline virtual void setString(T&,const char*) {
 		throw std::logic_error("setString not implemented"); 
 	}
-	virtual void setBlob(T&,const void*,size_t) {
+	inline virtual void setBlob(T&,const void*,size_t) {
 		throw std::logic_error("setBlob not implemented"); 
 	}
 
-	std::string getType() const {
+	inline std::string getType() const {
 		switch(this->type) {
 		case SweetqlTypes::String: return "varchar";
 		case SweetqlTypes::Int: return "integer";
@@ -86,7 +86,7 @@ public:
 	SweetqlTypes type;
 };
 
-bool isPrimaryKey(SweetqlFlags flags) {
+inline bool isPrimaryKey(SweetqlFlags flags) {
 	return static_cast<int>(flags) & 
 		static_cast<int>(SweetqlFlags::PrimaryKey);
 }
@@ -94,19 +94,19 @@ bool isPrimaryKey(SweetqlFlags flags) {
 template<typename T>
 class SqlStringAttribute : public SqlAttribute<T> {
 public:
-	SqlStringAttribute(std::string T::* s) : SqlAttribute<T>(SweetqlTypes::String), 
+	inline SqlStringAttribute(std::string T::* s) : SqlAttribute<T>(SweetqlTypes::String), 
 		str(s) {}
 
-	SqlStringAttribute(std::string T::* s, SweetqlFlags f) : 
+	inline SqlStringAttribute(std::string T::* s, SweetqlFlags f) : 
 		SqlAttribute<T>(SweetqlTypes::String, f), str(s) {}
 
-	std::string getString(T& t) const { 
+	inline std::string getString(T& t) const { 
 		return t.*str;
 	}
-	void setString(T& t,const std::string& s) {
+	inline void setString(T& t,const std::string& s) {
 		t.*str = s;
 	}
-	void setString(T& t,const char* s) {
+	inline void setString(T& t,const char* s) {
 		t.*str = s;
 	}
 private:
@@ -116,14 +116,14 @@ private:
 template<typename T>
 class SqlIntAttribute : public SqlAttribute<T> {
 public:
-	SqlIntAttribute(int64_t T::* i) : SqlAttribute<T>(SweetqlTypes::Int), integer(i) {}
-	SqlIntAttribute(int64_t T::* i, SweetqlFlags f) : 
+	inline SqlIntAttribute(int64_t T::* i) : SqlAttribute<T>(SweetqlTypes::Int), integer(i) {}
+	inline SqlIntAttribute(int64_t T::* i, SweetqlFlags f) : 
 		SqlAttribute<T>(SweetqlTypes::Int, f), integer(i) {}
 
-	int64_t getInt(T& t) const { 
+	inline int64_t getInt(T& t) const { 
 		return t.*integer;
 	}
-	void setInt(T& t, int64_t i) {
+	inline void setInt(T& t, int64_t i) {
 		t.*integer = i;
 	}
 private:
@@ -133,14 +133,14 @@ private:
 template<typename T>
 class SqlFloatAttribute : public SqlAttribute<T> {
 public:
-	SqlFloatAttribute(double T::* i) : SqlAttribute<T>(SweetqlTypes::Float), fl(i) {}
-	SqlFloatAttribute(double T::* i, SweetqlFlags f) : 
+	inline SqlFloatAttribute(double T::* i) : SqlAttribute<T>(SweetqlTypes::Float), fl(i) {}
+	inline SqlFloatAttribute(double T::* i, SweetqlFlags f) : 
 		SqlAttribute<T>(SweetqlTypes::Float, f), fl(i) {}
 
-	double getFloat(T& t) const { 
+	inline double getFloat(T& t) const { 
 		return t.*fl;
 	}
-	void setFloat(T& t, double i) {
+	inline void setFloat(T& t, double i) {
 		t.*fl = i;
 	}
 private:
@@ -200,7 +200,7 @@ std::shared_ptr<SqlAttribute<T>> makeAttr(S T::* i, SweetqlFlags f,
 template<typename T>
 class SqlColumn {
 public:
-	SqlColumn(const std::string& a, std::shared_ptr<SqlAttribute<T>> at) : 
+	inline SqlColumn(const std::string& a, std::shared_ptr<SqlAttribute<T>> at) : 
 			attrName(a), attr(at) {
 	}
 
