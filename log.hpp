@@ -63,7 +63,7 @@ namespace sweet {
 				long milli = std::chrono::duration_cast<std::chrono::milliseconds>(
 					input.time.time_since_epoch()).count();
 				milli = milli % 10000;
-				format(out, "%s.%04u %s:%d | %s\n", timeBuf, milli,
+				format(out, "%s.%04u %s:%d | %s\n", const_cast<const char*>(timeBuf), milli,
 					shortenString(input.filename), input.line, input.str.str());
 			};
 
