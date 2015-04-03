@@ -53,8 +53,8 @@ public:
 						}
 						case SweetqlTypes::Blob: {
 							const void* Void = sqlite3_column_blob(stmt,i);
-							size_t len = sqlite3_column_bytes(stmt,i);
-							cm.attr->setBlob(it, Void, len);
+							int len = sqlite3_column_bytes(stmt,i);
+							cm.attr->setBlob(it, Void, static_cast<size_t>(len));
 							break;
 						}
 						case SweetqlTypes::String: {
@@ -306,7 +306,12 @@ private:
 				//const std::string& s = (t.*(c.attr))();
 				switch(c.attr->type) {
 				case SweetqlTypes::Int: {
-					sqlite3_bind_int(stmt, i++, c.attr->getInt(t));
+					const auto intValue= c.attr->getInt(t);
+					if(c.attr->primaryKey == SweetqlFlags::PrimaryKey && intValue == 0) {
+						sqlite3_bind_null(stmt, i++);
+					} else {
+						sqlite3_bind_int(stmt, i++, intValue);
+					}
 					break;
 				}
 				case SweetqlTypes::Float: {

@@ -6,6 +6,7 @@
 #include <type_traits>
 
 enum class SweetqlFlags {
+	NotPrimaryKey = 0,
 	PrimaryKey = 1
 };
 
@@ -33,7 +34,10 @@ typedef void(*del)(void*);
 template<typename T>
 class SqlAttribute {
 public:
-	inline SqlAttribute(SweetqlTypes t) : type(t) {}
+	inline SqlAttribute(SweetqlTypes t) : type(t) {
+		primaryKey = SweetqlFlags::NotPrimaryKey;
+	}
+
 	inline SqlAttribute(SweetqlTypes t, SweetqlFlags p) : type(t) {
 		primaryKey = p;
 	}

@@ -56,6 +56,16 @@ public:
 		return this->impl. template select<S>(where);
 	}
 
+	template<typename S>
+	S selectOne(const std::string& where = "") {
+		auto its = this->select<S>(where);
+		if(its.first == its.second) {
+			throw std::out_of_range("Can't select one from empty range");
+		}
+
+		return *its.first;
+	}
+
 	template<typename S, typename T, typename R>
 	std::pair<typename Impl:: template Iterator<S>, typename Impl:: template Iterator<S>> join(
 			const std::string& where = "") 
