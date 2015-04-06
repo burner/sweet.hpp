@@ -43,4 +43,14 @@ inline int checkErrorBits(std::ofstream* f) {
 	return stop;
 }
 
+inline std::string istreamToString(std::istream& in) {
+	std::string ret;
+	char buffer[4096];
+	while(in.read(buffer, sizeof(buffer))) {
+	    ret.append(buffer, sizeof(buffer));
+	}
+	ret.append(buffer, static_cast<size_t>(in.gcount()));
+	return ret;
+}
+
 } // ~namespace sweet
