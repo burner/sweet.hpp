@@ -57,12 +57,14 @@ public:
 	}
 
 	template<typename S>
-	S selectOne(const std::string& where = "") {
+	S selectOne(bool& wasSet, const std::string& where = "") {
 		auto its = this->select<S>(where);
 		if(its.first == its.second) {
-			throw std::out_of_range("Can't select one from empty range");
+			wasSet = false;
+			return S();
 		}
 
+		wasSet = true;
 		return *its.first;
 	}
 
