@@ -2,15 +2,36 @@ SWEET_HPP
 =========
 
 A bunch of header useful for daily life. The headers contain functionally for
-Logging, Testing, Design by Contract, Filesystem, Fixed-point Types, int128,
-benchmarking, json, trie and some more.
+|Functionality            | Documentation | Header | Test |
+-----------------------------------------------------------
+|Logging                  |               |        |      | 
+|Asyc Logging             |               |        |      | 
+|Unit testing             |               |        |      | 
+|Design by Contract       |               |        |      | 
+|Filesystem               |               |        |      | 
+|Fixed-point Types        |               |        |      | 
+|int128                   |               |        |      |
+|Benchmarking             |               |        |      | 
+|Json                     |               |        |      | 
+|Trie                     |               |        |      |
+|Base64                   |               |        |      |
+|bitset                   |               |        |      |
+|Allocator                |               |        |      |
+|Safe Type Conversation   |               |        |      |
+|Fixed Size Vector        |               |        |      |
+|Fixed Size Map           |               |        |      |
+|String formatting        |               |        |      |
+|Cmd line parser          |               |        |      |
+|Semaphore                |               |        |      |
+|Stream helper functions  |               |        |      |
+|String helper functions  |               |        |      |
+|Sysinfo                  |               |        |      |
 
 Usage
 -----
 To use the header, just make the sweet.hpp folder an include for your compiler.
 
 
-Sweet cpp header that help in daily life
 
 unit.hpp
 --------
