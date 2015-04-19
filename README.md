@@ -2,28 +2,30 @@ SWEET_HPP
 =========
 
 A bunch of header useful for daily life. The headers contain functionally for
+everyday life. The tests are usually the documentation.
 
 | Functionality            | Documentation | Header | Test |
 | -------------------------|---------------|--------|------|
-| Database Abstraction     | [sweetql.hpp](#sweetqlhpp) | sweeql.hpp |      | 
-| Logging                  |               | logger.hpp |      | 
-| Asyc Logging             |               | log.hpp |      | 
-| Unit testing             | [unit.hpp](#unithpp)              | unit.hpp |      | 
-| Design by Contract       | [dbc.hpp](#dbchpp) | dbc.hpp |      | 
-| Filesystem               |               | filesystem.hpp |      | 
-| Fixed-point Types        |               | fixed.hpp |      | 
-| int128                   |               | int128.hpp |      |
-| Benchmarking             | [benchmark.hpp](#benchmarkhpp) | benchmark.hpp |      | 
-| Json                     |               | sjson.hpp |      | 
-| Trie                     |               | trie.hpp |      |
-| Base64                   |               | base64.hpp |      |
-| bitset                   |               | bitset.hpp |      |
-| Allocator                |               | bllocator.hpp |      |
-| Type Safe Conversation   | [conv.hpp](#convhpp) | conv.hpp |      |
-| Fixed Size Vector        |               | fector.hpp |      |
-| Fixed Size Map           |               | fap.hpp |      |
-| String formatting        | [format.hpp](#formathpp) | format.hpp |      |
-| Cmd line parser          | [options.hpp](#optionshpp) | options.hpp |      |
+| Database Abstraction     | [sweetql.hpp](#sweetqlhpp) | sweeql.hpp | [here](sweetqltest/sweetqltest.cpp) | 
+| Logging                  |               | logger.hpp | [here](loggertest/loggertest.cpp) | 
+| Asyc Logging             |               | log.hpp | [here](logtest/loggertest.cpp)      | 
+| Unit testing             | [unit.hpp](#unithpp)              | unit.hpp | [here](unittest/unittest.cpp)  | 
+| Design by Contract       | [dbc.hpp](#dbchpp) | dbc.hpp | [here](dbctest/dbctest.cpp) | 
+| Type Safe Comparison | [compare.hpp](#comparehpp)| compare.hpp | [here](comparetest/comparetest.cpp)| 
+| Filesystem               |               | filesystem.hpp | [here](filesystemtest/filesystemtest.cpp) | 
+| Fixed-point Types        |               | fixed.hpp | [here](fixedtest/fixedtest.cpp) | 
+| int128                   |               | int128.hpp | [here](int128test/int128test.cpp) |
+| Benchmarking             | [benchmark.hpp](#benchmarkhpp) | benchmark.hpp | [here](benchmarktest/benchmarktest.cpp)     | 
+| Json                     |               | sjson.hpp | [here](sjsontest/sjsontest.cpp)| 
+| Trie                     |               | trie.hpp | [here] |
+| Base64                   |               | base64.hpp | [here](base64test/base64test.cpp) |
+| bitset                   |               | bitset.hpp | [here](bitsettest/bitsettest.cpp) |
+| Allocator                |               | bllocator.hpp | [here](bllocatortest/allocatortest.cpp) |
+| Type Safe Conversation   | [conv.hpp](#convhpp) | conv.hpp | [here](convtest/convtest.cpp) |
+| Fixed Size Vector        |               | fector.hpp | [here](fectortest/fectortest.cpp) |
+| Fixed Size Map           |               | fap.hpp | [here](faptest/faptest.cpp) |
+| String formatting        | [format.hpp](#formathpp) | format.hpp | [here](formattest/formattest.cpp) |
+| Cmd line parser          | [options.hpp](#optionshpp) | options.hpp | [here](optiontest/optiontest.cpp |
 | Semaphore                |               | semaphore.hpp |      |
 | Stream helper functions  |               | streamhelper.hpp |      |
 | String helper functions  |               | stringhelper.hpp |      |
@@ -190,7 +192,8 @@ public:
 
 ...
 
-	SqliteDB db("dbfilename");
+	Sqlite3 dbImpl("dbfilename.db");
+	SweetQL<Sqlite3> db(dbImpl);
 
 	auto sel(db.select<ReservationPerson>());
 	std::for_each(sel.first, sel.second, [&toDel](const ReservationPerson& p) {
