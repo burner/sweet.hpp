@@ -2,30 +2,30 @@ SWEET_HPP
 =========
 
 A bunch of header useful for daily life. The headers contain functionally for
-|Functionality            | Documentation | Header | Test |
------------------------------------------------------------
-|Logging                  |               |        |      | 
-|Asyc Logging             |               |        |      | 
-|Unit testing             |               |        |      | 
-|Design by Contract       |               |        |      | 
-|Filesystem               |               |        |      | 
-|Fixed-point Types        |               |        |      | 
-|int128                   |               |        |      |
-|Benchmarking             |               |        |      | 
-|Json                     |               |        |      | 
-|Trie                     |               |        |      |
-|Base64                   |               |        |      |
-|bitset                   |               |        |      |
-|Allocator                |               |        |      |
-|Safe Type Conversation   |               |        |      |
-|Fixed Size Vector        |               |        |      |
-|Fixed Size Map           |               |        |      |
-|String formatting        |               |        |      |
-|Cmd line parser          |               |        |      |
-|Semaphore                |               |        |      |
-|Stream helper functions  |               |        |      |
-|String helper functions  |               |        |      |
-|Sysinfo                  |               |        |      |
+| Functionality            | Documentation | Header | Test |
+| -------------------------|---------------|--------|------|
+| Logging                  |               |        |      | 
+| Asyc Logging             |               |        |      | 
+| Unit testing             |               |        |      | 
+| Design by Contract       |               |        |      | 
+| Filesystem               |               |        |      | 
+| Fixed-point Types        |               |        |      | 
+| int128                   |               |        |      |
+| Benchmarking             |               |        |      | 
+| Json                     |               |        |      | 
+| Trie                     |               |        |      |
+| Base64                   |               |        |      |
+| bitset                   |               |        |      |
+| Allocator                |               |        |      |
+| Safe Type Conversation   |               |        |      |
+| Fixed Size Vector        |               |        |      |
+| Fixed Size Map           |               |        |      |
+| String formatting        |               |        |      |
+| Cmd line parser          |               |        |      |
+| Semaphore                |               |        |      |
+| Stream helper functions  |               |        |      |
+| String helper functions  |               |        |      |
+| Sysinfo                  |               |        |      |
 
 Usage
 -----
