@@ -1,7 +1,7 @@
 // http://stackoverflow.com/questions/4792449/c0x-has-no-semaphores-how-to-synchronize-threads/19659736#19659736
 
 #include <mutex>
-#include  <condition_variable>
+#include <condition_variable>
 
 namespace sweet {
 	class Semaphore{

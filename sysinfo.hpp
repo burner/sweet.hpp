@@ -1,3 +1,4 @@
+// LGPL 3 or higher Robert Burner Schadek rburners@gmail.com
 #include <cxxabi.h>
 #include <execinfo.h>
 #include <fstream>

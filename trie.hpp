@@ -1,3 +1,4 @@
+// LGPL 3 or higher Robert Burner Schadek rburners@gmail.com
 #ifndef SWEET_TRIE_HPP
 #define SWEET_TRIE_HPP
 //#include <unordered_map>

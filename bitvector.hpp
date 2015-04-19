@@ -1,3 +1,4 @@
+// LGPL 3 or higher Robert Burner Schadek rburners@gmail.com
 #ifndef SWEETHPP_BITVECTOR
 #define SWEETHPP_BITVECTOR
 
