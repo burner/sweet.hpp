@@ -2,6 +2,7 @@ SWEET_HPP
 =========
 
 A bunch of header useful for daily life. The headers contain functionally for
+
 | Functionality            | Documentation | Header | Test |
 | -------------------------|---------------|--------|------|
 | Logging                  |               |        |      | 
