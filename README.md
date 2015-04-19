@@ -17,7 +17,7 @@ everyday life. The tests are usually the documentation.
 | int128                   |               | int128.hpp | [here](int128test/int128test.cpp) |
 | Benchmarking             | [benchmark.hpp](#benchmarkhpp) | benchmark.hpp | [here](benchmarktest/benchmarktest.cpp)     | 
 | Json                     |               | sjson.hpp | [here](sjsontest/sjsontest.cpp)| 
-| Trie                     |               | trie.hpp | [here] |
+| Trie                     |               | trie.hpp | |
 | Base64                   |               | base64.hpp | [here](base64test/base64test.cpp) |
 | bitset                   |               | bitset.hpp | [here](bitsettest/bitsettest.cpp) |
 | Allocator                |               | bllocator.hpp | [here](bllocatortest/allocatortest.cpp) |
@@ -25,7 +25,7 @@ everyday life. The tests are usually the documentation.
 | Fixed Size Vector        |               | fector.hpp | [here](fectortest/fectortest.cpp) |
 | Fixed Size Map           |               | fap.hpp | [here](faptest/faptest.cpp) |
 | String formatting        | [format.hpp](#formathpp) | format.hpp | [here](formattest/formattest.cpp) |
-| Cmd line parser          | [options.hpp](#optionshpp) | options.hpp | [here](optiontest/optiontest.cpp |
+| Cmd line parser          | [options.hpp](#optionshpp) | options.hpp | [here](optiontest/optiontest.cpp) |
 | Semaphore                |               | semaphore.hpp |      |
 | Stream helper functions  |               | streamhelper.hpp |      |
 | String helper functions  |               | stringhelper.hpp |      |
