@@ -42,22 +42,22 @@ public:
 		primaryKey = p;
 	}
 
-	inline virtual int64_t getInt(T&) const { 
+	inline virtual int64_t getInt(const T&) const { 
 		throw std::logic_error("getInt not implemented"); 
 	}
-	inline virtual double getFloat(T&) const { 
+	inline virtual double getFloat(const T&) const { 
 		throw std::logic_error("getFloat not implemented"); 
 	}
-	inline virtual std::string getString(T&) const { 
+	inline virtual std::string getString(const T&) const { 
 		throw std::logic_error("getString not implemented"); 
 	}
-	inline virtual void* getBlob(T&) const { 
+	inline virtual void* getBlob(const T&) const { 
 		throw std::logic_error("getBlob not implemented"); 
 	}
-	inline virtual size_t getBlobSize(T&) const { 
+	inline virtual size_t getBlobSize(const T&) const { 
 		throw std::logic_error("getBlobSize not implemented"); 
 	}
-	inline virtual del getBlobDel(T&) const { 
+	inline virtual del getBlobDel(const T&) const { 
 		throw std::logic_error("getBlobSize not implemented"); 
 	}
 	inline virtual void setInt(T&,int64_t) {
@@ -104,7 +104,7 @@ public:
 	inline SqlStringAttribute(std::string T::* s, SweetqlFlags f) : 
 		SqlAttribute<T>(SweetqlTypes::String, f), str(s) {}
 
-	inline std::string getString(T& t) const { 
+	inline std::string getString(const T& t) const { 
 		return t.*str;
 	}
 	inline void setString(T& t,const std::string& s) {
@@ -124,7 +124,7 @@ public:
 	inline SqlIntAttribute(int64_t T::* i, SweetqlFlags f) : 
 		SqlAttribute<T>(SweetqlTypes::Int, f), integer(i) {}
 
-	inline int64_t getInt(T& t) const { 
+	inline int64_t getInt(const T& t) const { 
 		return t.*integer;
 	}
 	inline void setInt(T& t, int64_t i) {
@@ -141,7 +141,7 @@ public:
 	inline SqlFloatAttribute(double T::* i, SweetqlFlags f) : 
 		SqlAttribute<T>(SweetqlTypes::Float, f), fl(i) {}
 
-	inline double getFloat(T& t) const { 
+	inline double getFloat(const T& t) const { 
 		return t.*fl;
 	}
 	inline void setFloat(T& t, double i) {
