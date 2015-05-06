@@ -1,0 +1,12 @@
+< foo 
+	< bar.args >
+	< bzz.args#hello >
+	< brr#hello >
+	< wdv(hello="asdj" bar="fjasd") >
+	<{{
+		void func(int a) {
+			
+		}
+	}}>
+	< baz >
+>
