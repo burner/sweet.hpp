@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <iostream>
 #include <fstream>
 #include <istream>
@@ -10,6 +11,7 @@
 #include <utility>
 #include <cctype>
 #include <stdexcept>
+#include <unit.hpp>
 
 struct Pos {
 	size_t row;
@@ -131,16 +133,34 @@ void eat(I& iter, const std::string& toEat, Pos& pos) {
 }
 
 template<typename I>
+bool test(I be, I en, const char tt) {
+	if(be != en && *be == tt) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+template<typename I>
+bool test(I be, I en, const std::string& tt) {
+	assert(be <= en);
+	if(static_cast<std::size_t>(distance(be, en)) >= tt.size() && 
+		std::equal(be, be+tt.size(), tt.begin(), tt.end())) 
+	{
+		return true;
+	} else {
+		return false;
+	}
+}
+
+template<typename I>
 NPtr parseC(I& be, I& en, Pos& pos) {
 	eat(be, "<{{", pos);
 
 	auto beCopy = be;
 
 	for(; beCopy != en; increment(beCopy, pos)) {
-		if(*beCopy == '}' && 
-				distance(beCopy, en) >= 3 && std::string(beCopy, beCopy+3) == "}}>") 
-		{
-
+		if(test(beCopy, en, "}}>")) {
 			auto code = std::string(be, beCopy);
 			be = beCopy;
 			eat(be, "}}>", pos);
@@ -209,11 +229,11 @@ Children mainParse(I& be, I& en,  Pos& pos) {
 	while(be != en) {
 		eatWhitespace(be, en, pos);
 
-		if(distance(be, en) >= 3u && std::string(be, be+3) == "<{{") {
+		if(test(be, en, "<{{")) {
 			ret.push_back(std::move(parseC(be, en, pos)));	
-		} else if(be != en && *be == '<') {
+		} else if(test(be, en, '<')) {
 			ret.push_back(std::move(parseNode(be, en, pos)));
-		} else if(be != en && *be == '>') {
+		} else if(test(be, en, '>')) {
 			eat(be, '>', pos);
 			break;
 		}
