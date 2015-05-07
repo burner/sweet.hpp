@@ -11,7 +11,6 @@
 #include <utility>
 #include <cctype>
 #include <stdexcept>
-#include <unit.hpp>
 
 struct Pos {
 	size_t row;
@@ -50,9 +49,15 @@ typedef std::vector<NPtr> Children;
 
 struct Node : public AstBase {
 	inline Node(std::string&& t, std::string&& cl, std::string&& i, 
-		std::string&& a, Children&& c, const Pos& p) : AstBase(p),
+		std::string&& a, Children&& c, const Pos& p) : AstBase(p), openClose(false),
    		classLit(std::move(cl)), idLit(std::move(i)), attributes(std::move(a)),
 	   	type(std::move(t)), children(std::move(c)) {
+	}
+
+	inline Node(std::string&& t, std::string&& cl, std::string&& i, 
+		std::string&& a, const Pos& p) : AstBase(p), openClose(true), 
+		classLit(std::move(cl)), idLit(std::move(i)), attributes(std::move(a)),
+	   	type(std::move(t)) {
 	}
 
 	inline void gen(std::ostream& out, const size_t indent) override { 
@@ -67,6 +72,12 @@ struct Node : public AstBase {
 		if(!this->attributes.empty()) {
 			out<<' '<<this->attributes;
 		}
+
+		if(this->openClose) {
+			out<<"/>\n";
+			return;
+		}
+
 		out<<'>'<<'\n';
 		for(auto& it : children) {
 			it->gen(out, indent+1);
@@ -76,6 +87,7 @@ struct Node : public AstBase {
 		out<<'<'<<this->type<<"/>"<<'\n';
 	}
 
+	bool openClose;
 	std::string classLit;
 	std::string idLit;
 	std::string attributes;
@@ -209,17 +221,24 @@ NPtr parseNode(I& be, I& en, Pos& pos) {
 
 		attributes.insert(attributes.begin(), be+1, beCopy);
 
-		be=beCopy;
+		be = beCopy;
 		eat(be, ')', pos);
 	}
 
 	eatWhitespace(be, en, pos);
 
-	auto children = mainParse(be, en, pos);
-
-	return std::move(std::make_unique<Node>(std::move(type), 
-		std::move(classLit), std::move(idLit), std::move(attributes),
-		std::move(children), pos));
+	if(std::distance(be, en) >= 2u && std::string(be, be+2u) == "/>") {
+		eat(be, "/>", pos);
+		return std::move(std::make_unique<Node>(std::move(type), 
+			std::move(classLit), std::move(idLit), std::move(attributes),
+			pos));
+	} else {
+		auto children = mainParse(be, en, pos);
+	
+		return std::move(std::make_unique<Node>(std::move(type), 
+			std::move(classLit), std::move(idLit), std::move(attributes),
+			std::move(children), pos));
+	}
 }
 
 template<typename I>
@@ -236,7 +255,17 @@ Children mainParse(I& be, I& en,  Pos& pos) {
 		} else if(test(be, en, '>')) {
 			eat(be, '>', pos);
 			break;
+		} else {
+			eatWhitespace(be, en, pos);
+			auto beCopy = be;
+			for(; *beCopy != '<' && *beCopy != '>'; increment(beCopy, pos)) {}
+
+			ret.push_back(std::move(std::make_unique<CNode>(
+				std::move(std::string(be, beCopy)), pos
+			)));
+			be = beCopy;
 		}
+		eatWhitespace(be, en, pos);
 	}
 
 	return ret;

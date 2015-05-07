@@ -1,5 +1,5 @@
 < foo 
-	< bar.args >
+	< bar.args some text about stuff>
 	< bzz.args#hello >
 	< brr#hello >
 	< wdv(hello="asdj" bar="fjasd") >
@@ -8,5 +8,16 @@
 			
 		}
 	}}>
-	< baz >
+	< baz some other text 
+		< zzzz >
+		< yyyy />
+	>
+	< openclose />
+	< openclose.foo#bar />
+
+	< ul 
+		< li Item A >
+		< li Item B >
+		< li Item C >
+	>
 >
