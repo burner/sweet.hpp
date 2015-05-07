@@ -8,7 +8,9 @@
 			
 		}
 	}}>
-	< baz some other text 
+	< baz 
+		this is some longer string that may
+		span multiple lines
 		< zzzz >
 		< yyyy />
 	>

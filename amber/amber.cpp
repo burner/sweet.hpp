@@ -20,15 +20,17 @@ struct Pos {
 };
 
 template<typename I>
-void increment(I& iter, Pos& pos, const size_t cnt = 1) {
+bool increment(I& iter, Pos& pos, const size_t cnt = 1) {
 	if(*iter == '\n') {
 		++pos.row;
 		pos.column = 1u;
+		return true;
 	} else {
 		++pos.column;
 	}
 
 	iter += cnt;
+	return false;
 }
 
 struct AstBase {
@@ -96,8 +98,11 @@ struct Node : public AstBase {
 };
 
 struct CNode : public AstBase {
-	inline CNode(std::string&& p, const Pos& po) : AstBase(po), program(std::move(p)) {
+	inline CNode(std::string&& p, const Pos& po) : AstBase(po),
+   		program(std::move(p)) 
+	{
 	}
+
 	inline void gen(std::ostream& out, const size_t) override { 
 		out<<this->program<<'\n';
 	}
@@ -227,7 +232,7 @@ NPtr parseNode(I& be, I& en, Pos& pos) {
 
 	eatWhitespace(be, en, pos);
 
-	if(std::distance(be, en) >= 2u && std::string(be, be+2u) == "/>") {
+	if(test(be, en, "/>")) {
 		eat(be, "/>", pos);
 		return std::move(std::make_unique<Node>(std::move(type), 
 			std::move(classLit), std::move(idLit), std::move(attributes),
