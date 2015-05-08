@@ -22,4 +22,15 @@
 		< li Item B >
 		< li Item C >
 	>
+
+	< h1 &{{ title }}& >
+
+	< p
+		Some text describing something
+		< ul
+		& for(size_t i = 0; i < 10; ++i) { // a single c++ line
+			< li &{{ i }}& >
+		& }
+		>
+	>
 >

@@ -1,44 +1,74 @@
+#include "amber.hpp"
 #include <assert.h>
 #include <iostream>
 #include <fstream>
 #include <istream>
-#include <ostream>
 #include <iterator>
-#include <string>
-#include <vector>
 #include <algorithm>
-#include <memory>
 #include <utility>
 #include <cctype>
 #include <stdexcept>
 
-struct Pos {
-	size_t row;
-	size_t column;
+Pos::Pos() : row(1), column(1) {}
 
-	inline Pos() : row(1), column(1) {}
-};
+AstBase::AstBase(const Pos& p) : pos(p) {}
 
-template<typename I>
-bool increment(I& iter, Pos& pos, const size_t cnt = 1) {
-	if(*iter == '\n') {
-		++pos.row;
-		pos.column = 1u;
-		return true;
-	} else {
-		++pos.column;
-	}
-
-	iter += cnt;
-	return false;
+Node::Node(std::string&& t, std::string&& cl, std::string&& i, 
+	std::string&& a, Children&& c, const Pos& p) : AstBase(p), openClose(false),
+	classLit(std::move(cl)), idLit(std::move(i)), attributes(std::move(a)),
+   	type(std::move(t)), children(std::move(c)) {
 }
 
-struct AstBase {
-	inline AstBase(const Pos& p) : pos(p) {}
-	virtual void gen(std::ostream&, const size_t) = 0;
+Node::Node(std::string&& t, std::string&& cl, std::string&& i, 
+	std::string&& a, const Pos& p) : AstBase(p), openClose(true), 
+	classLit(std::move(cl)), idLit(std::move(i)), attributes(std::move(a)),
+   	type(std::move(t)) {
+}
 
-	Pos pos;
-};
+void Node::gen(std::ostream& out, const size_t indent) { 
+	createIndent(out, indent);
+	out<<'<'<<this->type;
+	if(!this->idLit.empty()) {
+		out<<" id=\""<<this->idLit<<'"';
+	}
+	if(!this->classLit.empty()) {
+		out<<" class=\""<<this->classLit<<'"';
+	}
+	if(!this->attributes.empty()) {
+		out<<' '<<this->attributes;
+	}
+
+	if(this->openClose) {
+		out<<"/>\n";
+		return;
+	}
+
+	out<<'>'<<'\n';
+	for(auto& it : children) {
+		it->gen(out, indent+1);
+	}
+
+	createIndent(out, indent);
+	out<<'<'<<this->type<<"/>"<<'\n';
+}
+
+CNode::CNode(std::string&& p, const Pos& po) : AstBase(po), 
+	program(std::move(p)) 
+{
+}
+
+void CNode::gen(std::ostream& out, const size_t) { 
+	out<<this->program<<'\n';
+}
+
+TNode::TNode(std::string&& l, const Pos& po) : AstBase(po), 
+	line(std::move(l)) 
+{
+}
+
+void TNode::gen(std::ostream&, const size_t) { 
+}
+
 
 void createIndent(std::ostream& out, const size_t indent) {
 	for(size_t i = 0; i < indent; ++i) {
@@ -46,69 +76,20 @@ void createIndent(std::ostream& out, const size_t indent) {
 	}
 }
 
-typedef std::unique_ptr<AstBase> NPtr;
-typedef std::vector<NPtr> Children;
-
-struct Node : public AstBase {
-	inline Node(std::string&& t, std::string&& cl, std::string&& i, 
-		std::string&& a, Children&& c, const Pos& p) : AstBase(p), openClose(false),
-   		classLit(std::move(cl)), idLit(std::move(i)), attributes(std::move(a)),
-	   	type(std::move(t)), children(std::move(c)) {
+template<typename I>
+bool increment(I& iter, Pos& pos, const size_t cnt = 1) {
+	bool ret = false;
+	if(*iter == '\n') {
+		++pos.row;
+		pos.column = 1u;
+		ret = true;
+	} else {
+		++pos.column;
 	}
 
-	inline Node(std::string&& t, std::string&& cl, std::string&& i, 
-		std::string&& a, const Pos& p) : AstBase(p), openClose(true), 
-		classLit(std::move(cl)), idLit(std::move(i)), attributes(std::move(a)),
-	   	type(std::move(t)) {
-	}
-
-	inline void gen(std::ostream& out, const size_t indent) override { 
-		createIndent(out, indent);
-		out<<'<'<<this->type;
-		if(!this->idLit.empty()) {
-			out<<" id=\""<<this->idLit<<'"';
-		}
-		if(!this->classLit.empty()) {
-			out<<" class=\""<<this->classLit<<'"';
-		}
-		if(!this->attributes.empty()) {
-			out<<' '<<this->attributes;
-		}
-
-		if(this->openClose) {
-			out<<"/>\n";
-			return;
-		}
-
-		out<<'>'<<'\n';
-		for(auto& it : children) {
-			it->gen(out, indent+1);
-		}
-
-		createIndent(out, indent);
-		out<<'<'<<this->type<<"/>"<<'\n';
-	}
-
-	bool openClose;
-	std::string classLit;
-	std::string idLit;
-	std::string attributes;
-	std::string type;
-	Children children;
-};
-
-struct CNode : public AstBase {
-	inline CNode(std::string&& p, const Pos& po) : AstBase(po),
-   		program(std::move(p)) 
-	{
-	}
-
-	inline void gen(std::ostream& out, const size_t) override { 
-		out<<this->program<<'\n';
-	}
-
-	std::string program;
-};
+	iter += cnt;
+	return ret;
+}
 
 template<typename I>
 void eatWhitespace(I& be, I& en, Pos& pos) {
@@ -206,7 +187,7 @@ NPtr parseNode(I& be, I& en, Pos& pos) {
 
 	while(*be == '.' || *be == '#') {
 		beCopy = be;
-		increment(beCopy, pos);
+		increment(beCopy, pos); // eat the . or '#'
 		while(beCopy != en && (std::isalnum(*beCopy) || *beCopy == '-')) {
 			increment(beCopy, pos);
 		}
