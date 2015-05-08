@@ -66,7 +66,8 @@ TNode::TNode(std::string&& l, const Pos& po) : AstBase(po),
 {
 }
 
-void TNode::gen(std::ostream&, const size_t) { 
+void TNode::gen(std::ostream& out, const size_t) { 
+	out<<this->line<<"\n";
 }
 
 
@@ -131,6 +132,27 @@ void eat(I& iter, const std::string& toEat, Pos& pos) {
 }
 
 template<typename I>
+I eatUntil(I& be, I& en, const std::string& until, Pos& pos) {
+	auto it = be;
+	//for(; it != en && *it != until; increment(it, pos)) {
+	//}
+
+	while(it != en) {
+		for(auto c : until) {
+			if(c == *it) {
+				goto found;
+			}
+		}
+
+		increment(it, pos);
+	}
+
+	found:
+
+	return it;
+}
+
+template<typename I>
 bool test(I be, I en, const char tt) {
 	if(be != en && *be == tt) {
 		return true;
@@ -175,7 +197,7 @@ NPtr parseNode(I& be, I& en, Pos& pos) {
 	eatWhitespace(be, en, pos);
 
 	auto beCopy = be;
-	for(; beCopy != en && std::isalpha(*beCopy); increment(beCopy, pos)) {}
+	for(; beCopy != en && std::isalnum(*beCopy); increment(beCopy, pos)) {}
 
 	auto type = std::string(be, beCopy);
 
@@ -242,14 +264,20 @@ Children mainParse(I& be, I& en,  Pos& pos) {
 			eat(be, '>', pos);
 			break;
 		} else {
-			eatWhitespace(be, en, pos);
-			auto beCopy = be;
-			for(; *beCopy != '<' && *beCopy != '>'; increment(beCopy, pos)) {}
+			auto iter = eatUntil(be, en, "\n>", pos);
+			auto posCopy = pos;
+			ret.push_back(std::move(
+				std::make_unique<TNode>(std::move(std::string(be, iter)), posCopy)
+			));
 
-			ret.push_back(std::move(std::make_unique<CNode>(
-				std::move(std::string(be, beCopy)), pos
-			)));
-			be = beCopy;
+			be = iter;
+
+			char iterC = *iter;
+			eat(be, iterC, pos);
+
+			if(iterC == '>') {
+				break;
+			}
 		}
 		eatWhitespace(be, en, pos);
 	}
