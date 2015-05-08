@@ -1,4 +1,7 @@
 #pragma once
+#include <algorithm>
+#include <assert.h>
+#include <iterator>
 #include <ostream>
 #include <string>
 #include <memory>
@@ -54,4 +57,25 @@ struct TNode : public AstBase {
 	std::string line;
 };
 
-void createIndent(std::ostream& out, const size_t indent);
+//void createIndent(std::ostream& out, const size_t indent);
+template<typename I>
+bool test(I be, I en, const char tt) {
+	if(be != en && *be == tt) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+template<typename I>
+bool test(I be, I en, const std::string& tt) {
+	assert(be <= en);
+	if(static_cast<std::size_t>(distance(be, en)) >= tt.size() && 
+		std::equal(be, be+tt.size(), tt.begin(), tt.end())) 
+	{
+		return true;
+	} else {
+		return false;
+	}
+}
+

@@ -1,3 +1,4 @@
+& #include <amberhead.hpp>
 < foo 
 	< bar.args some text about stuff>
 	< bzz.args#hello >

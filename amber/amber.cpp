@@ -1,10 +1,7 @@
 #include "amber.hpp"
-#include <assert.h>
 #include <iostream>
 #include <fstream>
 #include <istream>
-#include <iterator>
-#include <algorithm>
 #include <utility>
 #include <cctype>
 #include <stdexcept>
@@ -25,56 +22,14 @@ Node::Node(std::string&& t, std::string&& cl, std::string&& i,
    	type(std::move(t)) {
 }
 
-void Node::gen(std::ostream& out, const size_t indent) { 
-	createIndent(out, indent);
-	out<<'<'<<this->type;
-	if(!this->idLit.empty()) {
-		out<<" id=\""<<this->idLit<<'"';
-	}
-	if(!this->classLit.empty()) {
-		out<<" class=\""<<this->classLit<<'"';
-	}
-	if(!this->attributes.empty()) {
-		out<<' '<<this->attributes;
-	}
-
-	if(this->openClose) {
-		out<<"/>\n";
-		return;
-	}
-
-	out<<'>'<<'\n';
-	for(auto& it : children) {
-		it->gen(out, indent+1);
-	}
-
-	createIndent(out, indent);
-	out<<'<'<<this->type<<"/>"<<'\n';
-}
-
 CNode::CNode(std::string&& p, const Pos& po) : AstBase(po), 
 	program(std::move(p)) 
 {
 }
 
-void CNode::gen(std::ostream& out, const size_t) { 
-	out<<this->program<<'\n';
-}
-
 TNode::TNode(std::string&& l, const Pos& po) : AstBase(po), 
 	line(std::move(l)) 
 {
-}
-
-void TNode::gen(std::ostream& out, const size_t) { 
-	out<<this->line<<"\n";
-}
-
-
-void createIndent(std::ostream& out, const size_t indent) {
-	for(size_t i = 0; i < indent; ++i) {
-		out<<'\t';	
-	}
 }
 
 template<typename I>
@@ -150,27 +105,6 @@ I eatUntil(I& be, I& en, const std::string& until, Pos& pos) {
 	found:
 
 	return it;
-}
-
-template<typename I>
-bool test(I be, I en, const char tt) {
-	if(be != en && *be == tt) {
-		return true;
-	} else {
-		return false;
-	}
-}
-
-template<typename I>
-bool test(I be, I en, const std::string& tt) {
-	assert(be <= en);
-	if(static_cast<std::size_t>(distance(be, en)) >= tt.size() && 
-		std::equal(be, be+tt.size(), tt.begin(), tt.end())) 
-	{
-		return true;
-	} else {
-		return false;
-	}
 }
 
 template<typename I>
@@ -264,10 +198,16 @@ Children mainParse(I& be, I& en,  Pos& pos) {
 			eat(be, '>', pos);
 			break;
 		} else {
-			auto iter = eatUntil(be, en, "\n>", pos);
+			//std::cout<<*be<<std::endl;
+			I iter = eatUntil(be, en, "\n>", pos);
+			if(!test(be,iter,"&{{") && *be == '&') {
+				++iter;
+			}
 			auto posCopy = pos;
 			ret.push_back(std::move(
-				std::make_unique<TNode>(std::move(std::string(be, iter)), posCopy)
+				std::make_unique<TNode>(std::move(
+					std::string(be, iter)), posCopy
+				)
 			));
 
 			be = iter;
@@ -275,7 +215,10 @@ Children mainParse(I& be, I& en,  Pos& pos) {
 			char iterC = *iter;
 			eat(be, iterC, pos);
 
-			if(iterC == '>') {
+			//if(dynamic_cast<TNode*>(ret.back().get())->line.front() != '&'
+			//&&
+			if(iterC == '>') 
+			{
 				break;
 			}
 		}
