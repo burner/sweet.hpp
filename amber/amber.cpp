@@ -89,8 +89,6 @@ void eat(I& iter, const std::string& toEat, Pos& pos) {
 template<typename I>
 I eatUntil(I& be, I& en, const std::string& until, Pos& pos) {
 	auto it = be;
-	//for(; it != en && *it != until; increment(it, pos)) {
-	//}
 
 	while(it != en) {
 		for(auto c : until) {
@@ -198,10 +196,11 @@ Children mainParse(I& be, I& en,  Pos& pos) {
 			eat(be, '>', pos);
 			break;
 		} else {
-			//std::cout<<*be<<std::endl;
-			I iter = eatUntil(be, en, "\n>", pos);
-			if(!test(be,iter,"&{{") && *be == '&') {
-				++iter;
+			I iter;
+			if(!test(be, en, "&{{") && *be == '&') {
+		   		iter = eatUntil(be, en, "\n", pos);
+			} else {
+		   		iter = eatUntil(be, en, "\n>", pos);
 			}
 			auto posCopy = pos;
 			ret.push_back(std::move(
@@ -215,8 +214,6 @@ Children mainParse(I& be, I& en,  Pos& pos) {
 			char iterC = *iter;
 			eat(be, iterC, pos);
 
-			//if(dynamic_cast<TNode*>(ret.back().get())->line.front() != '&'
-			//&&
 			if(iterC == '>') 
 			{
 				break;

@@ -1,4 +1,7 @@
-& #include <amberhead.hpp>
+& #include <ostream>
+
+& void build(std::ostream& out) {
+
 < foo 
 	< bar.args some text about stuff>
 	< bzz.args#hello >
@@ -36,3 +39,5 @@
 		>
 	>
 >
+
+& }
