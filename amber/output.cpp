@@ -6,9 +6,19 @@ static void createIndent(std::ostream& out, const size_t indent) {
 	}
 }
 
+static std::ostream& Beg(std::ostream& out) {
+	out<<"out<<\"";
+	return out;
+}
+
+static std::ostream& End(std::ostream& out) {
+	out<<"\";\n";
+	return out;
+}
+
 void Node::gen(std::ostream& out, const size_t indent) { 
 	createIndent(out, indent);
-	out<<'<'<<this->type;
+	Beg(out)<<'<'<<this->type;
 	if(!this->idLit.empty()) {
 		out<<" id=\""<<this->idLit<<'"';
 	}
@@ -20,17 +30,20 @@ void Node::gen(std::ostream& out, const size_t indent) {
 	}
 
 	if(this->openClose) {
-		out<<"/>\n";
+		out<<"/>";
+		End(out);
 		return;
 	}
 
-	out<<'>'<<'\n';
+	out<<">\\n";
+   	End(out);
 	for(auto& it : children) {
 		it->gen(out, indent+1);
 	}
 
 	createIndent(out, indent);
-	out<<'<'<<this->type<<"/>"<<'\n';
+	Beg(out)<<'<'<<this->type<<"/>\\n";
+	End(out);
 }
 
 void CNode::gen(std::ostream& out, const size_t) { 
@@ -47,9 +60,11 @@ void TNode::gen(std::ostream& out, const size_t indent) {
 		while(be != en && ( *be == ' ' || *be == '\t')) {
 			++be;
 		}
-		std::copy( be, en, std::ostream_iterator<char>(out));
+		std::copy(be, en, std::ostream_iterator<char>(out));
 	} else {
-		std::copy( be, en, std::ostream_iterator<char>(out));
+		Beg(out);
+		std::copy(be, en, std::ostream_iterator<char>(out));
+		out<<"\";";
 	}
 	out<<'\n';
 }
