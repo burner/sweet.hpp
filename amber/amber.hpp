@@ -49,12 +49,19 @@ struct CNode : public AstBase {
 	std::string program;
 };
 
+enum class TNodeType {
+	Text,
+	SingleCppLine,
+	Include
+};
+
 struct TNode : public AstBase {
-	TNode(std::string&& p, const Pos& po);
+	TNode(std::string&& p, const Pos& po, const TNodeType t);
 
 	void gen(std::ostream& out, const size_t) override;
 
 	std::string line;
+	TNodeType type;
 };
 
 //void createIndent(std::ostream& out, const size_t indent);

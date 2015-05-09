@@ -27,8 +27,8 @@ CNode::CNode(std::string&& p, const Pos& po) : AstBase(po),
 {
 }
 
-TNode::TNode(std::string&& l, const Pos& po) : AstBase(po), 
-	line(std::move(l)) 
+TNode::TNode(std::string&& l, const Pos& po, const TNodeType t) : AstBase(po), 
+	line(std::move(l)), type(t)
 {
 }
 
@@ -124,6 +124,18 @@ NPtr parseC(I& be, I& en, Pos& pos) {
 }
 
 template<typename I>
+NPtr parseHeader(I& be, I& en, Pos& pos) {
+	eatWhitespace(be, en, pos);
+
+	auto beCopy = be;
+	if(test(beCopy, en, "<{{")) {
+		return parseC(be, en, pos);
+	} else {
+		return std::make_unique<CNode>("", pos);
+	}
+}
+
+template<typename I>
 NPtr parseNode(I& be, I& en, Pos& pos) {
 	eat(be, '<', pos);
 	eatWhitespace(be, en, pos);
@@ -188,7 +200,35 @@ Children mainParse(I& be, I& en,  Pos& pos) {
 	while(be != en) {
 		eatWhitespace(be, en, pos);
 
-		if(test(be, en, "<{{")) {
+		if(test(be, en, "<&")) {
+			eat(be, "<&", pos);
+			auto iter = be;
+			
+			for(; !test(iter, en, "&>"); increment(iter, pos)) {}
+			auto oldIter = iter;
+			eat(iter, "&>", pos);
+
+			while(be != oldIter && std::isspace(*be)) {
+				++be;
+			}
+
+			while(oldIter != be && std::isspace(*iter)) {
+				--iter;
+			}
+
+			if(be == oldIter) {
+				throw std::logic_error("Include statement cannot be empty");
+			}
+
+			ret.push_back(std::move(
+				std::make_unique<TNode>(std::move(
+					std::string(be, oldIter)), pos, TNodeType::Include
+				)
+			));
+
+			be = iter;
+
+		} else if(test(be, en, "<{{")) {
 			ret.push_back(std::move(parseC(be, en, pos)));	
 		} else if(test(be, en, '<')) {
 			ret.push_back(std::move(parseNode(be, en, pos)));
@@ -197,15 +237,18 @@ Children mainParse(I& be, I& en,  Pos& pos) {
 			break;
 		} else {
 			I iter;
+			TNodeType type;	
 			if(!test(be, en, "&{{") && *be == '&') {
 		   		iter = eatUntil(be, en, "\n", pos);
+				type = TNodeType::SingleCppLine;
 			} else {
 		   		iter = eatUntil(be, en, "\n>", pos);
+				type = TNodeType::Text;
 			}
 			auto posCopy = pos;
 			ret.push_back(std::move(
 				std::make_unique<TNode>(std::move(
-					std::string(be, iter)), posCopy
+					std::string(be, iter)), posCopy, type
 				)
 			));
 
@@ -252,6 +295,10 @@ int main(int argc, char **argv) {
 	Pos pos;
 	auto b = storage.begin();
 	auto e = storage.end();
+
+	auto header = parseHeader(b, e, pos);
+	header->gen(std::cout, 0);
+
 	auto rslt = mainParse(b, e, pos);
 
 	for(auto& it : rslt) {

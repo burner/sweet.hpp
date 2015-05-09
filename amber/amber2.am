@@ -1,6 +1,6 @@
-& #include <ostream>
-
-& void build(std::ostream& out) {
+<{{
+#include <ostream>
+}}>
 
 < foo 
 	< bar.args some text about stuff>
@@ -39,5 +39,3 @@
 		>
 	>
 >
-
-& }
