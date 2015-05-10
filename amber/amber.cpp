@@ -48,24 +48,6 @@ bool increment(I& iter, Pos& pos, const size_t cnt = 1) {
 }
 
 template<typename I>
-void eatWhitespace(I& be, I& en, Pos& pos) {
-	while(be != en) {
-		const auto b = *be;
-		if(b != ' ' && b != '\t' && b != '\n') {
-			break;
-		}
-		if(b == '\n') {
-			pos.row++;
-			pos.column = 1;
-		} else {
-			pos.column++;
-		}
-
-		++be;
-	}
-}
-
-template<typename I>
 void eat(I& iter, const char toEat, Pos& pos) {
 	if(*iter == toEat) {
 		increment(iter, pos);	

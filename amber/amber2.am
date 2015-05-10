@@ -34,7 +34,9 @@
 
 		< ul
 		& for(size_t i = 0; i < 10; ++i) { // a single c++ line
-			< li &{{ i }}& >
+			< li Item &{{ i }}& >
+			< li &{{ i }}& Item >
+			< li Item &{{ i }}& Item >
 		& }
 		>
 	>

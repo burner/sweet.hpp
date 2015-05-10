@@ -86,3 +86,22 @@ bool test(I be, I en, const std::string& tt) {
 	}
 }
 
+template<typename I>
+void eatWhitespace(I& be, I& en, Pos& pos) {
+	while(be != en) {
+		const auto b = *be;
+		if(b != ' ' && b != '\t' && b != '\n') {
+			break;
+		}
+		if(b == '\n') {
+			pos.row++;
+			pos.column = 1;
+		} else {
+			pos.column++;
+		}
+
+		++be;
+	}
+}
+
+
