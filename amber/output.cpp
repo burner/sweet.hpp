@@ -19,65 +19,45 @@ static std::ostream& End(std::ostream& out) {
 static void formatNormalLine(std::ostream& out, const std::string& str, 
 		const size_t indent) 
 {
-	/*auto be = str.find("&{{");
-	decltype(be) en = std::string::npos;
+	size_t i = 0;
+	const size_t ss = str.size();
 
-	createIndent(out, indent);
-	Beg(out)<<'"';
-	std::copy(str.begin(), 
-		(be != std::string::npos ? str.begin()+be : str.end()), 
-		std::ostream_iterator<char>(out));
-	End(out);
+	while(true) {
+		auto b = str.find("&{{", i);
 
-	while(be != std::string::npos) {
-		en = str.find("}}&", be);
+		b = (b == std::string::npos ? ss : b);
 
-		if(en == std::string::npos) {
-			throw std::logic_error("Embedded C++ expressing "
-				"not correctly ended");
+		if(b > i) {
+			//createIndent(out, indent);
+			auto iter = str.begin() + i;
+			auto iterB = str.begin() + b;
+			while(iter != iterB && std::isspace(*iter)) {
+				++iter;
+			}
+			Beg(out);
+			assert(!std::isspace(*iter));
+			std::copy(iter, iterB, 
+				std::ostream_iterator<char>(out));
+			End(out);
 		}
-		
-		createIndent(out, indent);
-		out<<"out<<(";
-		std::copy(str.begin()+be+3, str.begin()+en, 
-			std::ostream_iterator<char>(out));
-		out<<");\n";
 
-		be = en + 3u;
+		if(b == ss) {
+			break;
+		} else {
+			auto e = str.find("}}&", b);
+			assert(e != std::string::npos);
 
-		be = str.find("&{{", en);
-	}
+			createIndent(out, indent);
+			auto iter = str.begin() + b + 3;
+			auto iterB = str.begin() + e;
+			out<<"out<<(";
+			//std::copy(str.begin() + b + 3, str.begin() + e, 
+			std::copy(iter, iterB, 
+				std::ostream_iterator<char>(out));
+			out<<");\n";
 
-	//std::copy(str.begin()+be, str.begin()+en, 
-	//	std::ostream_iterator<char>(out));
-	*/
-	auto be = str.begin();
-	auto en = str.end();
-
-	while(be != en) {
-		auto ben = be;
-		for(; ben != en && *ben != '&'; ++ben) {}
-
-		out<<"out<<\"";
-		std::copy(be, ben, std::ostream_iterator<char>(out));
-		out<<"\"";
-		break;
-
-		//be = ben;
-		//if(test(be, en, "&{{")) {
-		//	be += 3u;
-
-		//	ben = be;
-		//	for(; ben != en && test(ben,en,"}}&"); ++ben) {}
-
-		//	out<<"out<<(";
-		//	std::copy(be, ben, std::ostream_iterator<char>(out));
-		//	out<<");\\n"<<"\n";
-
-		//	be += 3;
-		//}
-
-		//++be;
+			i = e + 3u;
+		}
 	}
 }
 
@@ -121,11 +101,11 @@ void TNode::gen(std::ostream& out, const size_t indent) {
 	auto en = this->line.end();
 
 	eatWhitespace(be, en, pos);
-	createIndent(out, indent);
 
 	if(!test(be, en, "&{{") && test(be, en, '&')) {
 		++be;
 		eatWhitespace(be, en, pos);
+		createIndent(out, indent + 1);
 		std::copy(be, en, std::ostream_iterator<char>(out));
 	} else {
 		formatNormalLine(out, this->line, indent+1);
