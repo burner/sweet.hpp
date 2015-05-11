@@ -28,7 +28,7 @@ static void formatNormalLine(std::ostream& out, const std::string& str,
 		b = (b == std::string::npos ? ss : b);
 
 		if(b > i) {
-			//createIndent(out, indent);
+			createIndent(out, indent);
 			auto iter = str.begin() + i;
 			auto iterB = str.begin() + b;
 			while(iter != iterB && std::isspace(*iter)) {
@@ -105,10 +105,10 @@ void TNode::gen(std::ostream& out, const size_t indent) {
 	if(!test(be, en, "&{{") && test(be, en, '&')) {
 		++be;
 		eatWhitespace(be, en, pos);
-		createIndent(out, indent + 1);
+		createIndent(out, indent);
 		std::copy(be, en, std::ostream_iterator<char>(out));
 	} else {
-		formatNormalLine(out, this->line, indent+1);
+		formatNormalLine(out, this->line, indent);
 	}
 	out<<'\n';
 }
