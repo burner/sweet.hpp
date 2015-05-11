@@ -104,4 +104,10 @@ void eatWhitespace(I& be, I& en, Pos& pos) {
 	}
 }
 
+struct CmdOptions {
+	std::string input;
+	std::string output;
+	std::string functionName;
 
+	bool allOk;
+};

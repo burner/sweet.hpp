@@ -5,6 +5,7 @@
 #include <utility>
 #include <cctype>
 #include <stdexcept>
+#include <boost/program_options.hpp>
 
 Pos::Pos() : row(1), column(1) {}
 
@@ -250,20 +251,51 @@ Children mainParse(I& be, I& en,  Pos& pos) {
 	return ret;
 }
 
-int main(int argc, char **argv) {
-	char const* filename;
-	if(argc > 1) {
-		filename = argv[1];
-	} else {
-		std::cerr << "Error: No input file provided." << std::endl;
+static const CmdOptions parseOptions(int argc, char** argv) {
+	CmdOptions ret;
+
+	namespace po = boost::program_options; 
+	po::options_description desc("Options"); 
+	desc.add_options() 
+		("help,h", "Print help messages") 
+		("input,i",po::value<std::string>(&ret.input)->required(),"The input file")
+		("output,o",po::value<std::string>(&ret.output)->required(),"The output file")
+		("function,n",po::value<std::string>(&ret.functionName)->required(),"The function name")
+	;
+
+	po::variables_map vm; 
+	po::store(po::parse_command_line(argc, argv, desc), vm);
+	if(vm.count("help")) { 
+		std::cout<<desc<<std::endl;
+	}
+
+	try {
+		po::notify(vm);
+		ret.allOk = true;
+	} catch(std::exception& e) {
+		std::cerr << "Error: " << e.what() << "\n";
+		ret.allOk = false;
+	}
+	catch(...) {
+		std::cerr << "Unknown error!" << "\n";
+		ret.allOk = false;
+	}
+
+	return ret;
+}
+
+int main(int argc, char** argv) {
+	const CmdOptions opt = parseOptions(argc, argv);
+
+	if(!opt.allOk) {
 		return 1;
 	}
 
-	std::ifstream in(filename, std::ios_base::in);
+	std::ifstream in(opt.input, std::ios_base::in);
 
 	if(!in) {
-		std::cerr << "Error: Could not open input file: "
-			<< filename << std::endl;
+		std::cerr << "Error: Could not open input file: \'"
+			<< opt.input << "\'" << std::endl;
 		return 1;
 	}
 
