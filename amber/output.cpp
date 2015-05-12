@@ -1,3 +1,4 @@
+// Copyright: Robert "burner" Schadek rburners@gmail.com License: GPL 3 or higher
 #include "amber.hpp"
 
 static void createIndent(std::ostream& out, const size_t indent) {

@@ -1,3 +1,4 @@
+// Copyright: Robert "burner" Schadek rburners@gmail.com License: GPL 3 or higher
 #pragma once
 #include <algorithm>
 #include <assert.h>
