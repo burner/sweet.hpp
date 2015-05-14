@@ -1,5 +1,5 @@
 <{{
-#include <ostream>
+//#include "someHeader.hpp"
 }}>
 
 < foo 

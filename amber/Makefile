@@ -1,7 +1,7 @@
-CXX=clang++
+#CXX=clang++
 
 test: all
-	./amber -i amber2.am	
+	./amber -i amber2.am -n amber2
 #./amber amberhead.am	
 
 all:

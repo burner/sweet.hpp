@@ -260,7 +260,7 @@ static const CmdOptions parseOptions(int argc, char** argv) {
 	desc.add_options() 
 		("help,h", "Print help messages") 
 		("input,i",po::value<std::string>(&ret.input)->required(),"The input file")
-		("output,o",po::value<std::string>(&ret.output)->required(),"The output file")
+		("output,o",po::value<std::string>(&ret.output),"The output file")
 		("function,n",po::value<std::string>(&ret.functionName)->required(),"The function name")
 	;
 
@@ -300,6 +300,16 @@ int main(int argc, char** argv) {
 		return 1;
 	}
 
+	std::ostream* output = &std::cout;
+
+	std::ofstream oFile;
+
+	if(!opt.output.empty()) {
+		oFile.open(opt.output, std::ofstream::out);	
+
+		output = &oFile;
+	}
+
 	std::string storage; // We will read the contents here.
 	in.unsetf(std::ios::skipws); // No white space skipping!
 	std::copy(
@@ -311,14 +321,22 @@ int main(int argc, char** argv) {
 	auto b = storage.begin();
 	auto e = storage.end();
 
+	*output<<"#pragma once\n";
+	*output<<"\n#include <ostream>\n";
+
 	auto header = parseHeader(b, e, pos);
-	header->gen(std::cout, 0);
+	header->gen(*output, 0);
+
+	*output<<"template<typename O, typename P>\n";
+	*output<<"void "<<opt.functionName<<"(O& out, P& params) {\n";
 
 	auto rslt = mainParse(b, e, pos);
 
 	for(auto& it : rslt) {
-		it->gen(std::cout, 0);
+		it->gen(*output, 0);
 	}
+
+	*output<<"}\n";
 
 	return 0;
 }

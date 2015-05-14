@@ -3,12 +3,12 @@
 
 static void createIndent(std::ostream& out, const size_t indent) {
 	for(size_t i = 0; i < indent; ++i) {
-		out<<'\t';	
+		out<<"\\t";	
 	}
 }
 
 static std::ostream& Beg(std::ostream& out) {
-	out<<"out<<\"";
+	out<<"\tout<<\"";
 	return out;
 }
 
@@ -29,13 +29,17 @@ static void formatNormalLine(std::ostream& out, const std::string& str,
 		b = (b == std::string::npos ? ss : b);
 
 		if(b > i) {
-			createIndent(out, indent);
 			auto iter = str.begin() + i;
 			auto iterB = str.begin() + b;
 			while(iter != iterB && std::isspace(*iter)) {
 				++iter;
 			}
+
+			if(iter == iterB) {
+				break;
+			}
 			Beg(out);
+			//createIndent(out, indent);
 			assert(!std::isspace(*iter));
 			std::copy(iter, iterB, 
 				std::ostream_iterator<char>(out));
@@ -48,10 +52,11 @@ static void formatNormalLine(std::ostream& out, const std::string& str,
 			auto e = str.find("}}&", b);
 			assert(e != std::string::npos);
 
-			createIndent(out, indent);
 			auto iter = str.begin() + b + 3;
 			auto iterB = str.begin() + e;
-			out<<"out<<(";
+			out<<"\tout<<";
+			//createIndent(out, indent);
+			out<<"(";
 			//std::copy(str.begin() + b + 3, str.begin() + e, 
 			std::copy(iter, iterB, 
 				std::ostream_iterator<char>(out));
@@ -63,13 +68,14 @@ static void formatNormalLine(std::ostream& out, const std::string& str,
 }
 
 void Node::gen(std::ostream& out, const size_t indent) { 
-	createIndent(out, indent);
-	Beg(out)<<'<'<<this->type;
+	Beg(out);
+	//createIndent(out, indent);
+	out<<'<'<<this->type;
 	if(!this->idLit.empty()) {
-		out<<" id=\""<<this->idLit<<'"';
+		out<<" id=\\\""<<this->idLit<<"\\\"";
 	}
 	if(!this->classLit.empty()) {
-		out<<" class=\""<<this->classLit<<'"';
+		out<<" class=\\\""<<this->classLit<<"\\\"";
 	}
 	if(!this->attributes.empty()) {
 		out<<' '<<this->attributes;
@@ -87,8 +93,9 @@ void Node::gen(std::ostream& out, const size_t indent) {
 		it->gen(out, indent+1);
 	}
 
-	createIndent(out, indent);
-	Beg(out)<<'<'<<this->type<<"/>\\n";
+	Beg(out);
+	//createIndent(out, indent);
+	out<<'<'<<this->type<<"/>\\n";
 	End(out);
 }
 
@@ -106,7 +113,8 @@ void TNode::gen(std::ostream& out, const size_t indent) {
 	if(!test(be, en, "&{{") && test(be, en, '&')) {
 		++be;
 		eatWhitespace(be, en, pos);
-		createIndent(out, indent);
+		//createIndent(out, indent);
+		out<<'\t';
 		std::copy(be, en, std::ostream_iterator<char>(out));
 	} else {
 		formatNormalLine(out, this->line, indent);
