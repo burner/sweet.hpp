@@ -6,12 +6,7 @@
 	< bar.args some text about stuff>
 	< bzz.args#hello >
 	< brr#hello >
-	< wdv(hello="asdj" bar="fjasd") >
-	<{{
-		void func(int a) {
-			
-		}
-	}}>
+	< wdv(hello=\"asdj\" bar=\"fjasd\") >
 	< baz 
 		this is some longer string that may
 		span multiple lines
@@ -27,7 +22,7 @@
 		< li Item C >
 	>
 
-	< h1 &{{ title }}& >
+	< h1 &{{ params }}& >
 
 	< p
 		Some text describing something
