@@ -1,0 +1,21 @@
+<{{
+
+}}>
+
+< html
+	< head 
+		< title A web page >
+	>
+	< body
+		< h1 A web page made with amber >
+
+		< h2 Amber can create webpages very fast >
+
+		< ul 
+			< li Native C++ HTML Generator >
+			< li Completly Programmable >
+			< li Easy to begin >
+		>	
+
+	>
+>

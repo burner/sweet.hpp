@@ -28,7 +28,7 @@
 		Some text describing something
 
 		< ul
-		& for(size_t i = 0; i < 10; ++i) { // a single c++ line
+		& for(size_t i = 0; i < 2; ++i) { // a single c++ line
 			< li Item &{{ i }}& >
 			< li &{{ i }}& Item >
 			< li Item &{{ i }}& Item >

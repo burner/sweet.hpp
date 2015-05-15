@@ -95,7 +95,7 @@ void Node::gen(std::ostream& out, const size_t indent) {
 
 	Beg(out);
 	//createIndent(out, indent);
-	out<<'<'<<this->type<<"/>\\n";
+	out<<"</"<<this->type<<">\\n";
 	End(out);
 }
 
