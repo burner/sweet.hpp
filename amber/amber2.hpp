@@ -6,6 +6,7 @@
 
 template<typename O, typename P>
 void amber2(O& out, P& params) {
+	out<<"<!DOCTYPE html>\n\";
 	out<<"<foo>\n";
 	out<<"<bar class=\"args\">\n";
 	out<<"some text about stuff";

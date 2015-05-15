@@ -261,6 +261,7 @@ static const CmdOptions parseOptions(int argc, char** argv) {
 		("help,h", "Print help messages") 
 		("input,i",po::value<std::string>(&ret.input)->required(),"The input file")
 		("output,o",po::value<std::string>(&ret.output),"The output file")
+		("doctype,d",po::value<std::string>(&ret.docType),"The DOCTYPE of the produced file. By default it is html")
 		("function,n",po::value<std::string>(&ret.functionName)->required(),"The function name")
 	;
 
@@ -329,6 +330,12 @@ int main(int argc, char** argv) {
 
 	*output<<"template<typename O, typename P>\n";
 	*output<<"void "<<opt.functionName<<"(O& out, P& params) {\n";
+
+	if(opt.docType.empty()) {
+		*output<<"\tout<<\"<!DOCTYPE html>\\n\\\";"<<std::endl;
+	} else {
+		*output<<"\tout<<\"<!DOCTYPE "<<opt.docType<<">\\n\\\";";
+	}
 
 	auto rslt = mainParse(b, e, pos);
 

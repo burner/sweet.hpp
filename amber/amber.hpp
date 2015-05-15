@@ -109,6 +109,7 @@ struct CmdOptions {
 	std::string input;
 	std::string output;
 	std::string functionName;
+	std::string docType;
 
 	bool allOk;
 };
