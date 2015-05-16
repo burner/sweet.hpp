@@ -1,11 +1,11 @@
 // Copyright: Robert "burner" Schadek rburners@gmail.com License: GPL 3 or higher
 #include "amber.hpp"
 
-static void createIndent(std::ostream& out, const size_t indent) {
+/*static void createIndent(std::ostream& out, const size_t indent) {
 	for(size_t i = 0; i < indent; ++i) {
 		out<<"\\t";	
 	}
-}
+}*/
 
 static std::ostream& Beg(std::ostream& out) {
 	out<<"\tout<<\"";
@@ -18,7 +18,7 @@ static std::ostream& End(std::ostream& out) {
 }
 
 static void formatNormalLine(std::ostream& out, const std::string& str, 
-		const size_t indent) 
+		const size_t /* indent */) 
 {
 	size_t i = 0;
 	const size_t ss = str.size();

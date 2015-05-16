@@ -17,5 +17,12 @@
 			< li Easy to begin >
 		>	
 
+		< ul
+		& for(size_t i = 0; i < 5; ++i) {
+			< li Item &{{ i }}& >
+		& }
+		
+		>
+
 	>
 >

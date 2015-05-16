@@ -332,9 +332,9 @@ int main(int argc, char** argv) {
 	*output<<"void "<<opt.functionName<<"(O& out, P& params) {\n";
 
 	if(opt.docType.empty()) {
-		*output<<"\tout<<\"<!DOCTYPE html>\\n\\\";"<<std::endl;
+		*output<<"\tout<<\"<!DOCTYPE html>\\n\";"<<std::endl;
 	} else {
-		*output<<"\tout<<\"<!DOCTYPE "<<opt.docType<<">\\n\\\";";
+		*output<<"\tout<<\"<!DOCTYPE "<<opt.docType<<">\\n\";";
 	}
 
 	auto rslt = mainParse(b, e, pos);
