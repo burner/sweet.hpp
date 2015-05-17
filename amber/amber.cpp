@@ -35,21 +35,6 @@ TNode::TNode(std::string&& l, const Pos& po, const TNodeType t) : AstBase(po),
 }
 
 template<typename I>
-bool increment(I& iter, Pos& pos, const size_t cnt = 1) {
-	bool ret = false;
-	if(*iter == '\n') {
-		++pos.row;
-		pos.column = 1u;
-		ret = true;
-	} else {
-		++pos.column;
-	}
-
-	iter += cnt;
-	return ret;
-}
-
-template<typename I>
 void eat(I& iter, const char toEat, Pos& pos) {
 	if(*iter == toEat) {
 		increment(iter, pos);	
@@ -68,25 +53,6 @@ void eat(I& iter, const std::string& toEat, Pos& pos) {
 	}
 
 	increment(iter, pos, toEatS);
-}
-
-template<typename I>
-I eatUntil(I& be, I& en, const std::string& until, Pos& pos) {
-	auto it = be;
-
-	while(it != en) {
-		for(auto c : until) {
-			if(c == *it) {
-				goto found;
-			}
-		}
-
-		increment(it, pos);
-	}
-
-	found:
-
-	return it;
 }
 
 template<typename I>
@@ -109,7 +75,7 @@ NPtr parseC(I& be, I& en, Pos& pos) {
 
 template<typename I>
 NPtr parseHeader(I& be, I& en, Pos& pos) {
-	eatWhitespace(be, en, pos);
+	eatWhitespaceComment(be, en, pos);
 
 	auto beCopy = be;
 	if(test(beCopy, en, "<{{")) {
@@ -122,7 +88,7 @@ NPtr parseHeader(I& be, I& en, Pos& pos) {
 template<typename I>
 NPtr parseNode(I& be, I& en, Pos& pos) {
 	eat(be, '<', pos);
-	eatWhitespace(be, en, pos);
+	eatWhitespaceComment(be, en, pos);
 
 	auto beCopy = be;
 	for(; beCopy != en && std::isalnum(*beCopy); increment(beCopy, pos)) {}
@@ -161,7 +127,7 @@ NPtr parseNode(I& be, I& en, Pos& pos) {
 		eat(be, ')', pos);
 	}
 
-	eatWhitespace(be, en, pos);
+	eatWhitespaceComment(be, en, pos);
 
 	if(test(be, en, "/>")) {
 		eat(be, "/>", pos);
@@ -182,9 +148,9 @@ Children mainParse(I& be, I& en,  Pos& pos) {
 	Children ret;
 
 	while(be != en) {
-		eatWhitespace(be, en, pos);
+		eatWhitespaceComment(be, en, pos);
 
-		if(test(be, en, "<&")) {
+		/*if(test(be, en, "<&")) {
 			eat(be, "<&", pos);
 			auto iter = be;
 			
@@ -212,7 +178,7 @@ Children mainParse(I& be, I& en,  Pos& pos) {
 
 			be = iter;
 
-		} else if(test(be, en, "<{{")) {
+		} else*/ if(test(be, en, "<{{")) {
 			ret.push_back(std::move(parseC(be, en, pos)));	
 		} else if(test(be, en, '<')) {
 			ret.push_back(std::move(parseNode(be, en, pos)));
@@ -223,13 +189,29 @@ Children mainParse(I& be, I& en,  Pos& pos) {
 			I iter;
 			TNodeType type;	
 			if(!test(be, en, "&{{") && *be == '&') {
-		   		iter = eatUntil(be, en, "\n", pos);
+		   		//iter = eatUntil(be, en, "\n", pos);
+				for(iter = be; !test(iter, en, '\n') && !test(iter, en, "//"); 
+						increment(iter, pos)) 
+				{
+				}
+				if(test(be, en, "//")) {
+					eatWhitespaceComment(be, en, pos);
+				}
 				type = TNodeType::SingleCppLine;
 			} else {
 		   		iter = eatUntil(be, en, "\n>", pos);
+				for(iter = be; 
+					!test(iter, en, '\n') && !test(iter, en, "//") && !test(iter, en, '>'); 
+					increment(iter, pos)) 
+				{
+				}
+				if(test(be, en, "//")) {
+					eatWhitespaceComment(be, en, pos);
+				}
 				type = TNodeType::Text;
 			}
 			auto posCopy = pos;
+			//std::cout<<"||| "<<std::string(be, iter)<<std::endl;
 			ret.push_back(std::move(
 				std::make_unique<TNode>(std::move(
 					std::string(be, iter)), posCopy, type
@@ -246,7 +228,7 @@ Children mainParse(I& be, I& en,  Pos& pos) {
 				break;
 			}
 		}
-		eatWhitespace(be, en, pos);
+		eatWhitespaceComment(be, en, pos);
 	}
 
 	return ret;

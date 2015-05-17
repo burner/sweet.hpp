@@ -88,6 +88,41 @@ bool test(I be, I en, const std::string& tt) {
 }
 
 template<typename I>
+bool increment(I& iter, Pos& pos, const size_t cnt = 1) {
+	bool ret = false;
+	if(*iter == '\n') {
+		++pos.row;
+		pos.column = 1u;
+		ret = true;
+	} else {
+		++pos.column;
+	}
+
+	iter += cnt;
+	return ret;
+}
+
+template<typename I>
+I eatUntil(I& be, I& en, const std::string& until, Pos& pos) {
+	auto it = be;
+
+	while(it != en) {
+		for(auto c : until) {
+			if(c == *it) {
+				goto found;
+			}
+		}
+
+		increment(it, pos);
+	}
+
+	found:
+
+	return it;
+}
+
+
+template<typename I>
 void eatWhitespace(I& be, I& en, Pos& pos) {
 	while(be != en) {
 		const auto b = *be;
@@ -102,6 +137,21 @@ void eatWhitespace(I& be, I& en, Pos& pos) {
 		}
 
 		++be;
+	}
+}
+
+template<typename I>
+void eatWhitespaceComment(I& be, I& en, Pos& pos) {
+	while(true) {
+		if(test(be, en, "//")) {
+			increment(be, pos, 2u);
+			be = eatUntil(be, en, "\n", pos);
+			eatWhitespace(be, en, pos);
+		} else if(std::isspace(*be)) {
+			eatWhitespace(be, en, pos);
+		} else {
+			break;
+		}
 	}
 }
 
