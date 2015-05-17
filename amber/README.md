@@ -16,7 +16,7 @@ Talk is cheap, let us begin:
 #include <string>
 }}>
 
-< html
+< html // this is a comment until the end of the line
 	< head 
 		< title A web page &{{ params["title"] }}&>
 	>
