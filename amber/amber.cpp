@@ -244,6 +244,7 @@ static const CmdOptions parseOptions(int argc, char** argv) {
 		("input,i",po::value<std::string>(&ret.input)->required(),"The input file")
 		("output,o",po::value<std::string>(&ret.output),"The output file")
 		("doctype,d",po::value<std::string>(&ret.docType),"The DOCTYPE of the produced file. By default it is html")
+		("nodoctype,c",po::value<bool>(&ret.noDocType),"If set no DOCTYPE will be written.")
 		("function,n",po::value<std::string>(&ret.functionName)->required(),"The function name")
 	;
 
@@ -313,9 +314,9 @@ int main(int argc, char** argv) {
 	*output<<"template<typename O, typename P>\n";
 	*output<<"void "<<opt.functionName<<"(O& out, P& params) {\n";
 
-	if(opt.docType.empty()) {
+	if(!opt.noDocType && opt.docType.empty()) {
 		*output<<"\tout<<\"<!DOCTYPE html>\\n\";"<<std::endl;
-	} else {
+	} else if(!opt.noDocType) {
 		*output<<"\tout<<\"<!DOCTYPE "<<opt.docType<<">\\n\";";
 	}
 

@@ -160,6 +160,7 @@ struct CmdOptions {
 	std::string output;
 	std::string functionName;
 	std::string docType;
+	bool noDocType = false;
 
 	bool allOk;
 };
