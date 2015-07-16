@@ -159,7 +159,7 @@ public:
 
 private:
 	Fector<value_type, Size> map;
-};
+};   
 
 
 } // namespace sweet
