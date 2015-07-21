@@ -25,7 +25,7 @@ addons:
     - gcc-4.8
     - g++-4.8
     - clang
-    - boost
+    - libboost-all-dev
 #   - libxqilla-dev # missing, but not needed?
 notifications:
   email: false
