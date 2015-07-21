@@ -10,11 +10,11 @@
 //#include <conv.hpp>
 #include <benchmark.hpp>
 
-#include <Wt/Dbo/Dbo>
-#include <Wt/Dbo/backend/Sqlite3>
-#include <Wt/Dbo/Session>
+//#include <Wt/Dbo/Dbo>
+//#include <Wt/Dbo/backend/Sqlite3>
+//#include <Wt/Dbo/Session>
 
-namespace dbo = Wt::Dbo;
+//namespace dbo = Wt::Dbo;
 
 class Person {
 public:
@@ -43,7 +43,7 @@ public:
 	std::string www;
 	int64_t zip;
 
-	template<class Action>
+	/*template<class Action>
 	void persist(Action& a) {
 		dbo::field(a, firstname, "firstname");
 		dbo::field(a, lastname, "lastname");
@@ -57,7 +57,7 @@ public:
 		dbo::field(a, mail, "mail");
 		dbo::field(a, www, "www");
 		dbo::field(a, zip, "zip");
-	}
+	}*/
 
 	static SqlTable<Person>& table() {
 		static SqlTable<Person> tab = SqlTable<Person>::sqlTable("Person",
