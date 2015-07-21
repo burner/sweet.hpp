@@ -14,3 +14,17 @@ before_script:
 script: 
   - make
   - ./sweettest
+
+addons:
+  apt:
+    sources:
+    - ubuntu-toolchain-r-test
+    packages:
+    - libyajl-dev
+    - libxml2-dev
+    - gcc-4.8
+    - g++-4.8
+    - clang
+#   - libxqilla-dev # missing, but not needed?
+notifications:
+  email: false
