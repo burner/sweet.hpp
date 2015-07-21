@@ -1,8 +1,10 @@
 language: cpp
 
 compiler:
-  - clang++
   - g++
+
+install:
+ - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
 
 before_script:
   - mkdir build
