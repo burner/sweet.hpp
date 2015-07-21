@@ -18,7 +18,7 @@ faptest/faptest.cpp
 fectortest/fectortest.cpp
 algotest/algotest.cpp
 dbctest/dbctest.cpp
-logtest/loggertest.cpp
+#logtest/loggertest.cpp
 formattest/formattest.cpp
 filesystemtest/filesystemtest.cpp
 sweetqltest/sweetqltest.cpp
