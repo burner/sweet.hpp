@@ -121,10 +121,3 @@ UNITTEST(benchmark) {
 		}
 	}
 }
-
-int main() {
-	auto t(sweet::Unit::runTests());
-	sweet::Benchmark::printResults();
-	std::cout<<"Number of asserts "<<sweet::Unit::getNumOfAsserts()<<std::endl;
-	return t;
-}

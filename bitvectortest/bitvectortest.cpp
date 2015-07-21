@@ -26,13 +26,9 @@ UNITTEST(setTest) {
 	}
 }
 
-int main() {
-	unsigned c = 0;
-	if((c = Unit::runTests())) {
-		WARN("%u errors occured", c);
-	}
+UNITTEST(bitvectortest) {
 
-	Bench a;
+	sweet::Bench a;
 	size_t nTests = 1<<22;
 	const size_t mod = 32;
 	size_t ac = 0;
@@ -50,7 +46,7 @@ int main() {
 	a.stop();
 	std::cout<<a.milli()<<" ";
 
-	Bench b;
+	sweet::Bench b;
 	for(size_t i = 0; i < nTests; ++i) {
 		std::bitset<mod> bs;
 		for(size_t j = 0; j < mod; ++j) {
@@ -63,7 +59,7 @@ int main() {
 	b.stop();
 	std::cout<<b.milli()<<" ";
 
-	Bench d;
+	sweet::Bench d;
 	for(size_t i = 0; i < nTests; ++i) {
 		std::vector<bool> bs(mod, false);
 		for(size_t j = 0; j < mod; ++j) {

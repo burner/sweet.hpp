@@ -42,10 +42,3 @@ UNITTEST(test2) {
 	}
 	AS_EQ(cnt, 1u);
 }
-
-int main() {
-	unsigned worked = sweet::Unit::runTests();
-	std::cout<<worked <<" Number of Asserts "<<
-		sweet::Unit::getNumOfAsserts()<<std::endl;
-	return 0;
-}

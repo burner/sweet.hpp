@@ -52,11 +52,3 @@ UNITTEST(intint) {
 	AS_T(sweet::greaterEqual(int128(1337), int128(1337)));
 	AS_F(sweet::greater(int128(1337), int128(1337)));
 }
-
-int main() {
-	unsigned c = 0;
-	if((c = sweet::Unit::runTests("TheNameOfTheFileWithTheBenchmarkResults"))) {
-		WARN("%u errors occured", c);
-	}
-	return 0;
-}

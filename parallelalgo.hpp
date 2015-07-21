@@ -165,15 +165,8 @@ struct FindEqual {
 	}
 };
 
-template<typename Iterator, typename T>
-Iterator find(Iterator begin, Iterator end, const T& value, 
-		size_t numThreads = getNumberOfCores()) 
-{
-	return find_if(begin, end, FindEqual<T>(value), numThreads);
-}
-
 template<typename Iterator, typename Unary>
-Iterator find_if(Iterator begin, Iterator end, Unary& pred, 
+Iterator find_if(Iterator begin, Iterator end, Unary pred, 
 		size_t numThreads = getNumberOfCores()) 
 {
 	size_t curSize = std::distance(begin, end);
@@ -210,6 +203,13 @@ Iterator find_if(Iterator begin, Iterator end, Unary& pred,
 	}
 
 	return found;
+}
+
+template<typename Iterator, typename T>
+Iterator find(Iterator begin, Iterator end, const T& value, 
+		size_t numThreads = getNumberOfCores()) 
+{
+	return find_if(begin, end, FindEqual<T>(value), numThreads);
 }
 
 } // namespace sweet

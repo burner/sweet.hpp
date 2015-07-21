@@ -11,14 +11,3 @@ UNITTEST(splittest1) {
 		AS_EQ(i, v[i]);
 	}
 }
-
-int main() {
-	unsigned rslt{sweet::Unit::runTests()};
-	if(rslt) {
-		std::cout<<rslt<<std::endl;
-	}
-
-	std::cout<<"Number of Asserts "<<sweet::Unit::getNumOfAsserts()<<std::endl;
-
-	return 0;
-}

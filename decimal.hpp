@@ -13,7 +13,7 @@
 namespace sweet {
 
 class Decimal {
-	friend std::ostream& operator<<(std::ostream&,const Decimal&);
+	//friend std::ostream& operator<<(std::ostream&,const Decimal&);
 public:
 
 	//
@@ -89,7 +89,7 @@ public:
 		return this->compare(t) == 1;
 	}
 
-private:
+//private:
 
 	//
 	// setting
@@ -275,7 +275,7 @@ private:
 
 }
 
-std::ostream& operator<<(std::ostream& os, const sweet.Decimal& d) {
+inline std::ostream& operator<<(std::ostream& os, const sweet::Decimal& d) {
 	os<<d.fixed<<'.'<<d.fraction;
 	return os;
 }

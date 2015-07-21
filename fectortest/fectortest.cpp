@@ -272,9 +272,3 @@ UNITTEST(emplace) {
 	AS_EQ(store[0].a, 1);
 	AS_EQ(store[0].b, 1.1);
 }
-
-int main() {
-	auto t(sweet::Unit::runTests());
-	sweet::Benchmark::printResults();
-	return t;
-}

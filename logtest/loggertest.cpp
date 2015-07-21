@@ -3,8 +3,9 @@
 //
 #include <log.hpp>
 #include <fstream>
+#include <unit.hpp>
 
-int main() {
+UNITTEST(loggertest) {
 	auto logOut = std::make_unique<std::ofstream>("logFile.log", 
 	//auto logOut = std::make_unique<std::ofstream>("/home/burner/storage/logFile.log", 
 		std::ios::app);
@@ -25,5 +26,4 @@ int main() {
 	for(int i = 0; i < 4; ++i) {
 		arr[i].join();	
 	}
-	return 0;
 }

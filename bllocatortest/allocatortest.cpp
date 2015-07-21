@@ -6,14 +6,14 @@
 #include <benchmark.hpp>
 
 // Mallocator
-UNITTEST(test1) {
+UNITTEST(bllocator_test1) {
 	sweet::Mallocator m;
 	auto ptr = m.allocate(10);
 	AS_T(ptr != nullptr);
 	m.deallocate(ptr);
 }
 
-UNITTEST(test2) {
+UNITTEST(bllocator_test2) {
 	typedef sweet::STLAllo<int,sweet::Mallocator> IntAllo;
 
 	std::vector<int, IntAllo> v1;
@@ -214,11 +214,7 @@ void fillMap(size_t cnt) {
 	}
 }
 
-int main() {
-	unsigned worked = sweet::Unit::runTests();
-	std::cout<<worked <<" Number of Asserts "<<
-		sweet::Unit::getNumOfAsserts()<<std::endl;
-
+UNITTEST(allocatortest) {
 	LOG("vector");
 	//std::vector<size_t> values {10,24,32,64,128,256,512};
 	std::vector<size_t> values {10,24,32,64};
@@ -286,6 +282,4 @@ int main() {
 
 		format(std::cout, "%10u: %9.4f %9.4f %9.4f %9.4f\n", i, a, b, c, d);
 	}
-
-	return 0;
 }

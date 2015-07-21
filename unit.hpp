@@ -404,7 +404,7 @@ namespace Unit {
 		}
 
 #ifdef SWEET_NO_UNITTEST
-		virtual void run_impl(const size_t __attribute__((unused)),size_t& __attribute__((unused))) {}
+		virtual inline void run_impl(const size_t __attribute__((unused)),size_t& __attribute__((unused))) {}
 		virtual void nevercall(const size_t __attribute__((unused)),size_t& __attribute__((unused))) = 0;
 #else
 		virtual void run_impl(const size_t __attribute__((unused)),size_t& __attribute__((unused))) = 0;

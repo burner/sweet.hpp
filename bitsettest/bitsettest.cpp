@@ -143,19 +143,3 @@ UNITTEST(access32) {
 		}
 	}
 }
-
-
-int main() {
-	auto t(sweet::Unit::runTests());
-	if(t) {
-		WARN("some tests failed");
-	} else {
-		LOG("check %s asserts", sweet::Unit::getNumOfAsserts());
-	}
-
-	/*for(int i = 0; i < 256; ++i) {
-	}
-	std::cout<<std::endl;
-	*/
-	return t;
-}

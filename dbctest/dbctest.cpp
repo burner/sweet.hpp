@@ -1,6 +1,7 @@
 #include <memory>
 #include <dbc.hpp>
 #include <logger.hpp>
+#include <unit.hpp>
 
 class InvarTest {
 public:
@@ -14,7 +15,7 @@ public:
 
 	inline void changeMethod() {
 		Invariant();
-		a = 33; 	// this contradicts the invariant
+		a = 10; 	// this contradicts does not the invariant
 	}
 };
 
@@ -26,15 +27,14 @@ void testFunc2(std::vector<int>& a, std::shared_ptr<int> sp) {
 	Rqr( SB(a,0), TE(a.size() % 12 == 0), NN(sp));
 }
 
-int main() {
-	int a;
+UNITTEST(dbctest) {
+	int a = 9;
 	int b = Esr(RN(8,a,10));
 	std::vector<int> v;
-	std::shared_ptr<int> sp(NULL);
+	//std::shared_ptr<int> sp(NULL);
 	InvarTest ivt;
-	testFunc(Esr(RN(10,b,12)), 0.7, &a);
+	testFunc(Esr(RN(7,b,12)), 0.7, &a);
 	ivt.changeMethod();
 	testFunc(9, 0.1, &a);
-	testFunc2(v, sp);
-	return 0;
+	//testFunc2(v, sp);
 }

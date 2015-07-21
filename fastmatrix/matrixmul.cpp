@@ -149,7 +149,7 @@ void compare(const std::vector<std::vector<float>>& a, const std::vector<std::ve
 	}
 }
 
-int main() {
+UNITTEST(matrixmul) {
 	const size_t N=2048;
 
 	for(size_t z = 0; z < 10; ++z) {
@@ -167,6 +167,4 @@ int main() {
 		compare(oldA, A);
 		//std::cout<<A<<std::endl;
 	}
-
-	Benchmark::printResults();
 }

@@ -74,9 +74,3 @@ UNITTEST(cachetest1) {
 	AS_F(c1.contains("not_a_key"));
 	LOG("bytes stored %u", c1.bytesStored());
 }
-
-int main() {
-	sweet::Unit::runTests();
-	std::cout<<"Number of Asserts "<<
-		sweet::Unit::getNumOfAsserts()<<std::endl;
-}

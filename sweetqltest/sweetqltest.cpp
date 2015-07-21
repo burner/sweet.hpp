@@ -6,6 +6,7 @@
 #include <iostream>
 #include <algorithm>
 #include <sweetql.hpp>
+#include <unit.hpp>
 //#include <conv.hpp>
 #include <benchmark.hpp>
 
@@ -201,8 +202,8 @@ PersonVec parsePersonFile(const std::string& fn) {
 	return ret;
 }
 
-int main() {
-	remove("testtable2.db");
+UNITTEST(sweetqltest) {
+	/*remove("testtable2.db");
 	Sqlite3 dbImpl("testtable2.db");
 	SweetQL<Sqlite3> db(dbImpl);
 	db.createTable<Person>();
@@ -266,7 +267,7 @@ int main() {
 		std::cout<<std::endl;
 	}
 
-	/*remove("testtable2_odb.db");
+	remove("testtable2_odb.db");
 	dbo::backend::Sqlite3 sqlite3("testtable2_odb.db");
 	dbo::Session session;
 	session.setConnection(sqlite3);

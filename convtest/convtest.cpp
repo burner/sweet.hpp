@@ -34,22 +34,3 @@ UNITTEST(intConvTest) {
 	char c = to<int8_t>(s);
 	AS_EQ(c, 1);
 }
-
-int main() {
-	auto utc = sweet::Unit::runTests();
-
-	sweet::Bench b;
-	const size_t cnt = 10000;
-	for(size_t i = 0; i < cnt; ++i) {
-		std::string sS = to<std::string>(to<int32_t>(i));
-	}
-	b.stop();
-	LOG("%u", b.milli());
-
-	b = sweet::Bench();
-	for(size_t i = 0; i < cnt; ++i) {
-		std::string sS = boost::lexical_cast<std::string>(boost::lexical_cast<int32_t>(i));
-	}
-	b.stop();
-	LOG("%u", b.milli());
-}

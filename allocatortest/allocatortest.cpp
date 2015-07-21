@@ -144,7 +144,7 @@ void fillMap(size_t cnt) {
 	}
 }
 
-int main() {
+UNITTEST(allocatortest) {
 	unsigned worked = sweet::Unit::runTests();
 	std::cout<<worked <<" Number of Asserts "<<
 		sweet::Unit::getNumOfAsserts()<<std::endl;
@@ -207,6 +207,4 @@ int main() {
 		format(std::cout, "%10u: %5.4f %5.4f %5.4f %5.4f %5.4f\n", i, a, b, c, d, e);
 		*/
 	}
-
-	return 0;
 }

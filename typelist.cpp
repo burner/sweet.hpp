@@ -51,11 +51,3 @@ template<typename Head, typename...  TailTypes>
 struct typelist_make<Head, TailTypes...> 
 : typelist_pair<Head,
 	typelist_make<TailTypes...>> {};
-
-int main() {
-	typedef typelist_make<int,short,long,long long> ThreeInts;
-	ThreeInts i;
-	std::cout<<sizeof(i)<<std::endl;
-
-	return 0;
-}

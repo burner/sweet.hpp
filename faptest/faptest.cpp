@@ -106,12 +106,3 @@ UNITTEST(simple) {
 	auto jt2 = store2.find(12);
 	AS_T(jt2 != store2.end());
 }
-
-int main() {
-	auto t(sweet::Unit::runTests());
-	if(t != 0) {
-		WARN("some tests failed %u", t);
-	}
-	sweet::Benchmark::printResults();
-	return t;
-}

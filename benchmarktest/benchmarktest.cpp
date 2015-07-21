@@ -1,5 +1,6 @@
 #include <iostream>
 #include <benchmark.hpp>
+#include <unit.hpp>
 
 void fun() {
 	BENCH(fun);
@@ -12,7 +13,7 @@ void fun() {
 	}
 }
 
-int main() {
+UNITTEST(benchmarktest) {
 	BENCH(main);
 	for(int i = 0; i < 2<<10; ++i) {
 		fun();

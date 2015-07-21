@@ -2,6 +2,7 @@
 #include <stdint.h>
 
 #include <logger.hpp>
+#include <unit.hpp>
 
 typedef std::vector<int> VectorInt;
 
@@ -56,7 +57,7 @@ struct VectorRange {
 	const VectorInt& vec;
 };
 
-int main() {
+UNITTEST(rangetest) {
 	VectorInt vi {1,2,3,4,5,6,7,8};
 
 	for(auto& v : VectorRange(vi)) {

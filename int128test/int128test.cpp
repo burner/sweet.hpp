@@ -27,7 +27,7 @@ UNITTEST(pow) {
 	}
 }
 
-int main() {
+UNITTEST(int128test) {
 	int128 a(1337.0);
 	int128 b(1338);
 	int128 e(to<short>(1338));
@@ -53,8 +53,4 @@ int main() {
 		f *= i;	
 		//format(std::cout, "%22u, %22u\n", f.high, f.low);
 	}
-
-	auto t(sweet::Unit::runTests());
-
-	return 0;
 }

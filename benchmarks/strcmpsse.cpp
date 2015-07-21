@@ -6,6 +6,8 @@
 #include <benchmark.hpp>
 #include "smmintrin.h"
 
+#include "../unit.hpp"
+
 /*
 strcmpSSE42:
         push    ebp
@@ -87,7 +89,7 @@ int sse_strcmp(const char *p1, const char *p2)  {
 	__m128i smm2 = _mm_loadu_si128 ((__m128i *) p2);
 	int ResultIndex;
 	while (1) {
-		ResultIndex = _mm_cmpistri (smm1, smm2, mode );
+		ResultIndex = _mm_cmpistri (smm1, smm2, static_cast<char>(mode) );
 		if (ResultIndex != 16) { break; }
 		p1 = p1+16;
 		p2 = p2+16;
@@ -101,7 +103,7 @@ int sse_strcmp(const char *p1, const char *p2)  {
 	return 0;
 }
 
-int main() {
+/*UNITTEST(strcmpsse) {
 	std::ifstream infile("text3");
 	std::vector<std::string> words(10000);
 	std::string line;
@@ -118,7 +120,7 @@ int main() {
 	std::vector<size_t> wf(words.size());
 	std::vector<size_t> ws(words.size());
 
-	Bench normal;
+	sweet::Bench normal;
 	const size_t wordsSize = words.size();
 	for(size_t i = 0; i < wordsSize; ++i) {
 		for(size_t j = 0; j < wordsSize; ++j) {
@@ -132,7 +134,7 @@ int main() {
 	LOG("normal %f", normal.milli());
 	LOG("%u %u", words.size(), shuffle.size());
 
-	Bench sse;
+	sweet::Bench sse;
 	for(size_t i = 0; i < wordsSize; ++i) {
 		for(size_t j = 0; j < wordsSize; ++j) {
 			if(sse_strcmp(words[i].c_str(), shuffle[j].c_str())) {
@@ -146,8 +148,7 @@ int main() {
 
 	for(size_t i = 0; i < wordsSize; ++i) {
 		if(wf[i] != ws[i]) {
-			return 1;
+			return;
 		}
 	}
-	return 0;
-}
+}*/
