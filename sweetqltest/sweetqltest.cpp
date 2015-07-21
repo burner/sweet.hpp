@@ -187,8 +187,8 @@ PersonVec parsePersonFile(const std::string& fn) {
 	std::string line;
 	boost::regex re("\"[^\"]+\"");
 	while(std::getline(infile, line)) {
-		auto reBe = boost::sregex_iterator(line.begin(), line.end(), re);
-    	auto reEn = boost::sregex_iterator();
+		boost::sregex_iterator reBe(line.begin(), line.end(), re);
+    	boost::sregex_iterator reEn();
 		std::transform(reBe, reEn, std::back_inserter(v), [&v]
 			(const boost::smatch& it) {
 				return it.str().substr(1, it.str().size()-2);

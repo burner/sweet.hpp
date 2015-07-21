@@ -21,7 +21,6 @@ dbctest/dbctest.cpp
 #logtest/loggertest.cpp
 formattest/formattest.cpp
 filesystemtest/filesystemtest.cpp
-sweetqltest/sweetqltest.cpp
 benchmarks/strcmpsse.cpp
 benchmarks/setVsUnordered.cpp
 convtest/convtest.cpp
@@ -98,4 +97,4 @@ add_executable(sweettest
 	${sweettest_HEADERS}
 )
 
-target_link_libraries(sweettest sqlite3 pthread boost_regex)
+target_link_libraries(sweettest sqlite3 pthread)

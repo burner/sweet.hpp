@@ -3,8 +3,15 @@ language: cpp
 compiler:
   - g++
 
-install:
- - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
+before_install:
+    - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+    - sudo add-apt-repository ppa:boost-latest/ppa -y
+    - sudo apt-get update
+    - sudo apt-get --assume-yes install gcc-4.9 g++-4.9 libboost1.55-dev
+    - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.9 20;
+    - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.9 20;
+    - sudo update-alternatives --config gcc;
+    - sudo update-alternatives --config g++;
 
 before_script:
   - mkdir build
@@ -15,17 +22,5 @@ script:
   - make
   - ./sweettest
 
-addons:
-  apt:
-    sources:
-    - ubuntu-toolchain-r-test
-    packages:
-    - libyajl-dev
-    - libxml2-dev
-    - gcc-4.8
-    - g++-4.8
-    - clang
-    - libboost-all-dev
-#   - libxqilla-dev # missing, but not needed?
 notifications:
   email: false
