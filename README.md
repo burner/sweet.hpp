@@ -1,7 +1,7 @@
 SWEET_HPP
 =========
 
-[!alt text](https://travis-ci.org/burner/sweet.hpp.svg?branch=master )
+![alt text](https://travis-ci.org/burner/sweet.hpp.svg?branch=master )
 
 A bunch of header useful for daily life. The headers contain functionally for
 everyday life. The tests are usually the documentation.
