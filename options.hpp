@@ -47,7 +47,7 @@ class Options {
 				std::cout<<it;
 			}
 
-			std::cout<<"\n\n";
+			std::cout<<"\n";
 		}	
 	};
 
