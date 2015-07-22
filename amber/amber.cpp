@@ -6,7 +6,7 @@
 #include <utility>
 #include <cctype>
 #include <stdexcept>
-#include <boost/program_options.hpp>
+#include <options.hpp>
 
 Pos::Pos() : row(1), column(1) {}
 
@@ -150,35 +150,7 @@ Children mainParse(I& be, I& en,  Pos& pos) {
 	while(be != en) {
 		eatWhitespaceComment(be, en, pos);
 
-		/*if(test(be, en, "<&")) {
-			eat(be, "<&", pos);
-			auto iter = be;
-			
-			for(; !test(iter, en, "&>"); increment(iter, pos)) {}
-			auto oldIter = iter;
-			eat(iter, "&>", pos);
-
-			while(be != oldIter && std::isspace(*be)) {
-				++be;
-			}
-
-			while(oldIter != be && std::isspace(*iter)) {
-				--iter;
-			}
-
-			if(be == oldIter) {
-				throw std::logic_error("Include statement cannot be empty");
-			}
-
-			ret.push_back(std::move(
-				std::make_unique<TNode>(std::move(
-					std::string(be, oldIter)), pos, TNodeType::Include
-				)
-			));
-
-			be = iter;
-
-		} else*/ if(test(be, en, "<{{")) {
+		if(test(be, en, "<{{")) {
 			ret.push_back(std::move(parseC(be, en, pos)));	
 		} else if(test(be, en, '<')) {
 			ret.push_back(std::move(parseNode(be, en, pos)));
@@ -237,34 +209,15 @@ Children mainParse(I& be, I& en,  Pos& pos) {
 static const CmdOptions parseOptions(int argc, char** argv) {
 	CmdOptions ret;
 
-	namespace po = boost::program_options; 
-	po::options_description desc("Options"); 
-	desc.add_options() 
-		("help,h", "Print help messages") 
-		("input,i",po::value<std::string>(&ret.input)->required(),"The input file")
-		("output,o",po::value<std::string>(&ret.output),"The output file")
-		("doctype,d",po::value<std::string>(&ret.docType),"The DOCTYPE of the produced file. By default it is html")
-		("nodoctype,c",po::value<bool>(&ret.noDocType),"If set no DOCTYPE will be written.")
-		("function,n",po::value<std::string>(&ret.functionName)->required(),"The function name")
-	;
+	sweet::Options opt(argc, argv);
+	opt.get("-i", "--input", "The input file", ret.input);
+	opt.get("-o", "--output", "The output file", ret.output);
+	opt.get("-d", "--doctype", "The DOCTYPE of the produced file. By default it is html", ret.output);
+	opt.get("-c", "--nodocttype", "If set no DOCTYPE will be written.", ret.noDocType);
+	opt.get("-n", "--function", "The function name", ret.functionName);
+	opt.finalize();
 
-	po::variables_map vm; 
-	po::store(po::parse_command_line(argc, argv, desc), vm);
-	if(vm.count("help")) { 
-		std::cout<<desc<<std::endl;
-	}
-
-	try {
-		po::notify(vm);
-		ret.allOk = true;
-	} catch(std::exception& e) {
-		std::cerr << "Error: " << e.what() << "\n";
-		ret.allOk = false;
-	}
-	catch(...) {
-		std::cerr << "Unknown error!" << "\n";
-		ret.allOk = false;
-	}
+	ret.allOk = true;
 
 	return ret;
 }

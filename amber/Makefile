@@ -1,7 +1,7 @@
 #CXX=clang++
 
 all:
-	${CXX} --std=c++14 -Wall -Wextra amber.cpp output.cpp -o amber -ggdb -lboost_program_options
+	${CXX} --std=c++14 -I.. -Wall -Wextra amber.cpp output.cpp -o amber -ggdb
 
 test: all
 	./amber -i amber3.am -n amber3 -o amber3.hpp

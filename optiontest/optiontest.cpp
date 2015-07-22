@@ -6,7 +6,7 @@ struct Config {
 };
 
 UNITTEST(optiontest) {
-	char* argv[14] = {"./optiontest", "--test", "1", "-b",
+	const char* argv[14] = {"./optiontest", "--test", "1", "-b",
 	   	"true", "-c", "3", "-f", "0", "--funs", "1", "-f", "2", "-h"};
 	int argc = 13;	
 	Config config;
