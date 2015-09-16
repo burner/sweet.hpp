@@ -43,6 +43,7 @@ stringtest/stringcmptest.cpp
 int128test/int128test.cpp
 decimaltest/decimaltest.cpp
 getoptstest/getoptstest.cpp
+combinationstest/combitest.cpp
 )
 
 set(sweettest_HEADERS
@@ -81,6 +82,7 @@ ssimd.hpp
 dbc.hpp
 conv.hpp
 sysinfo.hpp
+combinations.hpp
 )
 
 set(CMAKE_CXX_FLAGS "-Wall -Wextra -ggdb --std=c++1y -pedantic")

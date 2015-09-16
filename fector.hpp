@@ -32,7 +32,7 @@ namespace sweet {
 
 		Data data;
 
-		size_t idx; 
+		uint16_t idx; 
 
 		/*T* dataT() {
 			return reinterpret_cast<T*>(this->data);
@@ -45,6 +45,12 @@ namespace sweet {
 	public:
 		// constructor
 		inline Fector() : idx(0) {
+		}
+
+		inline Fector(std::initializer_list<T> l) : Fector() {
+			for(auto& it : l) {
+				this->push_back(it);
+			}
 		}
 
 		inline ~Fector() {
@@ -297,9 +303,24 @@ namespace sweet {
 		const_iterator rend() const {
 			return &this->data.dataT[0];
 		}
+
+		bool operator==(const Fector<T,Capacity>& other) const {
+			if(this->size() != other.size()) {
+				return false;
+			} else {
+				for(size_t i = 0; i < this->size(); ++i) {
+					if(this->operator[](i) != other[i]) {
+						return false;
+					}
+				}
+
+				return true;
+			}
+		}
 	};
 }
 
+namespace sweet {
 template<typename>
 struct is_sweet_Fector : std::false_type {};
 
@@ -318,7 +339,7 @@ std::ostream& operator<<(std::ostream& out, const sweet::Fector<T,S>& v) {
 			format(out, "%s ", tmp);
 		}
 	}
-	out<<std::endl;
 
 	return out;
+}
 }
