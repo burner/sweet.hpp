@@ -161,14 +161,14 @@ Children mainParse(I& be, I& en,  Pos& pos) {
 			I iter;
 			TNodeType type;	
 			if(!test(be, en, "&{{") && *be == '&') {
-		   		//iter = eatUntil(be, en, "\n", pos);
-				for(iter = be; !test(iter, en, '\n') && !test(iter, en, "//"); 
+		   		iter = eatUntil(be, en, "\n", pos);
+				/*for(iter = be; !test(iter, en, '\n') && !test(iter, en, "//"); 
 						increment(iter, pos)) 
 				{
 				}
 				if(test(be, en, "//")) {
 					eatWhitespaceComment(be, en, pos);
-				}
+				}*/
 				type = TNodeType::SingleCppLine;
 			} else {
 		   		iter = eatUntil(be, en, "\n>", pos);

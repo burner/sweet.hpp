@@ -2,74 +2,50 @@
 
 #include <ostream>
 
-//#include "someHeader.hpp"
+
 
 template<typename O, typename P>
 void amber2(O& out, P& params) {
-	out<<"<!DOCTYPE html>\n\";
-	out<<"<foo>\n";
-	out<<"<bar class=\"args\">\n";
-	out<<"some text about stuff";
+	out<<"<!DOCTYPE html>\n";
+	out<<"\n<html>";
+	out<<"\n\t<head>";
+	out<<"\n\t\t<title>";
+	out<<"\n\t\t\tA web page ";
 
-	out<<"</bar>\n";
-	out<<"<bzz id=\"hello\" class=\"args\">\n";
-	out<<"</bzz>\n";
-	out<<"<brr id=\"hello\">\n";
-	out<<"</brr>\n";
-	out<<"<wdv hello=\"asdj\" bar=\"fjasd\">\n";
-	out<<"</wdv>\n";
-	out<<"<baz>\n";
-	out<<"this is some longer string that may";
+	out<<"\n\t\t</title>";
+	out<<"\n\t</head>";
+	out<<"\n\t<body>";
+	out<<"\n\t\t<h1 class=\"foo\">";
+	out<<"\n\t\t\tA web page made with amber ";
 
-	out<<"span multiple lines";
+	out<<"\n\t\t</h1>";
+	out<<"\n\t\t<h2>";
+	out<<"\n\t\t\tAmber can create webpages very fast ";
 
-	out<<"<zzzz>\n";
-	out<<"</zzzz>\n";
-	out<<"<yyyy/>";
-	out<<"</baz>\n";
-	out<<"<openclose/>";
-	out<<"<openclose id=\"bar\" class=\"foo\"/>";
-	out<<"<ul>\n";
-	out<<"<li>\n";
-	out<<"Item A ";
+	out<<"\n\t\t</h2>";
+	out<<"\n\t\t<ul>";
+	out<<"\n\t\t\t<li>";
+	out<<"\n\t\t\t\tNative C++ HTML Generator ";
 
-	out<<"</li>\n";
-	out<<"<li>\n";
-	out<<"Item B ";
+	out<<"\n\t\t\t</li>";
+	out<<"\n\t\t\t<li>";
+	out<<"\n\t\t\t\tCompletly Programmable ";
 
-	out<<"</li>\n";
-	out<<"<li>\n";
-	out<<"Item C ";
+	out<<"\n\t\t\t</li>";
+	out<<"\n\t\t\t<li>";
+	out<<"\n\t\t\t\tEasy to begin ";
 
-	out<<"</li>\n";
-	out<<"</ul>\n";
-	out<<"<h1>\n";
-	out<<( params );
+	out<<"\n\t\t\t</li>";
+	out<<"\n\t\t</ul>";
+	out<<"\n\t\t<ul>";
+	for(size_t i = 0; i < 5; ++i) {
+	out<<"\n\t\t\t<li>";
+	out<<"\n\t\t\t\tItem ";
+	out<<"\t\t\t\t"<<( i );
 
-	out<<"</h1>\n";
-	out<<"<p>\n";
-	out<<"Some text describing something";
-
-	out<<"<ul>\n";
-	for(size_t i = 0; i < 2; ++i) { // a single c++ line
-	out<<"<li>\n";
-	out<<"Item ";
-	out<<( i );
-
-	out<<"</li>\n";
-	out<<"<li>\n";
-	out<<( i );
-	out<<"Item ";
-
-	out<<"</li>\n";
-	out<<"<li>\n";
-	out<<"Item ";
-	out<<( i );
-	out<<"Item ";
-
-	out<<"</li>\n";
+	out<<"\n\t\t\t</li>";
 	}
-	out<<"</ul>\n";
-	out<<"</p>\n";
-	out<<"</foo>\n";
+	out<<"\n\t\t</ul>";
+	out<<"\n\t</body>";
+	out<<"\n</html>";
 }

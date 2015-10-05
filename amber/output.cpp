@@ -1,14 +1,14 @@
 // Copyright: Robert "burner" Schadek rburners@gmail.com License: GPL 3 or higher
 #include "amber.hpp"
 
-/*static void createIndent(std::ostream& out, const size_t indent) {
+static void createIndent(std::ostream& out, const size_t indent) {
 	for(size_t i = 0; i < indent; ++i) {
 		out<<"\\t";	
 	}
-}*/
+}
 
 static std::ostream& Beg(std::ostream& out) {
-	out<<"\tout<<\"";
+	out<<"\tout<<\"\\n";
 	return out;
 }
 
@@ -18,7 +18,7 @@ static std::ostream& End(std::ostream& out) {
 }
 
 static void formatNormalLine(std::ostream& out, const std::string& str, 
-		const size_t /* indent */) 
+		const size_t indent) 
 {
 	size_t i = 0;
 	const size_t ss = str.size();
@@ -39,7 +39,7 @@ static void formatNormalLine(std::ostream& out, const std::string& str,
 				break;
 			}
 			Beg(out);
-			//createIndent(out, indent);
+			createIndent(out, indent);
 			assert(!std::isspace(*iter));
 			std::copy(iter, iterB, 
 				std::ostream_iterator<char>(out));
@@ -55,7 +55,9 @@ static void formatNormalLine(std::ostream& out, const std::string& str,
 			auto iter = str.begin() + b + 3;
 			auto iterB = str.begin() + e;
 			out<<"\tout<<";
-			//createIndent(out, indent);
+			out<<"\"";
+			createIndent(out, indent);
+			out<<"\"<<";
 			out<<"(";
 			//std::copy(str.begin() + b + 3, str.begin() + e, 
 			std::copy(iter, iterB, 
@@ -69,7 +71,7 @@ static void formatNormalLine(std::ostream& out, const std::string& str,
 
 void Node::gen(std::ostream& out, const size_t indent) { 
 	Beg(out);
-	//createIndent(out, indent);
+	createIndent(out, indent);
 	out<<'<'<<this->type;
 	if(!this->idLit.empty()) {
 		out<<" id=\\\""<<this->idLit<<"\\\"";
@@ -87,15 +89,15 @@ void Node::gen(std::ostream& out, const size_t indent) {
 		return;
 	}
 
-	out<<">\\n";
+	out<<">";
    	End(out);
 	for(auto& it : children) {
 		it->gen(out, indent+1);
 	}
 
 	Beg(out);
-	//createIndent(out, indent);
-	out<<"</"<<this->type<<">\\n";
+	createIndent(out, indent);
+	out<<"</"<<this->type<<">";
 	End(out);
 }
 
