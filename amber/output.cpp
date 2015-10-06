@@ -80,7 +80,19 @@ void Node::gen(std::ostream& out, const size_t indent) {
 		out<<" class=\\\""<<this->classLit<<"\\\"";
 	}
 	if(!this->attributes.empty()) {
-		out<<' '<<this->attributes;
+		// newlines kill c++ string therefore we change thoughs into spaces
+		out<<' ';
+		for(auto it = this->attributes.begin(); it != this->attributes.end(); 
+				++it)
+		{
+			if(*it == '\n') {
+				out<<' ';
+				for(; it != this->attributes.end() && std::isspace(*it); ++it) {}
+				--it;
+			} else {
+				out<<*it;
+			}
+		}
 	}
 
 	if(this->openClose) {
