@@ -216,7 +216,7 @@ Examples in: [here](optiontest/optiontest.cpp)
 compare.hpp
 -----------
 
-With this header you can make type safe comparisions without taking care of
+With this header you can make type safe comparisons without taking care of
 the types of the values compared.
 
 ```C++
