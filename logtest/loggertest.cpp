@@ -5,7 +5,12 @@
 #include <fstream>
 #include <unit.hpp>
 
-UNITTEST(loggertest) {
+#ifdef MAIN
+int main(int argc, char *argv[])
+#else
+UNITTEST(loggertest)
+#endif
+{
 	auto logOut = std::make_unique<std::ofstream>("logFile.log", 
 	//auto logOut = std::make_unique<std::ofstream>("/home/burner/storage/logFile.log", 
 		std::ios::app);

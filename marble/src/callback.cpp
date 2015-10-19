@@ -1,4 +1,3 @@
-
 #include "callback.hpp"
 
 namespace sweet {

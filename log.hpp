@@ -86,7 +86,7 @@ namespace sweet {
 			consumerSem.notify();
 		}
 
-		inline void log(std::unique_ptr<LoggerPayload> payload) {
+		inline void log(LoggerPayload&& payload) {
 			std::lock_guard<std::mutex> insert(dequeMutex);
 			payloads.emplace_back(std::move(payload));
 			consumerSem.notify();
@@ -100,13 +100,13 @@ namespace sweet {
 					break;
 				}
 
-				std::unique_ptr<LoggerPayload> p(std::move(payloads.front()));
+				LoggerPayload p(std::move(payloads.front()));
 				payloads.pop_front();
 
 				if(terminate && payloads.size() == 0u) {
 					dequeMutex.unlock();
-					if(p->logLevel >= this->logLevel) {
-						func(*output, *p);
+					if(p.logLevel >= this->logLevel) {
+						func(*output, p);
 						if(alwaysFlush) {
 							output->flush();
 						}
@@ -115,8 +115,8 @@ namespace sweet {
 				}
 				dequeMutex.unlock();
 
-				if(p->logLevel >= this->logLevel) {
-					func(*output, *p);
+				if(p.logLevel >= this->logLevel) {
+					func(*output, p);
 					if(alwaysFlush) {
 						output->flush();
 					}
@@ -130,7 +130,7 @@ namespace sweet {
 		bool terminate;
 		std::mutex dequeMutex;
 		sweet::Semaphore consumerSem;
-		std::deque<std::unique_ptr<LoggerPayload>> payloads;
+		std::deque<LoggerPayload> payloads;
 		std::thread writerThread;	
 		std::unique_ptr<std::ostream> outputPtr;
 	};
@@ -142,11 +142,10 @@ namespace sweet {
 
 	class LoggerSource {
 	public:
-		inline LoggerSource(const unsigned logLevel, const int line,  const char* filename, 
-			const char* prettyFunc) 
+		inline LoggerSource(const unsigned logLevel, const int line, 
+				const char* filename, const char* prettyFunc) 
+			: payload(logLevel, line, filename, prettyFunc)
 		{
-			this->payload = std::make_unique<LoggerPayload>(logLevel, line, filename, 
-					prettyFunc);
 		}
 
 		inline ~LoggerSource() {
@@ -155,7 +154,7 @@ namespace sweet {
 
 		template<typename... Args>
 		LoggerSource& operator()(const char* form, Args... a) {
-			format(payload->str, form, a...);
+			format(payload.str, form, a...);
 			return *this;
 		}
 
@@ -165,7 +164,7 @@ namespace sweet {
 
 		template<typename T>
 		LoggerSource& operator<<(const T& arg) {
-			payload->str<<arg;
+			payload.str<<arg;
 			return *this;
 		}
 
@@ -173,16 +172,17 @@ namespace sweet {
 			if(f == static_cast<
 				std::basic_ostream<char>& (*)(std::basic_ostream<char>&)>(std::endl))
 			{
-				payload->str<<std::endl;
+				payload.str<<std::endl;
 			} else {
-				payload->str<<f;
+				payload.str<<f;
 			}
-			payload->str<<std::endl;
+			payload.str<<std::endl;
 			return *this;
 		}
 
 	private:
-		std::unique_ptr<LoggerPayload> payload;
+		//std::unique_ptr<LoggerPayload> payload;
+		LoggerPayload payload;
 
 	};
 }
