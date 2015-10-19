@@ -144,7 +144,8 @@ namespace sweet {
 	public:
 		inline LoggerSource(const unsigned logLevel, const int line, 
 				const char* filename, const char* prettyFunc) 
-			: payload(logLevel, line, filename, prettyFunc)
+			: payload(logLevel, line, filename, prettyFunc), 
+			globalLogLevel(getLoggerDrain().logLevel)
 		{
 		}
 
@@ -154,7 +155,9 @@ namespace sweet {
 
 		template<typename... Args>
 		LoggerSource& operator()(const char* form, Args... a) {
-			format(payload.str, form, a...);
+			if(this->payload.logLevel >= this->globalLogLevel) {
+				format(payload.str, form, a...);
+			}
 			return *this;
 		}
 
@@ -164,25 +167,31 @@ namespace sweet {
 
 		template<typename T>
 		LoggerSource& operator<<(const T& arg) {
-			payload.str<<arg;
+			if(this->payload.logLevel >= this->globalLogLevel) {
+				payload.str<<arg;
+			}
 			return *this;
 		}
 
 		inline LoggerSource& operator<<(std::ostream&(*f)(std::ostream&) ) {
-			if(f == static_cast<
-				std::basic_ostream<char>& (*)(std::basic_ostream<char>&)>(std::endl))
-			{
+			if(this->payload.logLevel >= this->globalLogLevel) {
+				if(f == static_cast<
+					std::basic_ostream<char>& (*)(
+						std::basic_ostream<char>&)>(std::endl
+					))
+				{
+					payload.str<<std::endl;
+				} else {
+					payload.str<<f;
+				}
 				payload.str<<std::endl;
-			} else {
-				payload.str<<f;
 			}
-			payload.str<<std::endl;
 			return *this;
 		}
 
 	private:
 		//std::unique_ptr<LoggerPayload> payload;
 		LoggerPayload payload;
-
+		unsigned globalLogLevel;
 	};
 }
