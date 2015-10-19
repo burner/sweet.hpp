@@ -15,6 +15,7 @@ set(marble_SOURCES
 	src/request.cpp
 	src/request_parser.cpp
 	src/server_http.cpp
+	src/callback.cpp
 )
 
 set(marble_HEADERS
@@ -24,6 +25,9 @@ set(marble_HEADERS
 	src/request_parser.hpp
 	src/server_http.hpp
 	src/server_https.hpp
+	src/callback.hpp
+	src/function.hpp
+	src/callbacktype.hpp
 )
 
 set(CMAKE_CXX_FLAGS "-Wall -Wextra --std=c++14 -pedantic")

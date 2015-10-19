@@ -11,12 +11,5 @@ long safeSizetToLong(const size_t value) {
 	return static_cast<long>(value);
 }
 
-Callback::Callback() : type(CallbackType::INVALID) {
-}
-
-Callback::Callback(CallbackType ct, Function func) : type(ct) {
-	functions[static_cast<size_t>(ct)] = func;
-}
-
 }
 }

@@ -9,29 +9,15 @@
 #include <limits>
 
 #include "request.hpp"
+#include "callbacktype.hpp"
+#include "function.hpp"
+#include "callback.hpp"
 #include "request_parser.hpp"
 
 namespace sweet {
 namespace marble {
 
 	long safeSizetToLong(const size_t value);
-
-	typedef std::function<void(std::ostream&, std::shared_ptr<Request>)> 
-		Function;
-
-	enum class CallbackType {
-		POST,
-		GET,
-		INVALID
-	};
-
-	struct Callback {
-		CallbackType type;
-		Function functions[2];
-
-		Callback();
-		Callback(CallbackType ct, Function func);
-	};
 
     template <class socket_type>
     class ServerBase {
