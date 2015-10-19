@@ -3,7 +3,8 @@
 #include "server_http.hpp"
 #include <boost/asio/ssl.hpp>
 
-namespace SimpleWeb {
+namespace sweet {
+namespace marble {
     typedef boost::asio::ssl::stream<boost::asio::ip::tcp::socket> HTTPS;    
     
     template<>
@@ -51,4 +52,5 @@ namespace SimpleWeb {
             });
         }
     };
+}
 }

@@ -11,14 +11,10 @@
 #include "request.hpp"
 #include "request_parser.hpp"
 
-namespace SimpleWeb {
-	inline long safeSizetToLong(const size_t value) {
-		if(value > std::numeric_limits<long>::max()) {
-			throw std::range_error("failed to convert size_t to long");
-		}
-		
-		return static_cast<long>(value);
-	}
+namespace sweet {
+namespace marble {
+
+	long safeSizetToLong(const size_t value);
 
 	typedef std::function<void(std::ostream&, std::shared_ptr<Request>)> 
 		Function;
@@ -33,10 +29,8 @@ namespace SimpleWeb {
 		CallbackType type;
 		Function functions[2];
 
-		inline Callback() : type(CallbackType::INVALID) {}
-		inline Callback(CallbackType ct, Function func) : type(ct) {
-			functions[static_cast<size_t>(ct)] = func;
-		}
+		Callback();
+		Callback(CallbackType ct, Function func);
 	};
 
     template <class socket_type>
@@ -50,7 +44,7 @@ namespace SimpleWeb {
         ResourceVec resource_vec;
         Callback default_resource;
         
-        inline void start() {
+        void start() {
             all_resources.clear();
             for(auto it = resource_map.begin(); it != resource_map.end(); 
 					++it) 
@@ -77,11 +71,11 @@ namespace SimpleWeb {
             }
         }
         
-        inline void stop() {
+        void stop() {
             m_io_service.stop();
         }
 
-		inline boost::asio::io_service& getIoService() {
+		boost::asio::io_service& getIoService() {
 			return this->m_io_service;
 		}
 
@@ -101,7 +95,7 @@ namespace SimpleWeb {
         //Created in start()
         std::vector<typename ResourceMap::iterator> all_resources;
         
-        inline ServerBase(unsigned short port, size_t num_th, size_t timeout_req, 
+        ServerBase(unsigned short port, size_t num_th, size_t timeout_req, 
 				size_t timeout) : endpoint(boost::asio::ip::tcp::v4(), port), 
 				acceptor(m_io_service, endpoint), num_threads(num_th), 
                 timeout_request(timeout_req), timeout_content(timeout), 
@@ -110,7 +104,7 @@ namespace SimpleWeb {
         
         virtual void accept() = 0;
         
-        inline std::shared_ptr<boost::asio::deadline_timer> set_timeout_on_socket(
+        std::shared_ptr<boost::asio::deadline_timer> set_timeout_on_socket(
 				std::shared_ptr<socket_type> socket, long seconds) 
 		{
             auto timer(std::make_shared<boost::asio::deadline_timer>(m_io_service));
@@ -127,7 +121,7 @@ namespace SimpleWeb {
             return timer;
         }
         
-        inline void read_request_and_content(std::shared_ptr<socket_type> socket) {
+        void read_request_and_content(std::shared_ptr<socket_type> socket) {
             //Create new streambuf (Request::streambuf) for async_read_until()
             //shared_ptr is used to pass temporary objects to the asynchronous functions
 			auto request(std::make_shared<Request>());
@@ -221,7 +215,7 @@ namespace SimpleWeb {
         	});
 		}
 
-        inline void write_response(std::shared_ptr<socket_type> socket,
+        void write_response(std::shared_ptr<socket_type> socket,
 		   	std::shared_ptr<Request> request) 
 		{
             //Find path- and method-match, and generate response
@@ -297,4 +291,5 @@ namespace SimpleWeb {
             });
         }
     };
+}
 }

@@ -8,7 +8,8 @@
 #include <regex>
 #include <random>
 
-namespace SimpleWeb {
+namespace sweet {
+namespace marble {
     template <class socket_type>
     class ClientBase {
     public:
@@ -206,4 +207,5 @@ namespace SimpleWeb {
             }
         }
     };
+}
 }

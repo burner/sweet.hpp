@@ -2,7 +2,10 @@
 
 #include <boost/asio.hpp>
 #include <unordered_map>
-namespace SimpleWeb {
+#include <regex>
+
+namespace sweet {
+namespace marble {
 
 class Request {
 public:
@@ -11,8 +14,10 @@ public:
     std::unordered_map<std::string, std::string> header;
     std::smatch path_match;
 
-    Request(): content(&content_buffer) {}
+    Request();
     
     boost::asio::streambuf content_buffer;
 };
+
+}
 }
