@@ -8,7 +8,7 @@ Author: Robert "burner" Schadek rburners@gmail.com License: LGPL 3 or higher
 #pragma GCC diagnostic ignored "-Wsign-compare"
 #pragma GCC diagnostic ignored "-Wunused-variable"
 #pragma GCC diagnostic ignored "-Wsign-conversion"
-#pragma GCC diagnostic ignored "-Wstrict-aliasing"
+//#pragma GCC diagnostic ignored "-Wstrict-aliasing"
 
 #include <stdlib.h>
 #include <stdio.h>
