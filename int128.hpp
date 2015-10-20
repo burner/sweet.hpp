@@ -8,6 +8,7 @@ Author: Robert "burner" Schadek rburners@gmail.com License: LGPL 3 or higher
 #pragma GCC diagnostic ignored "-Wsign-compare"
 #pragma GCC diagnostic ignored "-Wunused-variable"
 #pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wstrict-aliasing"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -243,7 +244,9 @@ struct int128 {
 			// take the 54 mantissa bits and shift into position
 			//DoubleUint64 di;
 			//di.d = x;
-			t = *(reinterpret_cast<uint64_t *>(&x));
+			//t = *(reinterpret_cast<uint64_t *>(&x));
+			auto t2 = (reinterpret_cast<uint64_t *>(&x));
+			t = *t2;
 			m = (t & BITS51_0) | BIT_52;
 			t = (t & BITS62_0) >> 52;
 			//t = *(reinterpret_cast<uint64_t*>(reinterpret_cast<char*>(&x)));
@@ -266,7 +269,9 @@ struct int128 {
 			this->high = ((x<0) ? -1 : 0);
 		} else if(x < 1.7014118346046e38) {
 			// take the 54 mantissa bits and shift into position
-			t = *(reinterpret_cast<uint64_t *>(&x));
+			//t = *(reinterpret_cast<uint64_t *>(&x));
+			auto t2 = (reinterpret_cast<uint64_t *>(&x));
+			t = *t2;
 			//DoubleUint64 di;
 			//di.d = x;
 			//t = *(reinterpret_cast<uint64_t*>(reinterpret_cast<char*>(&x)));

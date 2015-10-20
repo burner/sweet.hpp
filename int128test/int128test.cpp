@@ -54,3 +54,10 @@ UNITTEST(int128test) {
 		//format(std::cout, "%22u, %22u\n", f.high, f.low);
 	}
 }
+
+#ifdef MAIN
+int main(int argc, char *argv[])
+{
+	return sweet::Unit::runTests();	
+}
+#endif
