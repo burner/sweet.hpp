@@ -145,15 +145,15 @@ NPtr parseNode(I& be, I& en, Pos& pos) {
 
 	if(test(be, en, "/>")) {
 		eat(be, "/>", pos);
-		return std::move(std::make_unique<Node>(std::move(type), 
+		return std::make_unique<Node>(std::move(type), 
 			std::move(classLit), std::move(idLit), std::move(attributes),
-			pos));
+			pos);
 	} else {
 		auto children = mainParse(be, en, pos);
 	
-		return std::move(std::make_unique<Node>(std::move(type), 
+		return std::make_unique<Node>(std::move(type), 
 			std::move(classLit), std::move(idLit), std::move(attributes),
-			std::move(children), pos));
+			std::move(children), pos);
 	}
 }
 
@@ -198,11 +198,10 @@ Children mainParse(I& be, I& en,  Pos& pos) {
 			}
 			auto posCopy = pos;
 			//std::cout<<"||| "<<std::string(be, iter)<<std::endl;
-			ret.push_back(std::move(
-				std::make_unique<TNode>(std::move(
-					std::string(be, iter)), posCopy, type
+			ret.push_back(
+				std::make_unique<TNode>(std::string(be, iter), posCopy, type
 				)
-			));
+			);
 
 			be = iter;
 
