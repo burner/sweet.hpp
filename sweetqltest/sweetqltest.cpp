@@ -9,6 +9,7 @@
 #include <unit.hpp>
 //#include <conv.hpp>
 #include <benchmark.hpp>
+#include <mysqlimpl.hpp>
 
 //#include <Wt/Dbo/Dbo>
 //#include <Wt/Dbo/backend/Sqlite3>
@@ -188,7 +189,7 @@ PersonVec parsePersonFile(const std::string& fn) {
 	boost::regex re("\"[^\"]+\"");
 	while(std::getline(infile, line)) {
 		boost::sregex_iterator reBe(line.begin(), line.end(), re);
-    	boost::sregex_iterator reEn();
+    	boost::sregex_iterator reEn;
 		std::transform(reBe, reEn, std::back_inserter(v), [&v]
 			(const boost::smatch& it) {
 				return it.str().substr(1, it.str().size()-2);
@@ -332,3 +333,14 @@ UNITTEST(sweetqltest) {
 		std::cout<<p.www<<std::endl;
 	});*/
 }
+
+UNITTEST(mysqlinit) {
+	MySQL m("localhost", "burner", "h5n1x264r", "testdb", 0, "", 0);
+}
+
+#ifdef MAIN
+int main(int argc, char *argv[])
+{
+	return sweet::Unit::runTests();	
+}
+#endif
