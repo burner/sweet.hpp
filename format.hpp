@@ -9,6 +9,7 @@
 #include <locale>
 #include <iomanip>
 #include <type_traits>
+#include <cctype>
 
 // yes I know
 #pragma GCC diagnostic ignored "-Wstrict-aliasing"
