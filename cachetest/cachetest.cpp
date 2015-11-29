@@ -1,4 +1,3 @@
-#include <set>
 #include <map>
 #include <unordered_set>
 #include <unordered_map>
@@ -74,3 +73,9 @@ UNITTEST(cachetest1) {
 	AS_F(c1.contains("not_a_key"));
 	LOG("bytes stored %u", c1.bytesStored());
 }
+
+#ifdef MAIN
+int main(int , char **) {
+	return sweet::Unit::runTests();	
+}
+#endif
