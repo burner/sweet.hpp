@@ -300,6 +300,18 @@ public:
 		step(stmt, stmtStr.str());
 	}
 
+	template<typename S>
+	void dropTable(bool ifExists=true) {
+		std::stringstream stmtStr;
+		stmtStr<<"DROP TABLE ";
+		if(ifExists) {
+			stmtStr<<" IF EXISTS ";
+		}
+		stmtStr<<S::table().name<<';';
+
+		sqlite3_exec(db, stmtStr.str().c_str(), NULL, NULL, NULL);
+	}
+
 private:
 	template<typename S>
 	inline static void addParameter(S& t, SqlTable<S>& tab, 

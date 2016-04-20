@@ -45,6 +45,11 @@ public:
 	}
 
 	template<typename S>
+	void dropTable(bool ifExists=true) {
+		this->impl. template dropTable<S>(ifExists);
+	}
+
+	template<typename S>
 	void remove(S& s) {
 		this->impl.remove(s);
 	}
