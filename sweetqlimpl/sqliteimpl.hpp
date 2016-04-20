@@ -263,9 +263,13 @@ public:
 	}
 
 	template<typename S>
-	void createTable() {
+	void createTable(bool ifNotExists=true) {
 		std::stringstream stmtStr;
-		stmtStr<<"CREATE TABLE "<<S::table().name<<'(';
+		stmtStr<<"CREATE TABLE ";
+		if(ifNotExists) {
+			stmtStr<<" IF NOT EXISTS ";
+		}
+		stmtStr<<S::table().name<<'(';
 		auto table(S::table());
 		const size_t size = table.column.size();
 		for(size_t i = 0; i < size; ++i) {
