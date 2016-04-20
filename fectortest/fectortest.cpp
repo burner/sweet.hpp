@@ -36,7 +36,7 @@ UNITTEST(popFront) {
 	for(int i = 0; i < 32; ++i) {
 		sweet::Fector<int,32> g = f;
 		g.pop_front(i);
-		AS_EQ(g.size(), 32-i);
+		AS_EQ(g.size(), 32u-i);
 		
 		int v = i;
 		for(int j = 0; j < 32-i; ++j) {
