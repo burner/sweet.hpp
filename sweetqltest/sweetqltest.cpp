@@ -203,6 +203,20 @@ PersonVec parsePersonFile(const std::string& fn) {
 	return ret;
 }
 
+UNITTEST(double_create) {
+	Sqlite3 dbImpl(":memory:");
+	SweetQL<Sqlite3> db(dbImpl);
+	db.createTable<Person>();
+	db.createTable<Person>();
+   // any good way to check existance of a table? SELECT?
+}
+
+UNITTEST(drop_non_existing_table) {
+	Sqlite3 dbImpl(":memory:");
+	SweetQL<Sqlite3> db(dbImpl);
+	db.dropTable<Person>();
+}
+
 UNITTEST(sweetqltest) {
 	/*remove("testtable2.db");
 	Sqlite3 dbImpl("testtable2.db");

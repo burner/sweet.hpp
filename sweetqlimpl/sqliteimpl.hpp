@@ -263,9 +263,13 @@ public:
 	}
 
 	template<typename S>
-	void createTable() {
+	void createTable(bool ifNotExists=true) {
 		std::stringstream stmtStr;
-		stmtStr<<"CREATE TABLE "<<S::table().name<<'(';
+		stmtStr<<"CREATE TABLE ";
+		if(ifNotExists) {
+			stmtStr<<" IF NOT EXISTS ";
+		}
+		stmtStr<<S::table().name<<'(';
 		auto table(S::table());
 		const size_t size = table.column.size();
 		for(size_t i = 0; i < size; ++i) {
@@ -273,8 +277,8 @@ public:
 				<<table.column[i].attr->getType();
 			stmtStr<<',';
 		}
-		stmtStr<<" PRIMARY KEY(";
 
+		stmtStr<<" PRIMARY KEY(";
 		bool first{true};
 		for(size_t i = 0; i < size; ++i) {
 			if(isPrimaryKey(table.column[i].attr->primaryKey)) {
@@ -283,17 +287,27 @@ public:
 				} else {
 					stmtStr<<", ";
 				}
-
 				stmtStr<<table.column[i].attrName;
 			}
 		}
-
 		stmtStr<<"));";
 
 		sqlite3_stmt* stmt;
 		sqlite3_prepare_v2(db, stmtStr.str().c_str(), stmtStr.str().size(),
 			&stmt, NULL);
 		step(stmt, stmtStr.str());
+	}
+
+	template<typename S>
+	void dropTable(bool ifExists=true) {
+		std::stringstream stmtStr;
+		stmtStr<<"DROP TABLE ";
+		if(ifExists) {
+			stmtStr<<" IF EXISTS ";
+		}
+		stmtStr<<S::table().name<<';';
+
+		sqlite3_exec(db, stmtStr.str().c_str(), NULL, NULL, NULL);
 	}
 
 private:

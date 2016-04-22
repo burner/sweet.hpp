@@ -40,8 +40,13 @@ public:
 	}
 
 	template<typename S>
-	void createTable() {
-		this->impl. template createTable<S>();
+	void createTable(bool ifNotExists=true) {
+		this->impl. template createTable<S>(ifNotExists);
+	}
+
+	template<typename S>
+	void dropTable(bool ifExists=true) {
+		this->impl. template dropTable<S>(ifExists);
 	}
 
 	template<typename S>
