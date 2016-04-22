@@ -277,8 +277,8 @@ public:
 				<<table.column[i].attr->getType();
 			stmtStr<<',';
 		}
-		stmtStr<<" PRIMARY KEY(";
 
+		stmtStr<<" PRIMARY KEY(";
 		bool first{true};
 		for(size_t i = 0; i < size; ++i) {
 			if(isPrimaryKey(table.column[i].attr->primaryKey)) {
@@ -287,11 +287,9 @@ public:
 				} else {
 					stmtStr<<", ";
 				}
-
 				stmtStr<<table.column[i].attrName;
 			}
 		}
-
 		stmtStr<<"));";
 
 		sqlite3_stmt* stmt;
