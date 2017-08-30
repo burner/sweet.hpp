@@ -2,6 +2,7 @@
 #pragma once
 
 #include <algorithm>
+#include <functional>
 #include <cassert>
 #include <deque>
 #include <list>

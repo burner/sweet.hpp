@@ -1,6 +1,9 @@
 // LGPL 3 or higher Robert Burner Schadek rburners@gmail.com
 #pragma once
 
+// yes I know
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+
 #include <stdint.h>
 #include <type_traits>
 #include <limits>
@@ -30,25 +33,25 @@ struct Count<uint8_t> {
 template<>
 struct Count<uint16_t> {
 	inline static size_t count(const uint16_t n) {
-		return bits_in_uint8[n & 0xFFU] + bits_in_uint8[(n >> 8) & 0xFFU];
+		return static_cast<size_t>(bits_in_uint8[n & 0xFFU] + bits_in_uint8[(n >> 8) & 0xFFU]);
 	}
 };
 
 template<>
 struct Count<uint32_t> {
 	inline static size_t count(const uint32_t n) {
-		return bits_in_uint8[n & 0xFFU] + bits_in_uint8[(n >> 8) & 0xFFU] + 
-			bits_in_uint8[(n >> 16) & 0xFFU] + bits_in_uint8[(n >> 24) & 0xFFU];
+		return static_cast<size_t>(bits_in_uint8[n & 0xFFU] + bits_in_uint8[(n >> 8) & 0xFFU] + 
+			bits_in_uint8[(n >> 16) & 0xFFU] + bits_in_uint8[(n >> 24) & 0xFFU]);
 	}
 };
 
 template<>
 struct Count<uint64_t> {
 	inline static size_t count(const uint64_t n) {
-		return bits_in_uint8[n & 0xFFU] + bits_in_uint8[(n >> 8) & 0xFFU] + 
+		return static_cast<size_t>(bits_in_uint8[n & 0xFFU] + bits_in_uint8[(n >> 8) & 0xFFU] + 
 			bits_in_uint8[(n >> 16) & 0xFFU] + bits_in_uint8[(n >> 24) & 0xFFU] +
 			bits_in_uint8[(n >> 32) & 0xFFU] + bits_in_uint8[(n >> 40) & 0xFFU] +
-			bits_in_uint8[(n >> 48) & 0xFFU] + bits_in_uint8[(n >> 56) & 0xFFU];
+			bits_in_uint8[(n >> 48) & 0xFFU] + bits_in_uint8[(n >> 56) & 0xFFU]);
 	}
 };
 

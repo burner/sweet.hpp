@@ -2,6 +2,7 @@
 #pragma once
 
 #include <limits>
+#include <functional>
 #include <chrono>
 #include <ctime>
 #include <mutex>

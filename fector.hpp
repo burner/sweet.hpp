@@ -318,6 +318,27 @@ namespace sweet {
 			}
 		}
 	};
+
+	template<typename T>
+	bool compare(const T& a, const T& b) {
+		if(a.size() == b.size()) {
+			for(const auto& it : a) {
+				bool found = false;
+				for(const auto& jt : b) {
+					if(it == jt) {
+						found = true;
+						break;
+					}
+				}
+				if(!found) {
+					return false;
+				}
+			}
+	
+			return true;
+		}
+		return false;
+	}
 }
 
 namespace sweet {

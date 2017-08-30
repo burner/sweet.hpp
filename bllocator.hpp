@@ -44,7 +44,7 @@ namespace sweet {
 		inline void deallocate(void*, size_t) override {
 		}
 
-		inline size_t max() const {
+		inline size_t max() const override {
 			return 0u;
 		}
 
