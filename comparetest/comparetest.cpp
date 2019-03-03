@@ -51,4 +51,7 @@ UNITTEST(intint) {
 	AS_F(sweet::notEqual(int128(1337), int128(1337)));
 	AS_T(sweet::greaterEqual(int128(1337), int128(1337)));
 	AS_F(sweet::greater(int128(1337), int128(1337)));
+	
+	AS_F(sweet::equal(-1, 4294967295u));
+	AS_F(sweet::equal(4294967295u, -1));
 }
