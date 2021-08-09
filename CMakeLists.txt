@@ -94,9 +94,14 @@ include_directories(
 	${CMAKE_CURRENT_SOURCE_DIR}/includes
 )
 
-add_executable(sweettest
-    ${sweettest_SOURCES}
-	${sweettest_HEADERS}
-)
+option(WITH_TESTS "Build tests" ON)
 
-target_link_libraries(sweettest sqlite3 pthread)
+if(WITH_TESTS)
+    add_executable(sweettest
+        ${sweettest_SOURCES}
+        ${sweettest_HEADERS}
+    )
+
+    target_link_libraries(sweettest sqlite3 pthread)
+endif()
+
