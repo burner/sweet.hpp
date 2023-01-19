@@ -483,14 +483,8 @@ public:
 		Safe::print2stderr("\nStack trace:\n");
 		void **trace = reinterpret_cast<void**>(memory);
 		memory += (frames_countImpl() + 2) * sizeof(void*);
-		// Workaround malloc() inside backtrace()
-		void* (*oldMallocHook)(size_t, const void*) = __malloc_hook;
-		void (*oldFreeHook)(void *, const void *) = __free_hook;
-		__malloc_hook = MallocHook;
-		__free_hook = NULL;
+		// backtrace doesn't call `malloc`. `glibc` calls `malloc` on first import (happens when first used). It's you who must ensure glibc is imported.
 		int trace_size = backtrace(trace, frames_countImpl() + 2);
-		__malloc_hook = oldMallocHook;
-		__free_hook = oldFreeHook;
 		if (trace_size <= 2) {
 			safe_abort();
 		}
