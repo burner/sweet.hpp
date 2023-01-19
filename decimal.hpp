@@ -273,9 +273,9 @@ public:
 	static const int64_t fractionLength = 100000000000000000;
 };
 
-}
-
 inline std::ostream& operator<<(std::ostream& os, const sweet::Decimal& d) {
 	os<<d.fixed<<'.'<<d.fraction;
 	return os;
+}
+
 }

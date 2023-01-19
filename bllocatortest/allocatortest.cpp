@@ -13,6 +13,8 @@ UNITTEST(bllocator_test1) {
 	m.deallocate(ptr);
 }
 
+using TestMapPairT = std::pair<const int, int>;
+
 UNITTEST(bllocator_test2) {
 	typedef sweet::STLAllo<int,sweet::Mallocator> IntAllo;
 
@@ -24,7 +26,8 @@ UNITTEST(bllocator_test2) {
 		}
 	}
 
-	std::map<int,int,std::less<int>,IntAllo> m1;
+	typedef sweet::STLAllo<TestMapPairT,sweet::Mallocator> MapPairAllo;
+	std::map<int,int,std::less<int>,MapPairAllo> m1;
 	const int cnt = 100;
 	const int step = 2;
 	for(int j = 0; j < cnt; j += step) {
@@ -58,7 +61,13 @@ UNITTEST(test3) {
 		}
 	}
 
-	std::map<int,int,std::less<int>,IntAllo> m1;
+	typedef sweet::STLAllo<TestMapPairT, 
+		sweet::FallbackAllocator<
+			sweet::FailAllocator,
+			sweet::Mallocator
+		>
+	> MapPairAllo;
+	std::map<int,int,std::less<int>,MapPairAllo> m1;
 	const int cnt = 100;
 	const int step = 2;
 	for(int j = 0; j < cnt; j += step) {
@@ -93,7 +102,13 @@ UNITTEST(test4) {
 		}
 	}
 
-	std::map<int,int,std::less<int>,IntAllo> m1;
+  typedef sweet::STLAllo<TestMapPairT, 
+		sweet::FallbackAllocator<
+			sweet::StackAllocator<4096>,
+			sweet::Mallocator
+		>
+	> MapPairAllo;
+	std::map<int,int,std::less<int>,MapPairAllo> m1;
 	const int cnt = 100;
 	const int step = 2;
 	for(int j = 0; j < cnt; j += step) {
@@ -159,7 +174,13 @@ UNITTEST(test5) {
 		}
 	}
 
-	std::map<int,int,std::less<int>,IntAllo> m1;
+	typedef sweet::STLAllo<TestMapPairT, 
+		sweet::FallbackAllocator<
+			sweet::FreeDequeAllocator<sweet::PoolAllocator<4096>>,
+			sweet::Mallocator
+		>
+	> MapPairAllo;
+	std::map<int,int,std::less<int>,MapPairAllo> m1;
 	const int cnt = 100;
 	const int step = 2;
 	for(int j = 0; j < cnt; j += step) {
@@ -254,11 +275,11 @@ UNITTEST(allocatortest) {
 	for(size_t i : values) {
 		double a = BENCHMARK_CNT(cnt, (fillMap<std::map<size_t,size_t>>(i)));
 		double b = BENCHMARK_CNT(cnt, (fillMap<std::map<size_t,size_t, std::less<size_t>,
-			sweet::STLAllo<std::pair<size_t,size_t>,sweet::Mallocator>>>(i)));
+			sweet::STLAllo<std::pair<const size_t,size_t>,sweet::Mallocator>>>(i)));
 
 		typedef std::map<size_t,size_t,std::less<size_t>,
 			sweet::STLAllo<
-				std::pair<size_t,size_t>,
+				std::pair<const size_t,size_t>,
 				sweet::FallbackAllocator<
 					sweet::StackAllocator<4096>,
 					sweet::Mallocator
@@ -270,7 +291,7 @@ UNITTEST(allocatortest) {
 
 		typedef std::map<size_t,size_t,std::less<size_t>,
 			sweet::STLAllo<
-				std::pair<size_t,size_t>,
+				std::pair<const size_t,size_t>,
 				sweet::FallbackAllocator<
 					sweet::PoolAllocator<4096>,
 					sweet::Mallocator
