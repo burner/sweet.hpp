@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <deque>
 #include <memory>
+#include <stdexcept>
 
 namespace sweet {
 	class BaseAllocator {
